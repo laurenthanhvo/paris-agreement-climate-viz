@@ -1,0 +1,149 @@
+/* ---------- Global layout for write-up page ---------- */
+
+body.writeup {
+  background-color: #05070b;
+  background-image: radial-gradient(circle at 0% 0%, #111827 0, #05070b 55%);
+  color: #e5e7eb;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  line-height: 1.7;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Page width */
+body.writeup > header,
+body.writeup > main {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.75rem 0;
+}
+
+body.writeup > main {
+  padding-bottom: 2.5rem;
+}
+
+/* ---------- Titles ---------- */
+
+/* Course title */
+body.writeup > header h1 {
+  color: #ffffff;
+  margin: 0 0 0.4rem;
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+body.writeup > header {
+  text-align: center;
+}
+/* Team name badge */
+#team-name {
+  display: inline-block;
+  margin: 0.5rem auto 1.2rem;
+  padding: 0.25rem 1rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #cbd5f5;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.9);
+  text-align: center;
+}
+
+
+/* Main title */
+body.writeup > header h2 {
+  margin-top: 0.2rem;
+  margin-bottom: 0.4rem;
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Team members list */
+#team-members {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #d1d5db;
+  margin-bottom: 2rem;
+}
+
+/* ---------- Section Cards ---------- */
+
+body.writeup main section {
+  background-color: #020617;
+  border: 1px solid #111827;
+  border-radius: 14px;
+  padding: 1.5rem 1.6rem 1.6rem;
+  margin-bottom: 1.4rem;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6);
+}
+
+body.writeup h2 {
+  color: #60a5fa;
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+  font-size: 1.2rem;
+}
+
+body.writeup p {
+  margin-bottom: 0.9rem;
+}
+
+/* ---------- "Writeup" card title ---------- */
+
+.page-title {
+  color: #e5e7eb;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+.page-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.45rem;
+  width: 70px;
+  height: 2px;
+  border-radius: 999px;
+  background:#2563eb;
+}
+
+/* ---------- Top-right back button ---------- */
+
+.top-right-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+}
+
+.top-right-btn {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.top-right-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.55);
+  opacity: 0.95;
+}
