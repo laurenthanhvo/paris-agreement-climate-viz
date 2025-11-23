@@ -48,7 +48,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   max-width: 720px;
-  text-align: center;
+  text-align: left;
 }
 
 .slide-intro h1 {
@@ -79,13 +79,18 @@ body {
   font-size: 1.3rem;
   line-height: 1.7;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0;
+}
+
+/* indent bullet lists on the background slide */
+.slide-text ul {
+  margin-left: 4rem;
+  padding-left: 1rem;
 }
 
 /* Visualization slide */
 
 .slide-viz .slide-inner {
-  /* shrink vertical padding so everything fits */
   padding: 40px 80px 24px;
   height: 100%;
   display: flex;
@@ -162,12 +167,20 @@ body {
   flex: 1;
 }
 
+/* Timeline row (old side-by-side layout, still used in other slides if needed) */
+.timeline-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  flex: 1;
+}
+
 /* Cards */
 
 .viz-card {
   background: radial-gradient(circle at top left, #111827 0, #020617 55%);
   border-radius: 18px;
-  padding: 16px 20px 14px; /* smaller padding so charts aren't huge */
+  padding: 16px 20px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -186,17 +199,20 @@ body {
 
 /* Map + legend */
 
-#mapContainer {
+#seasonMapContainer,
+#changeMapContainer {
   flex: 1;
-  min-height: 280px; /* smaller so it fits better */
+  min-height: 280px;
 }
 
-#mapSvg {
+#seasonMapSvg,
+#changeMapSvg {
   width: 100%;
   height: 100%;
 }
 
-#mapLegend {
+#seasonMapLegend,
+#changeLegend {
   margin-top: 8px;
   font-size: 0.75rem;
   color: #d1d5db;
@@ -215,23 +231,102 @@ body {
   border-radius: 4px;
 }
 
-/* Line chart */
+/* Seasonal bar chart */
 
-#stateSeasonContainer {
+#seasonBarContainer,
+#changeBarContainer {
   flex: 1;
-  min-height: 280px; /* also smaller */
+  min-height: 280px;
   position: relative;
 }
 
-#stateSeasonSvg {
+#seasonBarSvg,
+#changeBarSvg {
   width: 100%;
   height: 100%;
 }
 
-.milestone-note {
+.milestone-note,
+.season-note,
+.timeline-note {
   margin-top: 6px;
   font-size: 0.8rem;
   color: #e5e7eb;
+}
+
+/* Timeline */
+
+#timelineContainer {
+  flex: 1;
+  min-height: 260px;
+}
+
+#timelineSvg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Stacked layout for slide 2 */
+
+.timeline-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.timeline-summary-card {
+  margin-top: 4px;
+}
+
+.timeline-summary-text p {
+  margin: 0 0 0.4rem;
+}
+
+.timeline-summary-text ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.timeline-summary-text li {
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.timeline-links {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* buttons for primary sources */
+.timeline-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #3b82f6;
+  background: rgba(37, 99, 235, 0.1);
+  color: #bfdbfe;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.timeline-link-btn:hover {
+  background: rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.5);
+}
+
+/* make milestone year labels larger */
+.milestone-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  fill: #0f172a;
 }
 
 /* Footnote */
@@ -273,7 +368,7 @@ body {
 
 .nav-arrow:hover {
   background: rgba(31, 41, 55, 0.95);
-  border-color: #9ca3af; /* grey hover, not purple */
+  border-color: #9ca3af;
 }
 
 /* Pager dots */
@@ -297,7 +392,7 @@ body {
 }
 
 .pager-dot.active {
-  background: #3b82f6; /* blue similar to graphs */
+  background: #3b82f6;
   transform: scale(1.2);
 }
 
@@ -315,6 +410,37 @@ body {
   z-index: 20;
 }
 
+/* Top-right write-up button */
+
+.top-right-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 5000;
+}
+
+.top-right-btn {
+  padding: 10px 18px;
+  background: #0074d9;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: 0.2s ease-in-out;
+}
+
+.top-right-btn:hover {
+  background: #005fa3;
+  transform: translateY(-2px);
+}
+
+/* Axis labels */
+
+.axis-label {
+  font-size: 11px;
+}
+
 /* Responsive tweaks */
 
 @media (max-width: 1100px) {
@@ -322,30 +448,1016 @@ body {
     padding: 32px 18px 20px;
   }
 
-  .viz-row {
+  .viz-row,
+  .timeline-row {
     grid-template-columns: 1fr;
   }
 }
-.top-right-container {
-    position: fixed;      /* stays on screen, not inside slide */
-    top: 20px;
-    right: 20px;
-    z-index: 5000;        /* above slides & arrows */
+
+/* ABT mood classes (no longer used but harmless) */
+#abtCard {
+  transition: background 0.4s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-/* Style for the top-right button */
+#abtCard.mood-neutral {
+  background: radial-gradient(circle at top left, #111827 0, #020617 55%);
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+#abtCard.mood-in {
+  background: radial-gradient(circle at top left, #064e3b 0, #020617 55%);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.25);
+  transform: translateY(-2px);
+}
+
+#abtCard.mood-uncertain {
+  background: radial-gradient(circle at top left, #854d0e 0, #020617 55%);
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.25);
+  transform: translateY(-2px);
+}
+
+#abtCard.mood-out {
+  background: radial-gradient(circle at top left, #7f1d1d 0, #020617 55%);
+  box-shadow: 0 0 30px rgba(248, 113, 113, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Scrubbable area on the timeline */
+svg .timeline-hover-zone {
+  cursor: ew-resize;
+}
+
+/* Make milestone dots feel more alive */
+.milestone {
+  transition: transform 0.15s ease;
+}
+
+/* (repeated block kept, but overridden by theme below) */
+.slide-intro .intro-content,
+.slide-text .centered-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 720px;
+  text-align: left;
+}
+
+.intro-hint {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: #0b1020;
+  border: 1px solid #4b5563;
+  box-shadow: 0 2px 0 #020617;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Mono",
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  color: #e5e7eb;
+}
+
+.primary-link-btn {
+  display: inline-flex;
+  alignments: center;
+  margin-top: 1.5rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.primary-link-btn::after {
+  content: "↗";
+  margin-left: 6px;
+  font-size: 0.9em;
+}
+
+.primary-link-btn:hover {
+  background: #1f2937;
+  border-color: #3b82f6;
+  color: #f9fafb;
+  transform: translateY(-1px);
+}
+
+.background-bullets li {
+  visibility: hidden;   /* stay hidden until JS starts typing them */
+}
+
+/* ---------- Slide 4 layout ---------- */
+
+.yearly-stack {
+  display: grid;
+  grid-template-rows: minmax(260px, 360px) minmax(180px, auto);
+  gap: 1.5rem;
+}
+
+.yearly-chart-card,
+.yearly-expl-card {
+  padding: 1.5rem 1.75rem;
+}
+
+.yearly-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.yearly-controls-row .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.yearly-controls-row label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.yearly-controls-row select {
+  background: #020617;
+  color: #e5e7eb;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.yearly-controls-row select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+}
+
+.yearly-trend-container {
+  width: 100%;
+  height: 260px;
+}
+
+.yearly-tip {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* Explanation card */
+.yearly-expl-card h3 {
+  margin-bottom: 0.6rem;
+}
+
+.yearly-expl-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+/* D3 line styles for Slide 4 */
+.yearly-line-us {
+  fill: none;
+  stroke: #f97316; /* orange */
+  stroke-width: 2.2;
+}
+
+.yearly-line-state {
+  fill: none;
+  stroke: #22c55e; /* teal/green */
+  stroke-width: 2.2;
+}
+
+.yearly-point-us {
+  fill: #f97316;
+}
+
+.yearly-point-state {
+  fill: #22c55e;
+}
+
+.yearly-milestone-line {
+  stroke: #f97316;
+  stroke-dasharray: 4, 4;
+  opacity: 0.75;
+}
+
+/* LABELS: now dark instead of white */
+.yearly-milestone-label {
+  fill: #0f172a;
+  font-size: 0.7rem;
+  text-anchor: middle;
+}
+
+/* ---------- Slide 5: Play Area layout ---------- */
+
+/* Make slide 5 use the same wide inner container as the other viz slides */
+#slide5 .slide-inner {
+  max-width: 2160px;         /* match slide 3/4 width */
+  margin: 0 auto;
+}
+
+/* Stack the two cards vertically, full width */
+#slide5 .viz-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+/* Cards should span the full width of the viz row */
+#slide5 .viz-card {
+  width: 100%;
+}
+
+/* Chart container inside the first card */
+#projectionContainer {
+  height: 420px;        /* was 260px */
+  max-height: 55vh;     /* optional: don't go past ~55% of viewport height */
+  margin-top: 0.75rem;
+}
+
+/* Legend + slider already look fine; keep previous styles */
+.projection-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin-top: 0.75rem;
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+.projection-legend .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.legend-swatch-actual { background: #f97316; }  /* orange */
+.legend-swatch-model  { background: #ec4899; }  /* pink */
+.legend-swatch-target { background: #22c55e; }  /* green */
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+#projectionYearSlider {
+  flex: 1;
+}
+
+#projectionYearLabel {
+  font-weight: 500;
+  color: #f97316;
+}
+
+/* Slide 5: make the model dropdown look like the Slide 4 dropdowns */
+
+#slide5 .card-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#slide5 .card-controls label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Copy of the Slide 4 select styling */
+#projectionModelSelect {
+  background: #020617;
+  color: #e5e7eb;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+/* Same focus behavior as Slide 4 */
+#projectionModelSelect:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+}
+
+/* =========================================================
+   PARIS AGREEMENT THEME OVERRIDES
+   (END OF FILE)
+   ========================================================= */
+
+/* --- Global background + typography --- */
+
+body {
+  background: radial-gradient(circle at top left, #ecfdf5 0%, #e0f2fe 40%, #dbeafe 100%);
+  color: #0f172a;
+}
+
+/* soften slide inner background so maps/charts still pop */
+.slide-viz .slide-inner {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.88), rgba(219, 234, 254, 0.7));
+  border-radius: 24px;
+  margin: 16px 32px 32px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+/* intro + text slides on light background */
+.slide-intro .intro-content,
+.slide-text .centered-text {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  padding: 2.25rem 2.75rem;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
+}
+
+/* headings + body text colors */
+.slide-header h2,
+.slide-intro h1,
+.slide-intro h2,
+.slide-text p,
+.viz-card h3 {
+  color: #0f172a;
+}
+
+.slide-header p,
+.subtitle,
+.slide-text ul,
+.slide-footnote {
+  color: #1f2937;
+}
+
+/* --- Cards (maps, charts, explanations) --- */
+
+.viz-card {
+  background: radial-gradient(circle at top left, #ffffff 0, #e0f2fe 55%);
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.16);
+}
+
+/* explanation cards feel a bit softer */
+.yearly-expl-card,
+#slide5 .viz-card:last-child {
+  background: radial-gradient(circle at top left, #f9fafb 0, #e0f2fe 60%);
+}
+
+/* --- Controls (dropdowns, sliders) --- */
+
+.control label,
+.yearly-controls-row .control-group {
+  color: #64748b;
+}
+
+.control select,
+.control input[type="range"],
+.yearly-controls-row select,
+#projectionModelSelect {
+  background: #f9fafb;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 2px 4px rgba(148, 163, 184, 0.25);
+}
+
+/* track + thumb in light theme */
+.control input[type="range"]::-webkit-slider-runnable-track {
+  background: #d1fae5;
+}
+
+.control input[type="range"]::-webkit-slider-thumb {
+  background: #10b981;
+}
+
+#projectionYearSlider::-webkit-slider-runnable-track {
+  background: #bfdbfe;
+}
+
+#projectionYearSlider::-webkit-slider-thumb {
+  background: #2563eb;
+}
+
+/* Slide 5 model select – reuse Slide 4 look but lighter */
+#slide5 .card-controls label {
+  font-size: 0.8rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#projectionModelSelect {
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  font-size: 0.85rem;
+}
+
+#projectionModelSelect:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4);
+}
+
+/* --- Nav arrows & pager --- */
+
+.nav-arrow {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+}
+
+.nav-arrow:hover {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+}
+
+/* pager dots now teal/blue */
+.pager-dot {
+  background: #cbd5e1;
+}
+
+.pager-dot.active {
+  background: #22c55e;
+}
+
+/* --- Top-right Write-Up button --- */
+
 .top-right-btn {
-    padding: 10px 18px;
-    background: #0074D9;
-    color: white;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    transition: 0.2s ease-in-out;
+  background: linear-gradient(135deg, #22c55e, #0ea5e9);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+  border-radius: 999px;
 }
 
 .top-right-btn:hover {
-    background: #005fa3;
-    transform: translateY(-2px);
+  background: linear-gradient(135deg, #16a34a, #0284c7);
 }
+
+/* --- Tooltip (keep contrast but lighten a bit) --- */
+
+.tooltip {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: #38bdf8;
+}
+
+/* --- Paris-flavored title animation on Slide 1 --- */
+
+@keyframes titleWaveIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    letter-spacing: 0.04em;
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    letter-spacing: 0.02em;
+  }
+}
+
+@keyframes titleUnderline {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    width: 110px;
+    opacity: 1;
+  }
+}
+
+.slide-intro h1 {
+  position: relative;
+  font-size: 3.1rem;
+  letter-spacing: 0.02em;
+  color: #0f172a;
+  animation: titleWaveIn 900ms ease-out both;
+}
+
+.slide-intro h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, #0ea5e9);
+  animation: titleUnderline 900ms 120ms ease-out both;
+}
+
+.slide-intro h2 {
+  color: #0369a1;
+  animation: titleWaveIn 800ms 120ms ease-out both;
+}
+
+/* subtle fade/slide-in for each viz slide header when active */
+@keyframes headerFloatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide.active .slide-header h2 {
+  animation: headerFloatIn 500ms ease-out;
+}
+
+/* --- Paris-y accents on legends & hints --- */
+
+.map-legend-row,
+.projection-legend {
+  color: #0f172a;
+}
+
+.legend-swatch-actual { background: #f97316; }
+.legend-swatch-model  { background: #ec4899; }
+.legend-swatch-target { background: #22c55e; }
+
+.milestone-note,
+.season-note,
+.timeline-note,
+.yearly-tip,
+#ghgHint {
+  color: #0369a1;
+}
+
+/* --- Make charts sit on a soft panel rather than pure white --- */
+
+#seasonMapContainer,
+#changeMapContainer,
+#seasonBarContainer,
+#changeBarContainer,
+#timelineContainer,
+#yearlyTrendContainer,
+#projectionContainer {
+  background: radial-gradient(circle at top left, #e0f2fe 0, #f1f5f9 60%);
+  border-radius: 14px;
+}
+
+/* --- Writeup page generic tweaks (if present) --- */
+
+.main-writeup,
+.writeup-container {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  margin: 48px auto;
+  padding: 2.5rem 3rem;
+  max-width: 960px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+/* --- Fix slide-inner height so the big white container
+       doesn't extend past the screen --- */
+
+.slide-viz .slide-inner {
+  /* let the panel size to its content instead of forcing 100% + margins */
+  height: auto;
+  /* optional: keep it from getting too short on tall screens */
+  min-height: calc(100vh - 120px);
+
+  /* slightly smaller margins so there's breathing room
+     without pushing the card off-screen */
+  margin: 24px 40px 32px;
+}
+
+/* ================================
+   FIX: Make Slide 5 container match other slides
+   ================================ */
+
+#slide5 .slide-inner {
+  margin: 24px 40px 32px;
+  max-width: none;
+}
+
+/* Keep slide 5's cards stacked, but let them behave like other viz cards */
+#slide5 .viz-row {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+#slide5 .viz-card {
+  width: 100%;
+}
+
+/* ================================
+   FIX: Darken explanation text on light background
+   ================================ */
+
+/* Yearly trends explanation card (slide 4) */
+.yearly-expl-card h3 {
+  color: #0f172a;
+}
+
+.yearly-expl-card p {
+  color: #1f2937;
+}
+
+/* Play Area explanation text (slide 5 bottom card) */
+#slide5 .viz-card:last-child h3,
+#slide5 .viz-card:last-child p {
+  color: #1f2937;
+}
+
+/* Make generic viz-card body text slightly darker everywhere */
+.viz-card p {
+  color: #1f2937;
+}
+
+/* === Slide 5: make container match other viz slides === */
+#slide5 .slide-inner {
+  margin: 24px 40px 32px;
+  max-width: none;
+}
+
+/* stack the two cards but keep full width like other slides */
+#slide5 .viz-row {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+#slide5 .viz-card {
+  width: 100%;
+}
+
+/* === Darker text on all light cards so white isn't washed out === */
+.viz-card p,
+.timeline-summary-text p,
+.timeline-summary-text li,
+.yearly-expl-card p,
+#projectionExplBody,
+.slide-footnote,
+.milestone-note,
+.season-note,
+.timeline-note,
+.yearly-tip,
+#ghgHint {
+  color: #111827;
+}
+
+/* also darken generic small labels */
+.control label,
+.yearly-controls-row .control-group,
+#slide5 .card-controls label {
+  color: #475569;
+}
+
+/* === Make timeline buttons match the dark pill button on intro slide === */
+.timeline-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #111827;
+  border: 1px solid #0f172a;
+  color: #f9fafb;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.timeline-link-btn::after {
+  content: "↗";
+  margin-left: 6px;
+  font-size: 0.9em;
+}
+
+.timeline-link-btn:hover {
+  background: #020617;
+  border-color: #020617;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+}
+
+/* ===========================
+   Slide 2: Timeline readability fixes
+   =========================== */
+
+/* Make all text in the timeline SVG dark and readable */
+#timelineContainer text {
+  fill: #0f172a;
+}
+
+/* The note under the bar */
+.milestone-note,
+.timeline-note {
+  color: #111827;
+}
+
+/* Year labels that appear / change on hover */
+#timelineContainer .timeline-hover-label,
+#timelineContainer .hover-label,
+#timelineContainer .timeline-year-label,
+#timelineContainer .year-label {
+  fill: #0f172a;
+  font-weight: 600;
+}
+
+/* Vertical dotted guide line on hover */
+#timelineContainer .timeline-hover-line,
+#timelineContainer .hover-line,
+#timelineContainer .year-hover-line {
+  stroke: #0f172a;
+}
+
+/* Make the active year dot stand out */
+#timelineContainer .timeline-year-dot,
+#timelineContainer .year-dot,
+#timelineContainer circle.timeline-hover-dot {
+  stroke: #0f172a;
+  stroke-width: 1.5px;
+}
+
+/* Slightly bolder heading + body text in the summary card */
+.timeline-summary-card h3 {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.timeline-summary-text p,
+.timeline-summary-text li {
+  color: #111827;
+}
+
+/* =========================================================
+   SLIDE 3 – Seasons Snapshot: darker text + dark dropdowns
+   ========================================================= */
+
+/* Make all body text on this slide dark instead of light grey */
+#slide3 .slide-header p,
+#slide3 .viz-card p,
+#slide3 .subtitle,
+#slide3 #seasonMapLegend,
+#slide3 #changeLegend,
+#slide3 .map-legend-row,
+#slide3 .season-note,
+#slide3 .timeline-note,
+#slide3 .slide-footnote {
+  color: #111827;
+}
+
+/* Labels above the dropdowns ("Variable", "Month") */
+#slide3 .control label {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Dark pill-style dropdowns like your intro button (slide 3) */
+#slide3 .control select {
+  background: #111827;
+  border: 1px solid #0f172a;
+  color: #f9fafb;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+  cursor: pointer;
+  outline: none;
+}
+
+#slide3 .control select:focus {
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.5),
+    0 8px 20px rgba(15, 23, 42, 0.45);
+}
+
+/* Axis / SVG text on this slide should also be dark */
+#slide3 svg text {
+  fill: #111827;
+}
+
+/* Map legend labels & ticks extra crisp */
+#slide3 #seasonMapLegend,
+#slide3 #changeLegend {
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+/* =========================================================
+   FINAL OVERRIDES – dark dropdowns everywhere + dark text
+   ========================================================= */
+
+/* Dark pill-style dropdowns on ALL slides */
+.control select,
+.yearly-controls-row select,
+#projectionModelSelect {
+  background: #111827;
+  border: 1px solid #0f172a;
+  color: #f9fafb;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+  cursor: pointer;
+  outline: none;
+}
+
+.control select:focus,
+.yearly-controls-row select:focus,
+#projectionModelSelect:focus {
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.5),
+    0 8px 20px rgba(15, 23, 42, 0.45);
+}
+
+/* Make any remaining grey helper text fully dark and readable */
+.slide-header p,
+.subtitle,
+.control label,
+.yearly-controls-row .control-group,
+.timeline-summary-text p,
+.timeline-summary-text li,
+.viz-card p,
+.map-legend-row,
+#seasonMapLegend,
+#changeLegend,
+.projection-legend,
+.milestone-note,
+.season-note,
+.timeline-note,
+.yearly-tip,
+.slide-footnote,
+.intro-hint,
+#projectionExplBody,
+#ghgHint {
+  color: #111827;
+}
+
+/* SVG text (axes, labels, etc.) everywhere */
+svg text {
+  fill: #111827;
+}
+
+/* =========================================================
+   Global: dark pill-style dropdowns + darker text
+   ========================================================= */
+
+/* All dropdowns used in controls (all slides) */
+.control select,
+.yearly-controls-row select,
+#projectionModelSelect {
+  background: #111827;            /* same base as dark buttons */
+  border: 1px solid #0f172a;
+  color: #f9fafb;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Focus / hover state for dropdowns */
+.control select:focus,
+.control select:hover,
+.yearly-controls-row select:focus,
+.yearly-controls-row select:hover,
+#projectionModelSelect:focus,
+#projectionModelSelect:hover {
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.55),
+    0 8px 20px rgba(15, 23, 42, 0.5);
+}
+
+/* Dropdown labels – make all dark + slightly stronger */
+.control label,
+.yearly-controls-row label,
+#slide5 .card-controls label {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Make any remaining grey/white text in cards/notes darker */
+.slide-header p,
+.subtitle,
+.viz-card p,
+.timeline-summary-text p,
+.timeline-summary-text li,
+.milestone-note,
+.season-note,
+.timeline-note,
+.yearly-tip,
+.slide-footnote,
+#seasonMapLegend,
+#changeLegend,
+#projectionExplBody {
+  color: #111827;
+}
+
+/* All chart / SVG text dark by default (axes, ticks, labels) */
+svg text {
+  fill: #111827;
+}
+
+/* =========================================================
+   Slide 4 – "How Do U.S. Seasons Shift…" polish
+   ========================================================= */
+
+/* Slightly stronger hierarchy in header */
+#slide4 .slide-header h2 {
+  font-size: 2.1rem;
+  margin-bottom: 0.4rem;
+}
+
+#slide4 .slide-header p {
+  max-width: 860px;
+  line-height: 1.5;
+}
+
+/* Add a slim gradient bar on top of the main chart card */
+#slide4 .yearly-chart-card {
+  position: relative;
+  overflow: hidden;
+}
+
+#slide4 .yearly-chart-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(90deg, #22c55e, #0ea5e9);
+}
+
+/* Controls row: pull it closer to the chart + add subtle divider */
+#slide4 .yearly-controls-row {
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+/* Tip text under the chart – smaller and teal accent */
+#slide4 .yearly-tip {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #0369a1;
+}
+
+/* Milestone vertical lines and labels on this slide */
+#slide4 .yearly-milestone-line {
+  stroke: #0f172a;
+  stroke-dasharray: 4, 4;
+  opacity: 0.65;
+}
+
+#slide4 .yearly-milestone-label {
+  fill: #0f172a;
+  font-weight: 600;
+}
+
