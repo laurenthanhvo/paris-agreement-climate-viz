@@ -641,7 +641,7 @@ svg .timeline-hover-zone {
 
 .yearly-line-state {
   fill: none;
-  stroke: #22c55e; /* teal/green */
+  stroke: #4dd8ff; /* teal/green */
   stroke-width: 2.2;
 }
 
@@ -650,7 +650,7 @@ svg .timeline-hover-zone {
 }
 
 .yearly-point-state {
-  fill: #22c55e;
+  fill: #4dd8ff;
 }
 
 .yearly-milestone-line {
@@ -745,6 +745,7 @@ svg .timeline-hover-zone {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 #slide5 .card-controls label {
