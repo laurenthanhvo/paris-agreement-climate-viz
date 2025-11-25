@@ -175,6 +175,18 @@ body {
   flex: 1;
 }
 
+.dot-highlight {
+  stroke: #ffd500;
+  stroke-width: 4px;
+}
+
+.timeline-dot.selected {
+  stroke: #ffffff;
+  stroke-width: 4px;
+  r: 10;           /* bigger ring */
+  fill: #2563eb;   /* optional: blue fill */
+}
+
 /* Cards */
 
 .viz-card {
