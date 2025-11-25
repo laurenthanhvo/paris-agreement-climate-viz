@@ -1523,3 +1523,25 @@ svg text {
   align-items: center;
   gap: 6px;
 }
+
+.slide-title {
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  text-align: center;
+  color: #000000;
+}
+
+.normal-bullets-wrapper {
+  width: 80%;            /* adjust as needed */
+  margin: 0 auto;        /* centers the block but not the text */
+  text-align: left;      
+}
+
+.normal-bullets {
+  list-style-position: inside;
+  padding-left: 0;       /* keeps clean alignment */
+}
+
+.normal-bullets li {
+  visibility: visible;
+}
