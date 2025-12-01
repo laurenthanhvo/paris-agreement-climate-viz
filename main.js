@@ -1872,6 +1872,7 @@ function initProjectionSlide() {
     .attr("opacity", 0);
 
   // hover rect – drives tooltip on mouse move
+    // hover rect – drives tooltip on mouse move
   projectionG.append("rect")
     .attr("class", "proj-hover-rect")
     .attr("x", 0)
@@ -1880,22 +1881,21 @@ function initProjectionSlide() {
     .attr("height", h)
     .attr("fill", "transparent")
     .on("mousemove", (event) => {
-  const [mx] = d3.pointer(event);
-  const year = Math.round(xProjScale.invert(mx));   // FIXED
+      const [mx] = d3.pointer(event);
+      const year = Math.round(xProjScale.invert(mx));
 
-  // Tooltip
-  showYearTooltip(year, event.pageX, event.pageY);
-
-  // Remove highlight from ALL dots
-  projectionSvg.selectAll(".timeline-dot")
-    .classed("dot-highlight", false)
-    .attr("r", 5);
-
-  // Highlight this year's dot
-  projectionSvg.selectAll(`.timeline-dot[data-year='${year}']`)
-    .classed("dot-highlight", true)
-    .attr("r", 9);
-});
+      // use the projection-specific tooltip/annotation logic
+      updateProjectionYear(year, event.pageX, event.pageY);
+    })
+    .on("mouseleave", () => {
+      // hide annotation when leaving the chart
+      if (projectionTooltipTimeout) {
+        clearTimeout(projectionTooltipTimeout);
+        projectionTooltipTimeout = null;
+      }
+      tooltip.style("opacity", 0);
+      projYearLine.attr("opacity", 0);
+    });
 
   // --- model selector: BAU vs hypothetical “on-track” linear path starting 2024 ---
   modelSelect.addEventListener("change", () => {
