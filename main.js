@@ -271,6 +271,9 @@ const timelineStories = {
 /* Shared tooltip */
 const tooltip = d3.select("#tooltip");
 
+// fade-out timer for the play-area tooltip
+let projectionTooltipTimeout = null;
+
 /* Months for seasonal bar chart (still used for the map month dropdown) */
 const monthsSeason = d3.range(1, 13).map((m) => ({
   month: m,
@@ -311,6 +314,14 @@ function initSlides() {
 }
 
 function goToSlide(idx) {
+  // whenever we leave a slide, hide any floating tooltip
+  if (tooltip) {
+    tooltip.style("opacity", 0);
+  }
+  if (typeof projYearLine !== "undefined" && projYearLine) {
+    projYearLine.attr("opacity", 0);
+  }
+
   slides[currentSlide].classList.remove("active");
   pagerDots[currentSlide].classList.remove("active");
   currentSlide = idx;
@@ -2101,6 +2112,17 @@ function updateProjectionYear(year, pageX, pageY) {
     .html(parts.join("<br>"))
     .style("left", (xScreen + 12) + "px")
     .style("top",  (yScreen + 12) + "px");
+
+  // If this came from the slider (no mouse coords), fade out after a short delay
+  if (!pageX || !pageY) {
+    if (projectionTooltipTimeout) {
+      clearTimeout(projectionTooltipTimeout);
+    }
+    projectionTooltipTimeout = setTimeout(() => {
+      tooltip.style("opacity", 0);
+      projYearLine.attr("opacity", 0);
+    }, 900); // adjust delay (ms) if you want
+  }
 
   // update “Focus year” label under the slider
   const yearLabel = document.getElementById("projectionYearLabel");
