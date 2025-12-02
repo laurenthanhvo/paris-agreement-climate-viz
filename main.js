@@ -1975,6 +1975,7 @@ function initProjectionSlide() {
     .attr("opacity", 0);
 
   // hover rect – drives tooltip on mouse move
+    // hover rect – drives tooltip on mouse move
   projectionG.append("rect")
     .attr("class", "proj-hover-rect")
     .attr("x", 0)
