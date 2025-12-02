@@ -39,6 +39,13 @@ let currentSeasonVar = "ndvi";
 let currentSeasonMonth = 1;
 let selectedState = null;   // null => U.S. average
 
+/* NEW: Year slider + play button variables for SLIDE 3*/
+let currentYear = 2014;
+let isPlaying = false;
+let playInterval = null;
+let yearTracker = null;
+let yearTrackerLabel = null;
+
 /* % change pre-computation (still used for any other % change views) */
 let changeVar = "ndvi";
 let percentChangeByVar = {};  // varKey -> Map(stateName -> pctChange)
@@ -208,7 +215,7 @@ const timelineStories = {
     ]
   },
   2019: {
-    title: "2019: Climate Impacts During the Paris ‘Limbo’",
+    title: "2019: Climate Impacts During the Paris 'Limbo'",
     summary:
       "By 2019, the withdrawal process was underway, but the U.S. was still technically in the Agreement while climate impacts kept intensifying.",
     bullets: [
@@ -283,8 +290,18 @@ const monthsSeason = d3.range(1, 13).map((m) => ({
 /* -------------------- Slide nav + typewriter -------------------- */
 
 function initSlides() {
+  console.log("Initializing slides...");
+  
   slides = Array.from(document.querySelectorAll(".slide"));
+  console.log(`Found ${slides.length} slides`);
+  
+  // Initialize pager dots
   const pager = document.getElementById("pager");
+  if (!pager) {
+    console.error("Pager element not found!");
+    return;
+  }
+  
   pager.innerHTML = "";
   slides.forEach((_, idx) => {
     const dot = document.createElement("div");
@@ -294,14 +311,27 @@ function initSlides() {
     pager.appendChild(dot);
   });
   pagerDots = Array.from(document.querySelectorAll(".pager-dot"));
+  console.log(`Created ${pagerDots.length} pager dots`);
 
-  document.getElementById("prevSlide").addEventListener("click", () => {
-    goToSlide((currentSlide - 1 + slides.length) % slides.length);
-  });
-  document.getElementById("nextSlide").addEventListener("click", () => {
-    goToSlide((currentSlide + 1) % slides.length);
-  });
+  // Setup navigation buttons
+  const prevBtn = document.getElementById("prevSlide");
+  const nextBtn = document.getElementById("nextSlide");
+  
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      console.log("Previous button clicked");
+      goToSlide((currentSlide - 1 + slides.length) % slides.length);
+    });
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      console.log("Next button clicked");
+      goToSlide((currentSlide + 1) % slides.length);
+    });
+  }
 
+  // Keyboard navigation
   window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight" || e.key === "Enter") {
       goToSlide((currentSlide + 1) % slides.length);
@@ -314,19 +344,49 @@ function initSlides() {
 }
 
 function goToSlide(idx) {
-  // whenever we leave a slide, hide any floating tooltip
+  console.log(`Going to slide ${idx} from ${currentSlide}`);
+  
+  // Stop any playback if active
+  if (isPlaying) {
+    isPlaying = false;
+    if (playInterval) {
+      clearInterval(playInterval);
+      playInterval = null;
+    }
+    const playButton = document.getElementById('playButton');
+    if (playButton) {
+      playButton.textContent = '▶ Play';
+      playButton.classList.remove('playing');
+    }
+  }
+  
+  // Hide tooltips
   if (tooltip) {
     tooltip.style("opacity", 0);
   }
+  
+  // Hide projection line if it exists
   if (typeof projYearLine !== "undefined" && projYearLine) {
     projYearLine.attr("opacity", 0);
   }
 
-  slides[currentSlide].classList.remove("active");
-  pagerDots[currentSlide].classList.remove("active");
+  // Update slides
+  if (slides && slides[currentSlide]) {
+    slides[currentSlide].classList.remove("active");
+  }
+  if (slides && slides[idx]) {
+    slides[idx].classList.add("active");
+  }
+  
+  // Update pager dots
+  if (pagerDots && pagerDots[currentSlide]) {
+    pagerDots[currentSlide].classList.remove("active");
+  }
+  if (pagerDots && pagerDots[idx]) {
+    pagerDots[idx].classList.add("active");
+  }
+  
   currentSlide = idx;
-  slides[currentSlide].classList.add("active");
-  pagerDots[currentSlide].classList.add("active");
   startTypewriterOnSlide(currentSlide);
 }
 
@@ -572,12 +632,14 @@ function initSeasonControls() {
     currentSeasonVar = varSelect.value;
     updateSeasonMap();
     updateSeasonalChart();
+    updateYearTracker();
   });
 
   monthSelect.addEventListener("change", () => {
     currentSeasonMonth = +monthSelect.value;
     updateSeasonMap();
     updateSeasonalChart();
+    updateYearTracker();
   });
 }
 
@@ -639,17 +701,31 @@ function updateSeasonMap() {
   const stats = varStats[currentSeasonVar];
   if (!cfg || !stats) return;
 
-  // For the selected month, average across all years for each state
+  // Filter data based on year and month
+  let filteredData;
+  
+  if (currentSeasonMonth === 0) {
+    // Yearly Average: average across all months for the selected year
+    filteredData = modisData.filter((d) => d.year === currentYear);
+  } else {
+    // Specific month: filter by both year and month
+    filteredData = modisData.filter((d) => 
+      d.year === currentYear && d.month === currentSeasonMonth
+    );
+  }
+
+  // Calculate average for each state
   const valuesByState = d3.rollup(
-    modisData.filter((d) => d.month === currentSeasonMonth),
+    filteredData,
     (v) => d3.mean(v, (d) => d[cfg.field]),
     (d) => d.state
   );
 
+  // Update map colors
   seasonMapG
     .selectAll("path.state")
     .transition()
-    .duration(350)
+    .duration(400)
     .attr("fill", (d) => {
       const v = valuesByState.get(d.properties.name);
       if (v == null || Number.isNaN(v)) return "#020617";
@@ -657,6 +733,24 @@ function updateSeasonMap() {
     });
 
   drawSeasonLegend();
+  
+  // Update map title based on selection
+  updateMapTitle();
+}
+
+// Helper function to update map title
+function updateMapTitle() {
+  const monthSelect = document.getElementById("seasonMonthSelect");
+  const monthLabel = monthSelect.options[monthSelect.selectedIndex].text;
+  
+  const mapCard = document.querySelector("#seasonSlide .viz-card:first-child h3");
+  if (mapCard) {
+    if (currentSeasonMonth === 0) {
+      mapCard.textContent = `${currentYear} Yearly Average Map`;
+    } else {
+      mapCard.textContent = `${monthLabel} ${currentYear} Snapshot Map`;
+    }
+  }
 }
 
 function drawSeasonLegend() {
@@ -665,7 +759,16 @@ function drawSeasonLegend() {
   const legend = d3.select("#seasonMapLegend");
   legend.html("");
 
-  legend.append("div").text(cfg.legendLabel);
+  // Update legend title based on selection
+  let legendTitle = cfg.legendLabel;
+  if (currentSeasonMonth === 0) {
+    legendTitle = `${currentYear} ${cfg.legendLabel}`;
+  } else {
+    const monthName = getMonthName(currentSeasonMonth);
+    legendTitle = `${monthName} ${currentYear} - ${cfg.legendLabel}`;
+  }
+  
+  legend.append("div").text(legendTitle);
 
   const row = legend.append("div").attr("class", "map-legend-row");
 
@@ -984,7 +1087,7 @@ function updateSeasonalChart() {
         .html(`Year: ${d.year}<br>U.S. avg: ${d.usValue.toFixed(3)}`)
         .style("left", event.pageX + 12 + "px")
         .style("top", event.pageY + 12 + "px");
-    })
+    }) 
     .on("mouseleave", () => {
       tooltip.style("opacity", 0);
     });
@@ -1002,7 +1105,7 @@ function updateSeasonTitle() {
     : "U.S. Average Yearly Pattern";
 
   title.textContent = prefix;
-  subtitle.textContent = `${cfg.label} averaged by year. `;
+  subtitle.textContent = `${cfg.label} averaged by year. Showing ${currentYear} data.`;
 }
 
 /* -------------------- Yearly trend visualization (Slide 4 – stacked view) -------------------- */
@@ -1045,12 +1148,12 @@ function updateYearlyExplanation() {
   let suffix = "";
   if (yearlyState) {
     suffix =
-      " You’re currently comparing " +
+      " You're currently comparing " +
       yearlyState +
       " (teal line) against the U.S. average (orange line).";
   } else {
     suffix =
-      " You’re currently seeing only the U.S. average. Pick a state to add a comparison line.";
+      " You're currently seeing only the U.S. average. Pick a state to add a comparison line.";
   }
 
   bodyEl.textContent = expl.body + suffix;
@@ -1658,7 +1761,7 @@ let xProjScale, yProjScale;
 let projActualPath, projModelPath, projTargetPath;
 let projActualPoints, projModelPoints;
 let projYearLine;
-let projMargin = null;     // we’ll use this to place the tooltip correctly
+let projMargin = null;     // we'll use this to place the tooltip correctly
 
 let fittedModel = null;    // {intercept, slope}
 
@@ -1701,7 +1804,7 @@ function buildModelSeries() {
 }
 
 /**
- * Paris-aligned “on-track” path: peak by 2025, then ~43% below 2019 by 2030.
+ * Paris-aligned "on-track" path: peak by 2025, then ~43% below 2019 by 2030.
  * We keep emissions flat at 2019 level through 2025, then drop linearly to
  * 0.57 * 2019 value by 2030.
  */
@@ -1897,7 +2000,7 @@ function initProjectionSlide() {
       projYearLine.attr("opacity", 0);
     });
 
-  // --- model selector: BAU vs hypothetical “on-track” linear path starting 2024 ---
+  // --- model selector: BAU vs hypothetical "on-track" linear path starting 2024 ---
   modelSelect.addEventListener("change", () => {
     const mode = modelSelect.value;
 
@@ -2124,13 +2227,294 @@ function updateProjectionYear(year, pageX, pageY) {
     }, 900); // adjust delay (ms) if you want
   }
 
-  // update “Focus year” label under the slider
+  // update "Focus year" label under the slider
   const yearLabel = document.getElementById("projectionYearLabel");
   if (yearLabel) {
     yearLabel.textContent = `Focus year: ${yearClamped}`;
   }
 }
 
+/* -------------------- Slide 3: Year slider + play button -------------------- */
+
+function initYearSlider() {
+  const yearSlider = document.getElementById('yearSlider');
+  const yearLabel = document.getElementById('yearLabel');
+  const playButton = document.getElementById('playButton');
+  
+  if (!yearSlider || !playButton) return;
+  
+  // Initialize year tracker
+  const trackerEl = document.getElementById('yearTracker');
+  if (trackerEl) {
+    yearTracker = trackerEl;
+    trackerEl.style.display = 'block';
+    yearTrackerLabel = trackerEl.querySelector('.tracker-label');
+  }
+  
+  // Update year display and chart AND MAP
+  yearSlider.addEventListener('input', function() {
+    currentYear = +this.value;
+    yearLabel.textContent = currentYear;
+    updateYearTracker();
+    updateSeasonalChartForYear(currentYear);
+    updateSeasonMap(); // Update map when year changes
+  });
+  
+  // Play button functionality - also updates map
+  playButton.addEventListener('click', function() {
+    if (isPlaying) {
+      stopPlayback();
+      this.textContent = '▶ Play';
+      this.classList.remove('playing');
+    } else {
+      startPlayback();
+      this.textContent = '⏸ Pause';
+      this.classList.add('playing');
+    }
+  });
+  
+  // Initialize
+  updateYearTracker();
+  updateSeasonMap(); // Initial map update
+}
+
+function startPlayback() {
+  isPlaying = true;
+  playInterval = setInterval(() => {
+    currentYear++;
+    if (currentYear > 2024) {
+      currentYear = 2014;
+    }
+    
+    // Update slider
+    const yearSlider = document.getElementById('yearSlider');
+    if (yearSlider) {
+      yearSlider.value = currentYear;
+    }
+    
+    // Update label
+    const yearLabel = document.getElementById('yearLabel');
+    if (yearLabel) {
+      yearLabel.textContent = currentYear;
+    }
+    
+    // Update chart highlights AND tracker
+    updateSeasonalChartForYear(currentYear);
+    updateYearTracker();
+    updateSeasonMap();
+  }, 600);
+}
+
+function stopPlayback() {
+  isPlaying = false;
+  if (playInterval) {
+    clearInterval(playInterval);
+    playInterval = null;
+  }
+}
+
+function updateSeasonalChartForYear(year) {
+  if (!seasonSvg) return;
+  
+  // Highlight the point for current year
+  seasonStatePointsGroup.selectAll('circle')
+    .attr('fill', d => d.year === year ? '#ffd500' : '#38bdf8')
+    .attr('r', d => d.year === year ? 5 : 3);
+  
+  seasonUsPointsGroup.selectAll('circle')
+    .attr('fill', d => d.year === year ? '#ffd500' : '#f97316')
+    .attr('r', d => d.year === year ? 5 : 3);
+  
+  updateYearTracker(); // update the glowing dot
+}
+
+// Update the state click handler to toggle selection
+function updateStateClickHandler() {
+  if (!seasonMapG) return;
+  
+  seasonMapG.selectAll("path.state")
+    .on("click", (event, d) => {
+      const stateName = d.properties.name;
+      
+      // Toggle selection
+      if (selectedState === stateName) {
+        selectedState = null;
+        document.getElementById("legendStateItem").style.display = "none";
+      } else {
+        selectedState = stateName;
+        document.getElementById("legendStateLabel").textContent = stateName;
+        document.getElementById("legendStateItem").style.display = "flex";
+      }
+      
+      updateSeasonalChart();
+      updateSeasonTitle();
+      updateYearTracker();
+      
+      // Update map styling
+      seasonMapG
+        .selectAll("path.state")
+        .attr("stroke", (s) =>
+          s.properties.name === selectedState ? "#ffd500" : "#111827"
+        )
+        .attr("stroke-width", (s) =>
+          s.properties.name === selectedState ? 2 : 0.6
+        );
+    });
+}
+
+/* -------------------- State hover stats -------------------- */
+
+let stateHoverStats = null;
+let lastHoveredState = null;
+
+function initStateHoverStats() {
+  stateHoverStats = document.getElementById('stateHoverStats');
+  if (!stateHoverStats) return;
+  
+  // Add event listeners to map states
+  if (seasonMapG) {
+    seasonMapG.selectAll("path.state")
+      .on("mouseenter", handleStateHover)
+      .on("mouseleave", handleStateLeave)
+      .on("mousemove", handleStateMouseMove);
+  }
+}
+
+function handleStateHover(event, d) {
+  if (!stateHoverStats) return;
+  
+  const stateName = d.properties.name;
+  lastHoveredState = stateName;
+  
+  // Get current variable and year data
+  const cfg = VAR_CONFIG[currentSeasonVar];
+  const field = cfg.field;
+  
+  let stateData, value, dataDescription;
+  
+  if (currentSeasonMonth === 0) {
+    // Yearly Average: average across all months
+    stateData = modisData.filter(d => 
+      d.state === stateName && 
+      d.year === currentYear
+    );
+    dataDescription = "Yearly Average";
+  } else {
+    // Specific month
+    stateData = modisData.filter(d => 
+      d.state === stateName && 
+      d.year === currentYear &&
+      d.month === currentSeasonMonth
+    );
+    dataDescription = getMonthName(currentSeasonMonth);
+  }
+  
+  value = d3.mean(stateData.map(d => d[field]));
+  
+  if (value == null || Number.isNaN(value)) return;
+  
+  // Format value based on variable type
+  let formattedValue = value.toFixed(3);
+  let unit = "";
+  
+  if (currentSeasonVar === "lstDay" || currentSeasonVar === "lstNight") {
+    formattedValue = value.toFixed(1);
+    unit = "°F";
+  }
+  
+  // Update stats display
+  stateHoverStats.innerHTML = `
+    <h4>${stateName}</h4>
+    <p>${cfg.label}</p>
+    <p>Year: <span class="value">${currentYear}</span></p>
+    <p>Data: <span class="value">${dataDescription}</span></p>
+    <p>Value: <span class="value">${formattedValue} ${unit}</span></p>
+  `;
+  
+  stateHoverStats.classList.add('active');
+}
+
+function handleStateLeave() {
+  if (stateHoverStats) {
+    stateHoverStats.classList.remove('active');
+  }
+  lastHoveredState = null;
+}
+
+function handleStateMouseMove(event) {
+  if (!stateHoverStats || !stateHoverStats.classList.contains('active')) return;
+  
+  // Position the stats box near the cursor
+  const x = event.pageX + 15;
+  const y = event.pageY - 15;
+  
+  stateHoverStats.style.left = x + 'px';
+  stateHoverStats.style.top = y + 'px';
+}
+
+function getMonthName(monthNum) {
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  return months[monthNum - 1] || "";
+}
+
+/* -------------------- Smooth tracker movement -------------------- */
+
+let lastTrackerPosition = { x: 0, y: 0 };
+let trackerAnimationFrame = null;
+
+function updateYearTracker() {
+  if (!yearTracker || !xSeasonScale || !ySeasonScale) return;
+  
+  const series = buildSeasonSeries(selectedState, currentSeasonVar);
+  const yearData = series.find(d => d.year === currentYear);
+  
+  if (!yearData) return;
+  
+  // Calculate position relative to chart
+  const chartContainer = document.getElementById('seasonBarContainer');
+  const svgRect = seasonSvg.node().getBoundingClientRect();
+  const containerRect = chartContainer.getBoundingClientRect();
+  
+  const x = xSeasonScale(currentYear);
+  
+  // Get the correct Y value - state if selected, otherwise US average
+  let yValue;
+  if (selectedState && yearData.stateValue != null) {
+    yValue = yearData.stateValue;
+  } else {
+    yValue = yearData.usValue;
+  }
+  
+  const y = ySeasonScale(yValue);
+  
+  // Convert to absolute positioning (matching your chart margins)
+  const marginLeft = 60;  // Left margin of chart
+  const marginTop = 30;   // Top margin of chart
+  
+  const dotSize = 6; // Half the tracker dot size
+  const newX = (marginLeft + x - dotSize);
+  const newY = (marginTop + y - dotSize);
+  
+  // Smooth animation
+  yearTracker.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+  yearTracker.style.left = newX + 'px';
+  yearTracker.style.top = newY + 'px';
+  
+  // Update label
+  if (yearTrackerLabel) {
+    const cfg = VAR_CONFIG[currentSeasonVar];
+    let formattedValue = yValue.toFixed(3);
+    
+    if (currentSeasonVar === "lstDay" || currentSeasonVar === "lstNight") {
+      formattedValue = yValue.toFixed(1) + "°F";
+    }
+    
+    yearTrackerLabel.textContent = `${currentYear}: ${formattedValue}`;
+  }
+}
 
 /* -------------------- Init -------------------- */
 
@@ -2142,7 +2526,19 @@ async function init() {
   initSeasonalChart();   // Slide 3
   initTimeline();        // Timeline slide
   initYearlyTrend();     // Slide 4 stacked yearly view
-  initProjectionSlide(); // NEW: Slide 5 play area
+  initProjectionSlide(); // Slide 5 play area
+  initYearSlider();      // Slide 3: Initialize year slider and play button
+  updateStateClickHandler(); // Slide 3: Update click handler for toggle
+  initStateHoverStats(); // Initialize state hover stats
 }
 
-init();
+// init not being called fix solution 
+
+// Call init() when the DOM is ready
+if (document.readyState === 'loading') {
+  // Loading hasn't finished yet
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  // `DOMContentLoaded` has already fired
+  init();
+}
