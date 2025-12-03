@@ -2515,11 +2515,6 @@ function updateYearTracker() {
     yearTrackerLabel.textContent = `${currentYear}: ${formattedValue}`;
   }
 }
-
-// =========================================================
-// SLIDE 7 — GLOBAL EMISSIONS COMPARISON
-// =========================================================
-
 // =========================================================
 // SLIDE 7 — GLOBAL EMISSIONS COMPARISON WITH 4 DROPDOWNS
 // =========================================================
@@ -2622,6 +2617,8 @@ function drawSlide7Chart() {
     const container = d3.select("#globalChart");
     container.selectAll("*").remove();
 
+    const tooltip = d3.select("#globalTooltip");
+
     const width = 760;
     const height = 420;
     const margin = { top: 20, right: 80, bottom: 40, left: 60 };
@@ -2637,7 +2634,7 @@ function drawSlide7Chart() {
         selectedCountries.drop2,
         selectedCountries.drop3,
         selectedCountries.drop4
-    ].filter(d => d !== null);
+    ].filter(Boolean);
 
     const filtered = slide7Data.filter(d =>
         active.includes(d.Country)
@@ -2664,9 +2661,13 @@ function drawSlide7Chart() {
         .domain(active)
         .range(d3.schemeTableau10);
 
+    // --------------------------
+    // DRAW LINES + DOTS
+    // --------------------------
     grouped.forEach((values, country) => {
         values.sort((a, b) => a.Year - b.Year);
 
+        // Line
         svg.append("path")
             .datum(values)
             .attr("fill", "none")
@@ -2674,18 +2675,37 @@ function drawSlide7Chart() {
             .attr("stroke-width", 2)
             .attr("d", line);
 
-        const last = values[values.length - 1];
-
-        svg.append("text")
-            .attr("x", x(last.Year) + 6)
-            .attr("y", y(last.Emissions))
-            .attr("alignment-baseline", "middle")
-            .style("font-size", "12px")
-            .style("fill", color(country))
-            .text(country);
+        // Dots (hoverable)
+        svg.append("g")
+            .selectAll("circle")
+            .data(values)
+            .enter()
+            .append("circle")
+            .attr("cx", d => x(d.Year))
+            .attr("cy", d => y(d.Emissions))
+            .attr("r", 4)
+            .attr("fill", color(country))
+            .style("cursor", "pointer")
+            .on("mouseenter", function (event, d) {
+                tooltip.style("opacity", 1);
+                tooltip.html(`
+                    <strong>${d.Country}</strong><br>
+                    Year: ${d.Year}<br>
+                    Emissions: ${d.Emissions.toLocaleString()} MtCO₂e
+                `);
+            })
+            .on("mousemove", function (event) {
+                tooltip.style("left", event.pageX + 12 + "px")
+                       .style("top", event.pageY - 28 + "px");
+            })
+            .on("mouseleave", function () {
+                tooltip.style("opacity", 0);
+            });
     });
 
-    // Axes
+    // --------------------------
+    // AXES
+    // --------------------------
     svg.append("g")
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(d3.axisBottom(x).tickFormat(d3.format("d")));
@@ -2693,16 +2713,24 @@ function drawSlide7Chart() {
     svg.append("g")
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y));
+
+    // --------------------------
+    // LEGEND
+    // --------------------------
+    const legend = d3.select("#globalLegend");
+    legend.html(""); // clear old legend
+
+    active.forEach(country => {
+        const item = legend.append("div").attr("class", "legend-item");
+
+        item.append("div")
+            .attr("class", "legend-color")
+            .style("background-color", color(country));
+
+        item.append("span").text(country);
+    });
 }
 
-
-
-// ---------- ACTIVATE ON SLIDE CHANGE ----------
-document.addEventListener("slideChange", e => {
-    if (e.detail.index === 7) {
-        initSlide7();
-    }
-});
 
 
 

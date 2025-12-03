@@ -1931,3 +1931,35 @@ svg text {
     cursor: pointer;
 }
 
+#globalLegend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-top: 10px;
+    pointer-events: none;   /* <-- THE MAGIC FIX */
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    pointer-events: none;   /* ensures legend never blocks clicking */
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border-radius: 3px;
+}
+#globalTooltip {
+    position: absolute;
+    background: white;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+}
