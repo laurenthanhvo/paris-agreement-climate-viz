@@ -386,20 +386,29 @@
       </section>
 
       <!-- Slide 7: Top Emitters Pie Chart -->
-
       <section class="slide" id="slide7">
-          <div class="slide7-box">
-              <h2>Top Emitters – Pie Chart</h2>
+          <div class="slide7-card">
 
-              <label for="topEmittersYear">Select Year:</label>
-              <select id="topEmittersYear"></select>
+              <h2 class="slide7-title">Top Global Emitters</h2>
 
-              <div id="topEmittersContainer">
-                  <canvas id="topEmittersChart" width="600" height="420"></canvas>
+              <label for="emitterYear">Select Year:</label>
+              <select id="emitterYear"></select>
+
+              <!-- Pie + Legend side by side -->
+              <div id="pieRow">
+                  <canvas id="topEmittersPie"></canvas>
+
+                  <div id="pieLegend"></div>
               </div>
+
+              <!-- Sector breakdown underneath -->
+              <div id="sectorBreakdownContainer" style="display:none;">
+                  <h3 id="sectorBreakdownTitle"></h3>
+                  <canvas id="sectorBreakdownChart"></canvas>
+              </div>
+
           </div>
       </section>
-
 
       <!-- Slide 8: Takeways -->
       <section class="slide slide-text type-slide" data-slide-index="9">
