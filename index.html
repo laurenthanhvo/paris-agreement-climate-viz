@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <!-- main.js imports D3 + TopoJSON as ES modules -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="main.js" defer></script>
 </head>
 <body>
@@ -384,30 +385,24 @@
         </div>
       </section>
 
-      <!-- Slide 7: Country comparison over time -->
+      <!-- Slide 7: Top Emitters Pie Chart -->
+
       <section class="slide" id="slide7">
           <div class="slide7-box">
-              <h2 class="slide7-title">Global Emissions Over Time</h2>
+              <h2>Top Emitters – Pie Chart</h2>
 
-              <p class="slide7-subtitle">Select up to four countries to compare with the United States:</p>
+              <label for="topEmittersYear">Select Year:</label>
+              <select id="topEmittersYear"></select>
 
-              <div id="slide7DropdownRow">
-                  <select class="countryDropdown" id="drop1"></select>
-                  <select class="countryDropdown" id="drop2"></select>
-                  <select class="countryDropdown" id="drop3"></select>
-                  <select class="countryDropdown" id="drop4"></select>
+              <div id="topEmittersContainer">
+                  <canvas id="topEmittersChart" width="600" height="420"></canvas>
               </div>
-              <div id="globalTooltip"></div>
-              <div id="globalChart"></div>
-              <div id="globalLegend"></div>
-
           </div>
-
       </section>
 
 
       <!-- Slide 8: Takeways -->
-      <section class="slide slide-text type-slide" data-slide-index="8">
+      <section class="slide slide-text type-slide" data-slide-index="9">
             <div class="centered-text">
               <h2 class="slide-title">Key Takeaways</h2>
             <li>The U.S. is not on track for the Paris Agreement’s 43% emissions cut by 2030 under current trends.</li>

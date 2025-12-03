@@ -2515,222 +2515,121 @@ function updateYearTracker() {
     yearTrackerLabel.textContent = `${currentYear}: ${formattedValue}`;
   }
 }
-// =========================================================
-// SLIDE 7 — GLOBAL EMISSIONS COMPARISON WITH 4 DROPDOWNS
-// =========================================================
 
-// ---------- LOAD DATA ----------
+// ============================
+// SLIDE 7 – TOP EMITTERS PIE
+// ============================
+
+let slide7Data = [];
+let topEmittersChart = null;
+
+// Load totals dataset
 async function loadSlide7Data() {
-    const totalsURL = "data/GHG_totals_by_country.csv";
+    const raw = await d3.csv("data/GHG_totals_by_country.csv", d3.autoType);
 
-    const raw = await d3.csv(totalsURL, d3.autoType);
-    const converted = [];
-
-    raw.forEach(row => {
-        const country = row.Country;
-        for (let year = 2014; year <= 2024; year++) {
-            if (row[year] !== undefined && row[year] !== null) {
-                converted.push({
-                    Country: country,
-                    Year: year,
-                    Emissions: +row[year]
-                });
-            }
+    return raw.map(row => {
+        let cleaned = { Country: row.Country };
+        for (let y = 2014; y <= 2024; y++) {
+            cleaned[y] = +row[y] || 0;
         }
+        return cleaned;
     });
-
-    return converted;
 }
 
-
-
-// ---------- GLOBAL STATE ----------
-let slide7Data = [];
-
-let selectedCountries = {
-    base: "United States",
-    drop1: null,
-    drop2: null,
-    drop3: null,
-    drop4: null
-};
-
-
-
-// ---------- INITIALIZE ----------
+// Initialize slide
 async function initSlide7() {
     slide7Data = await loadSlide7Data();
 
-    initDropdowns();
-    drawSlide7Chart();
+    buildSlide7Dropdown();
+    drawTopEmittersPie();
 }
 
+// Build dropdown from years 2014–2024
+function buildSlide7Dropdown() {
+    const sel = document.getElementById("topEmittersYear");
+    sel.innerHTML = "";
 
+    for (let y = 2014; y <= 2024; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        sel.appendChild(opt);
+    }
 
-// ---------- BUILD 4 SELECT DROPDOWNS ----------
-function initDropdowns() {
-    const allCountries = Array.from(
-        new Set(slide7Data.map(d => d.Country))
-    ).sort();
+    // Default: latest year
+    sel.value = 2024;
 
-    // Pre-fill first 4 with default countries
-    const defaults = allCountries.filter(c => c !== "United States").slice(0, 4);
-    selectedCountries.drop1 = defaults[0];
-    selectedCountries.drop2 = defaults[1];
-    selectedCountries.drop3 = defaults[2];
-    selectedCountries.drop4 = defaults[3];
+    sel.addEventListener("change", drawTopEmittersPie);
+}
 
-    const dropdownIds = ["drop1", "drop2", "drop3", "drop4"];
+// Draw pie chart
+function drawTopEmittersPie() {
+    const yearSel = document.getElementById("topEmittersYear");
+    if (!yearSel) return; // safety
 
-    dropdownIds.forEach((id, idx) => {
-        const sel = d3.select("#" + id);
-        sel.selectAll("*").remove();
+    const year = +yearSel.value;
 
-        sel.append("option")
-            .attr("value", "")
-            .text("— Select —");
+    // Remove "Global Total"
+    const cleaned = slide7Data.filter(d => d.Country !== "GLOBAL TOTAL");
 
-        sel.selectAll("option.countryOption")
-            .data(allCountries)
-            .enter()
-            .append("option")
-            .attr("class", "countryOption")
-            .attr("value", d => d)
-            .text(d => d);
+    // Extract values for selected year
+    const parsed = cleaned.map(row => ({
+        country: row.Country,
+        value: row[year]
+    }));
 
-        // Set initial value
-        sel.property("value", defaults[idx]);
+    // Sort + get top 10
+    parsed.sort((a, b) => b.value - a.value);
 
-        // Handle change
-        sel.on("change", function () {
-            const val = this.value || null;
-            selectedCountries[id] = val;
-            drawSlide7Chart();
-        });
+    const top10 = parsed.slice(0, 10);
+    const sumTop10 = d3.sum(top10, d => d.value);
+
+    const globalTotal = d3.sum(parsed, d => d.value);
+    const rest = globalTotal - sumTop10;
+
+    const finalLabels = top10.map(d => d.country).concat("Rest of World");
+    const finalValues = top10.map(d => d.value).concat(rest);
+
+    // Destroy old chart
+    if (topEmittersChart) {
+        topEmittersChart.destroy();
+    }
+
+    const ctx = document.getElementById("topEmittersChart").getContext("2d");
+
+    topEmittersChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: finalLabels,
+            datasets: [{
+                data: finalValues,
+                backgroundColor: d3.schemeTableau10.concat(["#888"])
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: "bottom"
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const val = context.raw.toLocaleString();
+                            return `${context.label}: ${val} MtCO₂e`;
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 
-
-
-// ---------- DRAW LINE CHART ----------
-function drawSlide7Chart() {
-    const container = d3.select("#globalChart");
-    container.selectAll("*").remove();
-
-    const tooltip = d3.select("#globalTooltip");
-
-    const width = 760;
-    const height = 420;
-    const margin = { top: 20, right: 80, bottom: 40, left: 60 };
-
-    const svg = container.append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
-    // Active countries (remove nulls)
-    const active = [
-        selectedCountries.base,
-        selectedCountries.drop1,
-        selectedCountries.drop2,
-        selectedCountries.drop3,
-        selectedCountries.drop4
-    ].filter(Boolean);
-
-    const filtered = slide7Data.filter(d =>
-        active.includes(d.Country)
-    );
-
-    if (filtered.length === 0) return;
-
-    const x = d3.scaleLinear()
-        .domain(d3.extent(filtered, d => d.Year))
-        .range([margin.left, width - margin.right]);
-
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(filtered, d => d.Emissions)])
-        .nice()
-        .range([height - margin.bottom, margin.top]);
-
-    const line = d3.line()
-        .x(d => x(d.Year))
-        .y(d => y(d.Emissions));
-
-    const grouped = d3.group(filtered, d => d.Country);
-
-    const color = d3.scaleOrdinal()
-        .domain(active)
-        .range(d3.schemeTableau10);
-
-    // --------------------------
-    // DRAW LINES + DOTS
-    // --------------------------
-    grouped.forEach((values, country) => {
-        values.sort((a, b) => a.Year - b.Year);
-
-        // Line
-        svg.append("path")
-            .datum(values)
-            .attr("fill", "none")
-            .attr("stroke", color(country))
-            .attr("stroke-width", 2)
-            .attr("d", line);
-
-        // Dots (hoverable)
-        svg.append("g")
-            .selectAll("circle")
-            .data(values)
-            .enter()
-            .append("circle")
-            .attr("cx", d => x(d.Year))
-            .attr("cy", d => y(d.Emissions))
-            .attr("r", 4)
-            .attr("fill", color(country))
-            .style("cursor", "pointer")
-            .on("mouseenter", function (event, d) {
-                tooltip.style("opacity", 1);
-                tooltip.html(`
-                    <strong>${d.Country}</strong><br>
-                    Year: ${d.Year}<br>
-                    Emissions: ${d.Emissions.toLocaleString()} MtCO₂e
-                `);
-            })
-            .on("mousemove", function (event) {
-                tooltip.style("left", event.pageX + 12 + "px")
-                       .style("top", event.pageY - 28 + "px");
-            })
-            .on("mouseleave", function () {
-                tooltip.style("opacity", 0);
-            });
-    });
-
-    // --------------------------
-    // AXES
-    // --------------------------
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-
-    svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y));
-
-    // --------------------------
-    // LEGEND
-    // --------------------------
-    const legend = d3.select("#globalLegend");
-    legend.html(""); // clear old legend
-
-    active.forEach(country => {
-        const item = legend.append("div").attr("class", "legend-item");
-
-        item.append("div")
-            .attr("class", "legend-color")
-            .style("background-color", color(country));
-
-        item.append("span").text(country);
-    });
-}
-
+// Activate on slide change
+document.addEventListener("slideChange", e => {
+    if (e.detail.index === 8) {
+        initSlide7();
+    }
+});
 
 
 
