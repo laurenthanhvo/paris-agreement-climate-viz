@@ -2594,6 +2594,7 @@ function updateYearTracker() {
   }
 }
 
+/* -------------------- Slide 6: Emissions -------------------- */
 /* ==========================
    SLIDE 6 DATA VARIABLES
 ========================== */
@@ -2608,16 +2609,60 @@ let sectorPieChart = null;
 /* Consistent country color map */
 const countryColors = {};
 const colorPalette = [
-  "#4E79A7", "#F28E2B", "#E15759", "#76B7B2", "#59A14F",
-  "#EDC948", "#B07AA1", "#FF9DA7", "#9C755F", "#BAB0AC"
+  "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD",
+  "#8C564B", "#E377C2", "#17BECF", "#BCBD22", "#7F7F7F"
 ];
 
-/* Distinct sector colors */
-const sectorColors = [
-  "#1f77b4", "#ff7f0e", "#2ca02c",
-  "#d62728", "#9467bd", "#8c564b",
-  "#e377c2", "#7f7f7f", "#bcbd22"
-];
+/* ============= NEW NEW NEW — DISTINCT HSL HUE ROTATED SHADES ============= */
+function generateShades(baseColor, count) {
+  // Convert hex → HSL
+  function hexToHSL(hex) {
+    let r = parseInt(hex.slice(1, 3), 16) / 255;
+    let g = parseInt(hex.slice(3, 5), 16) / 255;
+    let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      let d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h *= 60;
+    }
+    return { h, s: s * 100, l: l * 100 };
+  }
+
+  const hsl = hexToHSL(baseColor);
+  const H = hsl.h;
+
+  // **Extreme variation definitions**
+  const presets = [
+    { l: 10,  s: hsl.s },      // almost black
+    { l: 25,  s: hsl.s * 0.8 },// dark muted
+    { l: 40,  s: hsl.s * 1.2 },// darker + saturated
+    { l: 55,  s: hsl.s },      // mid-tone
+    { l: 70,  s: hsl.s * 1.4 },// bright saturated
+    { l: 85,  s: hsl.s * 0.8 },// pastel
+    { l: 95,  s: hsl.s * 0.4 },// very light pastel
+    { l: 50,  s: hsl.s * 0.2 },// greyish tone
+    { l: 50,  s: hsl.s * 1.8 },// hyper-saturated
+    { l: 98,  s: 20 }          // almost white but warm
+  ];
+
+  // Trim or extend to count
+  const selected = presets.slice(0, count);
+
+  // HSL → CSS rgb()
+  return selected.map(p => `hsl(${H}, ${Math.min(100, p.s)}%, ${Math.min(100, p.l)}%)`);
+}
+
 
 /* ==========================
    DATA LOADING
@@ -2652,10 +2697,10 @@ function updateBarRace(year) {
       value: d.years[year] || 0
     }))
     .filter(r => r.country !== "GLOBAL TOTAL")
+    .filter(r => r.country !== "EU27")
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
-  // assign consistent colors
   rows.forEach(r => {
     if (!countryColors[r.country]) {
       const assignedCount = Object.keys(countryColors).length;
@@ -2677,11 +2722,30 @@ function updateBarRace(year) {
       },
       options: {
         indexAxis: "y",
+        plugins: {
+          tooltip: {
+            bodyFont: { size: 18 },
+            titleFont: { size: 20 },
+            callbacks: {
+              label: function(context) {
+                const value = context.raw;
+                const globalRow = slide6_totals.find(d => d.country === "GLOBAL TOTAL");
+                const globalTotal = globalRow ? globalRow.years[slide6_currentYear] : 0;
+
+                const pct = globalTotal > 0
+                  ? ((value / globalTotal) * 100).toFixed(2)
+                  : "0";
+
+                return `${value.toLocaleString()} (${pct}%)`;
+              }
+            }
+          }
+        },
         onClick: (evt, elements) => {
           if (elements.length === 0) return;
-          let idx = elements[0].index;
-          let country = barRaceChart.data.labels[idx];
-          updateSectorPie(country, year);
+          const idx = elements[0].index;
+          const country = barRaceChart.data.labels[idx];
+          updateSectorPie(country, slide6_currentYear);
         }
       }
     });
@@ -2700,8 +2764,14 @@ function updateBarRace(year) {
 function updateSectorPie(country, year) {
   let rows = slide6_sectors.filter(d => d.Country === country);
 
+  document.getElementById("slide6PieTitle").textContent =
+    `Sector Breakdown (${country}, ${year})`;
+
   const labels = rows.map(r => r.Sector);
   const values = rows.map(r => +r[year]);
+
+  const baseColor = countryColors[country];
+  const sectorColors = generateShades(baseColor, labels.length);
 
   if (!sectorPieChart) {
     const ctx = document.getElementById("slide6PieChart").getContext("2d");
@@ -2713,14 +2783,35 @@ function updateSectorPie(country, year) {
           data: values,
           backgroundColor: sectorColors
         }]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            bodyFont: { size: 18 },
+            titleFont: { size: 20 },
+            callbacks: {
+              label: function(context) {
+                const value = context.raw;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? ((value / total) * 100).toFixed(2) : "0";
+                return `${value.toLocaleString()} (${pct}%)`;
+              }
+            }
+          },
+          legend: {
+            labels: { font: { size: 18 } }
+          }
+        }
       }
     });
   } else {
     sectorPieChart.data.labels = labels;
     sectorPieChart.data.datasets[0].data = values;
+    sectorPieChart.data.datasets[0].backgroundColor = sectorColors;
     sectorPieChart.update();
   }
 }
+
 
 /* ==========================
    INITIALIZER
