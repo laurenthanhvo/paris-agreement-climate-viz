@@ -3356,7 +3356,7 @@ svg text.axis-label {
 
 /* Slide 6 – GHG year slider styling */
 #slide5 #ghgSliderRow {
-  margin-top: 18px;
+  margin-top: -20px;
   max-width: 720px;      /* make the track nice and long */
   display: flex;
   align-items: center;
