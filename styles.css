@@ -3431,7 +3431,7 @@ svg text.axis-label {
 
 /* Make slide 6 content wider overall */
 .slide[data-slide-index="6"] .slide-inner {
-  max-width: 1500px !important;  /* override global max-width */
+  max-width: 1300px !important;  /* override global max-width */
   margin: 0 auto;
 }
 
