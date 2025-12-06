@@ -1871,7 +1871,7 @@ function initProjectionSlide() {
   fittedModel = fitLinearRegression(EMISSIONS_DATA);
 
   const { width, height } = container.getBoundingClientRect();
-  const margin = { top: 30, right: 60, bottom: 60, left: 52 };
+  const margin = { top: 30, right: 60, bottom: 60, left: 40 };
   projMargin = margin;
 
   const w = width  - margin.left - margin.right;
