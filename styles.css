@@ -794,7 +794,6 @@ li {
 
   width: 100%;
   gap: 35px;
-  margin-top: 20px;
 }
 
 /* Left column — BAR RACE */
@@ -832,7 +831,7 @@ li {
   display: flex;
   gap: 20px;
   align-items: center;
-  margin-top: 12px;
+  /* margin-top: 12px; */
 }
 
 .slider-with-play {
@@ -2573,6 +2572,7 @@ body {
   max-width: 7000px;
   margin-left: 0;
   margin-right: 0;
+  margin-bottom: 0;
 }
 
 /* ------------------------------
@@ -3309,6 +3309,7 @@ body {
 /* Reduce space above the chart’s own title line */
 #slide5 .slide5-left-card .card-title {
   margin-top: -20px;
+  margin-bottom: 5px;     /* adds space between Global greenhouse gas emissions and Model: (dropdown box)*/
 }
 
 /* --- Slide 6 legend on right side of chart --- */
@@ -3476,6 +3477,7 @@ svg text.axis-label {
   font-weight: 500;
   padding: 6px 14px;            /* keeps the pill look */
   border-radius: 999px;
+  width: 250px;                 /* make dropbox pill longer in length */
 }
 
 /* Scroll instruction text under the legend */
@@ -3790,4 +3792,3 @@ svg text.axis-label {
   background: #ef4444;   /* red */
 }
 }
-
