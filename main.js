@@ -2610,7 +2610,8 @@ let sectorPieChart = null;
 const countryColors = {};
 const colorPalette = [
   "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD",
-  "#8C564B", "#E377C2", "#17BECF", "#BCBD22", "#7F7F7F"
+  "#8C564B", "#E377C2", "#17BECF", "#BCBD22", "#7F7F7F", 
+  "#F0027F", "#99f083ff","#ffa1f7bc", "#bb8989ff", "#A6CEE3"  
 ];
 
 /* ============= NEW NEW NEW — DISTINCT HSL HUE ROTATED SHADES ============= */
@@ -2698,6 +2699,7 @@ function updateBarRace(year) {
     }))
     .filter(r => r.country !== "GLOBAL TOTAL")
     .filter(r => r.country !== "EU27")
+    .filter(r => r.country !== "International Shipping")
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
@@ -2721,6 +2723,7 @@ function updateBarRace(year) {
         }]
       },
       options: {
+        
         indexAxis: "y",
         plugins: {
           tooltip: {
@@ -2738,6 +2741,22 @@ function updateBarRace(year) {
 
                 return `${value.toLocaleString()} (${pct}%)`;
               }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Emissions (MtCO₂e)",
+              font: { size: 18 }
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Country",
+              font: { size: 18 }
             }
           }
         },
@@ -2802,6 +2821,7 @@ function updateSectorPie(country, year) {
             labels: { font: { size: 18 } }
           }
         }
+        
       }
     });
   } else {
@@ -2843,7 +2863,7 @@ async function initSlide6() {
 
       slider.value = slide6_currentYear;
       updateBarRace(slide6_currentYear);
-    }, 700);
+    }, 400);
   });
 
   updateBarRace(slide6_currentYear);
