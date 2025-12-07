@@ -2698,6 +2698,7 @@ function updateBarRace(year) {
     }))
     .filter(r => r.country !== "GLOBAL TOTAL")
     .filter(r => r.country !== "EU27")
+    .filter(r => r.country !== "International Shipping")
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
@@ -2721,6 +2722,7 @@ function updateBarRace(year) {
         }]
       },
       options: {
+        
         indexAxis: "y",
         plugins: {
           tooltip: {
@@ -2738,6 +2740,22 @@ function updateBarRace(year) {
 
                 return `${value.toLocaleString()} (${pct}%)`;
               }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Emissions (MtCO₂e)",
+              font: { size: 18 }
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Country",
+              font: { size: 18 }
             }
           }
         },
@@ -2802,6 +2820,7 @@ function updateSectorPie(country, year) {
             labels: { font: { size: 18 } }
           }
         }
+        
       }
     });
   } else {
@@ -2843,7 +2862,7 @@ async function initSlide6() {
 
       slider.value = slide6_currentYear;
       updateBarRace(slide6_currentYear);
-    }, 700);
+    }, 400);
   });
 
   updateBarRace(slide6_currentYear);
