@@ -2610,7 +2610,8 @@ let sectorPieChart = null;
 const countryColors = {};
 const colorPalette = [
   "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD",
-  "#8C564B", "#E377C2", "#17BECF", "#BCBD22", "#7F7F7F"
+  "#8C564B", "#E377C2", "#17BECF", "#BCBD22", "#7F7F7F", 
+  "#F0027F", "#99f083ff","#ffa1f7bc", "#bb8989ff", "#A6CEE3"  
 ];
 
 /* ============= NEW NEW NEW — DISTINCT HSL HUE ROTATED SHADES ============= */
