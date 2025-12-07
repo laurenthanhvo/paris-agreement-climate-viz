@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>DSC 106 – Final Project</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <!-- main.js imports D3 + TopoJSON as ES modules -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="main.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 </head>
 <body>
   <div id="app">
@@ -27,8 +28,8 @@
       <!-- Slide 0: Title -->
       <section class="slide slide-intro active" data-slide-index="0">
         <div class="intro-content">
-          <h1>Paris Agreement &amp; U.S. Seasons</h1>
-          <h2>How does global climate policy affect vegetation and land surface temperature?</h2>
+          <h1>Carbon in America: Where We Stand</h1>
+          <h2>HOW DOES GLOBAL CLIMATE POLICY AFFECT VEGETATION AND LAND SURFACE TEMPERATURE?</h2>
           <p>
             As satellites record states from above, the United States joins, leaves, and rejoins the
             Paris Agreement. Are these environmental changes visible when looking at a map?
@@ -56,7 +57,6 @@
             <li>Strengthen national climate plans every 5 years</li>
             <li>Support adaptation and climate resilience</li>
             <li>Provide financial and technological support to developing countries</li>
-            <!-- <li>To stay on track, global greenhouse gas emissions need to peak by 2025 and fall by about 43% by 2030.</li> -->
             <!-- rewording -->
              <li>Reduce greenhouse gas emissions by ~43% by 2030 after peaking in 2025</li>
           </ul>
@@ -76,12 +76,18 @@
       <section class="slide slide-viz" id="timelineSlide" data-slide-index="2">
         <div class="slide-inner">
           <div class="slide-header">
-            <h2>U.S. Involvement in the Paris Agreement</h2>
+            <h2 class="timeline-title">
+        U.S. INVOLVEMENT<br />IN THE PARIS AGREEMENT
+      </h2>
             <p>
               The Paris Agreement sets a global temperature goal, but each country chooses how seriously
               to participate. Use the timeline to see how U.S. membership has shifted over time, then
               read primary sources in the summary box below.
             </p>
+            <!-- Rotating earth gif -->
+            <div class="timeline-globe">
+              <img src="assets/earth-rotating.gif" alt="Rotating Earth from space" />
+            </div>
           </div>
 
           <!-- Stacked layout: timeline on top, summary underneath -->
@@ -99,15 +105,33 @@
               <div id="timelineNote" class="timeline-note">
                 2015–2025: Move along the bar to explore how U.S. membership has changed.
               </div>
+              <div id="timelineLegend" class="timeline-legend">
+  <span class="legend-item">
+    <span class="legend-pill joined"></span>
+    <span class="legend-text">Joined &amp; ratified</span>
+  </span>
+
+  <span class="legend-item">
+    <span class="legend-pill withdrawal-announced"></span>
+    <span class="legend-text">Withdrawal announced</span>
+  </span>
+
+  <span class="legend-item">
+    <span class="legend-pill left"></span>
+    <span class="legend-text">U.S. formally leaves</span>
+  </span>
+
+  <span class="legend-item">
+    <span class="legend-pill rejoined"></span>
+    <span class="legend-text">U.S. rejoins</span>
+  </span>
+</div>
+
             </div>
 
             <!-- Summary + sources card -->
             <div class="viz-card timeline-summary-card">
               <h3 id="timelineSummaryTitle">Why This Timeline Matters</h3>
-              <p class="subtitle">
-                Each highlighted year below links to a primary source so you can see how policy decisions
-                were framed at the time.
-              </p>
               <p id="timelineSummaryText" class="timeline-summary-text">
                 From 2015 onward, the Paris Agreement created a shared framework for limiting warming,
                 but the U.S. moved in and out of the treaty. Use the timeline above to jump to a year and
@@ -122,158 +146,115 @@
       </section>
 
       <!-- Slide 3: Seasonal snapshot map + U.S. average seasonal pattern -->
-      <section class="slide slide-viz" id="seasonSlide" data-slide-index="3">
-        <div class="slide-inner">
-          <div class="slide-header">
-            <h2>How Do U.S. Seasons Look from Space?</h2>
-            <p>
-              This view uses MODIS satellite data for NDVI (vegetation greenness) and land surface
-              temperature (day and night, in °F). The map shows a seasonal snapshot; the chart shows how
-              a typical year unfolds for the U.S. and any state you click.
-            </p>
-          </div>
+<section class="slide slide-viz" id="seasonSlide" data-slide-index="3">
+  <div class="slide-inner season-inner">
+    <div class="slide-header season-header">
+      <h2 class="timeline-title">
+        Tracking U.S. Environmental Change
+      </h2>
+      <p>
+        This view uses MODIS satellite data for NDVI (vegetation greenness) and land surface
+        temperature (day and night, in °F). The map shows a seasonal snapshot; the chart shows how
+        a typical year unfolds for the U.S. and any state you click.
+      </p>
+    </div>
 
-          <div class="control-row">
-            <div class="control">
-              <label for="seasonVarSelect">Variable</label>
-              <select id="seasonVarSelect">
-                <option value="ndvi">NDVI (Vegetation Greenness)</option>
-                <option value="lstDay">Land Surface Temp – Day (°F)</option>
-                <option value="lstNight">Land Surface Temp – Night (°F)</option>
-              </select>
-            </div>
+    <div class="control-row season-controls">
+      <div class="control">
+        <label for="seasonVarSelect">Variable</label>
+        <select id="seasonVarSelect">
+          <option value="ndvi">NDVI (Vegetation Greenness)</option>
+          <option value="lstDay">Land Surface Temp – Day (°F)</option>
+          <option value="lstNight">Land Surface Temp – Night (°F)</option>
+        </select>
+      </div>
 
-            <div class="control">
-              <label for="seasonMonthSelect">Month (for map snapshot)</label>
-              <select id="seasonMonthSelect">
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-              </select>
-            </div>
-          </div>
+      <div class="control">
+        <label for="seasonMonthSelect">Month (for map snapshot)</label>
+        <select id="seasonMonthSelect">
+          <option value="0">Yearly Average</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
 
-          <div class="viz-row">
-            <!-- Seasonal snapshot map -->
-            <div class="viz-card">
-              <h3>Seasonal Snapshot Map</h3>
-              <p class="subtitle">
-                Each state is colored by the chosen variable, averaged across 2014–2024 for the selected month.
-                Click a state to see its full seasonal curve on the right.
-              </p>
-              <div id="seasonMapContainer">
-                <svg id="seasonMapSvg"></svg>
-              </div>
-              <div id="seasonMapLegend" aria-label="Map legend"></div>
-            </div>
-
-            <!-- Seasonal chart (now yearly 2-line chart) -->
-            <div class="viz-card">
-              <h3 id="seasonTitle">U.S. Average Yearly Pattern</h3>
-              <p class="subtitle" id="seasonSubtitle">
-                Lines show the yearly averages for the selected variable.
-              </p>
-              <div id="seasonBarContainer">
-                <svg id="seasonBarSvg"></svg>
-              </div>
-              <div id="seasonLegend" class="season-legend">
-                <div class="legend-item">
-                  <span class="legend-color us"></span> U.S. Average
-                </div>
-                <div class="legend-item" id="legendStateItem" style="display:none;">
-                  <span class="legend-color state"></span>
-                  <span id="legendStateLabel">Selected State</span>
-                </div>
-              </div>
-
-              <div class="season-note">
-                Tip: Change the month to update the map, then click a different state to see the lines
-                transition between patterns.
-              </div>
-            </div>
-          </div>
-
-          <p class="slide-footnote">
-            All values are monthly means across 2014–2024. NDVI is unitless; land surface temperature is in degrees Fahrenheit.
-          </p>
+      <!-- Year control for the chart AND map -->
+      <div class="control">
+        <label for="yearSlider">Chart Year: <span id="yearLabel">2014</span></label>
+        <div class="slider-with-play">
+          <input type="range" id="yearSlider" min="2014" max="2024" value="2014" step="1" />
+          <button id="playButton" class="play-btn">▶ Play</button>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <!-- Slide 4: Yearly line chart (state vs U.S.) -->
-      <section class="slide slide-viz" id="yearlySlide" data-slide-index="4">
-        <div class="slide-inner">
-          <div class="slide-header">
-            <h2>How Do U.S. Seasons Shift Around Paris Agreement Decisions?</h2>
-            <p>
-              Watch the lines trace yearly averages before and after key Paris Agreement milestones.
-              Compare a specific state to the overall U.S. average.
-            </p>
-          </div>
+    <div class="viz-row season-viz-row">
+      <!-- Seasonal snapshot map -->
+      <div class="viz-card">
+        <h3 id="mapTitle">Yearly Average Map</h3>
+        <p class="subtitle">
+          Each state is colored by the chosen variable, averaged for the selected year and month.
+          Click a state to see its full yearly curve on the right. Click again to remove.
+        </p>
+        <div id="seasonMapContainer">
+          <svg id="seasonMapSvg"></svg>
+        </div>
+        <div id="seasonMapLegend" aria-label="Map legend"></div>
+      </div>
 
-          <div class="yearly-stack">
-            <!-- Chart card -->
-            <div class="viz-card yearly-chart-card">
-              <div class="yearly-controls-row">
-                <div class="control-group">
-                  <label for="yearlyVarSelect">Variable</label>
-                  <select id="yearlyVarSelect">
-                    <option value="ndvi">NDVI (vegetation greenness)</option>
-                    <option value="lstDay">Land surface temperature – day (°F)</option>
-                  </select>
-                </div>
-
-                <div class="control-group">
-                  <label for="yearlyStateSelect">Compare to state</label>
-                  <select id="yearlyStateSelect">
-                    <!-- JS will populate: first option is U.S. only -->
-                  </select>
-                </div>
-              </div>
-
-              <div id="yearlyTrendContainer" class="yearly-trend-container">
-                <svg id="yearlyTrendSvg"></svg>
-              </div>
-              <div id="yearlyLegend" class="yearly-legend">
-              <div class="legend-item">
-                <span class="legend-color us"></span>
-                    U.S. Average
-              </div>
-              <div class="legend-item" id="yearlyStateLegend" style="display:none;">
-                <span class="legend-color state"></span>
-                <span id="yearlyStateLegendLabel">Selected State</span>
-                </div>
-              </div>
-
-              <div class="yearly-tip">
-                Tip: Pick a state to compare its line (solid teal) with the U.S. average (solid orange).
-                Dashed lines mark years when the U.S. joined, signaled an exit from, left, or rejoined the Paris Agreement.
-              </div>
-            </div>
-
-            <!-- Explanation card -->
-            <div class="viz-card yearly-expl-card">
-              <h3 id="yearlyExplTitle">How NDVI (Vegetation Greenness) shifts from 2014–2024</h3>
-              <p id="yearlyExplBody">
-                This line chart shows the U.S. average NDVI (vegetation greenness) over time. When you choose a state,
-                a second line appears so you can see whether that state moves with or against the national pattern.
-                Look for bends around 2016–2017 (joining Paris), 2017–2020 (exit signaled), and 2020–2021 (exit in
-                effect vs. rejoining).
-              </p>
-            </div>
+      <!-- Yearly chart -->
+      <div class="viz-card">
+        <h3 id="seasonTitle">U.S. Average Yearly Pattern</h3>
+        <p class="subtitle" id="seasonSubtitle">
+          Lines show the yearly averages for the selected variable. Use the year slider to animate
+          through time.
+        </p>
+        <div id="seasonBarContainer">
+          <svg id="seasonBarSvg"></svg>
+          <!-- Glowing dot for current year -->
+          <div id="yearTracker" class="year-tracker" style="display: none;">
+            <div class="tracker-dot"></div>
+            <div class="tracker-label"></div>
           </div>
         </div>
-      </section>
+
+        <div id="seasonLegend" class="season-legend">
+          <div class="legend-item">
+            <span class="legend-color us"></span> U.S. Average
+          </div>
+          <div class="legend-item" id="legendStateItem" style="display: none;">
+            <span class="legend-color state"></span>
+            <span id="legendStateLabel">Selected State</span>
+          </div>
+        </div>
+
+        <div class="season-note">
+          Tip: Use the Play button to animate through years. The glowing dot shows the current year's value.
+        </div>
+      </div>
+    </div>
+
+    <p class="slide-footnote season-footnote">
+      All values are monthly means across 2014–2024. NDVI is unitless; land surface temperature is in
+      degrees Fahrenheit.
+    </p>
+  </div>
+</section>
+
+
+      
       <!-- Slide 5: Future -->
-      <section class="slide slide-text type-slide" data-slide-index="1">
+      <section class="slide slide-text type-slide" data-slide-index="5">
         <div class="centered-text">
           <p class="typewriter"
             data-fulltext="The Paris Climate Agreement update as of 2025 is as follows:">
@@ -300,10 +281,10 @@
         </div>
       </section>
       <!-- Slide 6: Play Area – emissions projection -->
-      <section class="slide slide-viz" id="slide5" data-slide-index="4">
+      <section class="slide slide-viz" id="slide5" data-slide-index="6">
         <div class="slide-inner">
           <div class="slide-header">
-            <h2>Play Area: Visualizing the Warming Path</h2>
+            <h2>Projecting the Warming Future</h2>
             <p class="slide-subtitle">
               Use a simple prediction model to see whether global emissions are on pace
               for the 43% drop by 2030.
@@ -345,6 +326,16 @@
                   <span class="legend-swatch legend-swatch-target"></span>
                   <span>Paris-aligned pathway</span>
                 </div>
+                <div class="projection-scroll-hint">
+                <div class="scroll-mouse">
+                  <div class="scroll-wheel"></div>
+                </div>
+                <p>
+                  Use two fingers to scroll up<br> or down the chart
+                  to pan<br> the y-axis.
+                </p>
+              </div>
+
               </div>
 
               <!-- Slider -->
@@ -371,21 +362,91 @@
         </div>
       </section>
 
-      <!-- Slide 7: Takeways -->
-      <section class="slide slide-text type-slide" data-slide-index="1">
-      <div class="centered-text">
-        <h2 class="slide-title">Key Takeaways</h2>
-      <li>The U.S. is not on track for the Paris Agreement’s 43% emissions cut by 2030 under current trends.</li>
-      <li>Policy swings (join → withdraw → rejoin) create uncertainty and slow long-term progress.</li>
-      <li>U.S. seasonal data (NDVI and LST) already show warming patterns—hotter summers, shifting vegetation.</li>
-      <li>Global climate policy shapes future warming, which then shapes local U.S. environmental conditions.</li>
-    </ul>
+      <!-- Slide 7: Top Emitters & Sector Breakdown -->
+      <section class="slide slide-viz" id="slide6" data-slide-index="6">
+        <div class="slide-inner">
 
-    <p class="callout-text">
-      Every year we delay makes the slope steeper. The next few years decide the curve.
-    </p>
-  </div>
-</section>
+          <!-- Header -->
+          <div class="slide-header">
+            <h2>U.S. Emissions vs. the Rest of the World</h2>
+            <p>
+              Watch countries rise and fall in total greenhouse gas emissions.  
+              Select any bar to see its sector breakdown.
+            </p>
+          </div>
+
+          <!-- Controls Row -->
+          <div class="control-row slide6-controls">
+            <button id="slide6PlayBtn" class="play-btn">Play</button>
+
+            <div class="slider-with-play">
+              <span id="slide6YearLabel">1970</span>
+
+              <input
+                type="range"
+                id="slide6YearSlider"
+                min="1970"
+                max="2024"
+                step="1"
+                value="1970"
+              />
+            </div>
+          </div>
+
+          <!-- Visualization Layout -->
+          <div class="slide6-layout">
+
+            <!-- Bar Race Container -->
+            <div id="slide6BarRaceContainer">
+              <h3>Top Emitters Over Time</h3>
+
+              <!-- IMPORTANT: Chart.js requires <canvas> -->
+              <canvas id="slide6BarRaceChart"></canvas>
+            </div>
+
+            <!-- Pie Chart Container -->
+            <div id="slide6PieContainer">
+              <h3 id="slide6PieTitle">Sector Breakdown (Select a Country)</h3>
+
+              <!-- IMPORTANT: Chart.js requires <canvas> -->
+              <canvas id="slide6PieChart" width="550" height="550"></canvas>
+            </div>
+
+          </div>
+        </div>
+      </section>
+      <!-- Slide 8: Takeaways -->
+      <section class="slide slide-text type-slide" data-slide-index="1">
+        <div class="centered-text">
+          <!-- Intro line: same role as the other slides' typewriter -->
+          <p class="typewriter"
+                  data-fulltext="Key Takeaways">
+                </p>
+
+          <!-- Bullets use the same class as Slides 1 and 5 -->
+          <ul class="background-bullets">
+            <li>The U.S. is not on track for the Paris Agreement’s 43% emissions cut by 2030 under current trends.</li>
+            <li>Policy swings (join → withdraw → rejoin) create uncertainty and slow long-term progress.</li>
+            <li>U.S. seasonal data (NDVI and LST) already show warming patterns—hotter summers, shifting vegetation.</li>
+            <li>Global climate policy shapes future warming, which then shapes local U.S. environmental conditions.</li>
+            <li>The U.S. is a major contributor to global emissions, so we must play an equally significant role in protecting the planet.</li>
+          </ul>
+          
+          <!-- Closing callout -->
+          <p class="callout-text">
+            Every year we delay makes the slope steeper. The next few years decide the curve.
+          </p>
+          <a
+                  href="https://usclimatealliance.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="primary-link-btn"
+                >
+                  More information on policies at the U.S. Climate Alliance site
+                </a>
+        </div>
+      </section>
+
 
 
     </div>
@@ -396,5 +457,9 @@
 
   <!-- shared tooltip for charts -->
   <div id="tooltip" class="tooltip" style="opacity:0;"></div>
+  
+  <!-- State hover stats -->
+  <div id="stateHoverStats" class="state-hover-stats"></div>
+  
 </body>
 </html>
