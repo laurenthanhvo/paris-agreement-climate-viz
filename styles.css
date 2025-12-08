@@ -1,4 +1,46 @@
+:root {
+  --bg-dark: #0b1120;
+  --bg-horizon: #1e293b;
 
+  --bg-panel: rgba(15, 23, 42, 0.8);
+  --bg-panel-soft: rgba(15, 23, 42, 0.72);
+
+  --accent: #4f8df5;
+  --accent-soft: #7ac9ff;
+  --us-color: #f5c04f;
+  --other-color: #4f8df5;
+
+  --text-main: #f9fafb;
+  --text-muted: #9aa4c6;
+
+  --border-subtle: rgba(148, 163, 255, 0.36);
+  --radius-lg: 26px;
+  --shadow-soft: 0 32px 80px rgba(15, 23, 42, 0.75);
+
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Roboto", "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: var(--font-main);
+  background:
+    radial-gradient(circle at 0% -10%, #1f2937 0, transparent 45%),
+    radial-gradient(circle at 100% -5%, #111827 0, transparent 45%),
+    linear-gradient(to bottom, var(--bg-dark), var(--bg-horizon) 65%);
+  color: var(--text-main);
+}
 /* -------------------------------------------------------------------
    2. SLIDE SYSTEM
    ------------------------------------------------------------------- */
@@ -93,14 +135,14 @@
   margin: 10px 0 18px;
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-main);;
   max-width: 32rem;
 }
 
 /* Intro paragraph */
 .slide-intro p {
   margin: 0 0 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Right column: slim vertical accent + hint */
@@ -213,7 +255,7 @@ li {
 .subtitle {
   margin: 0 0 6px;
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Slide-specific title on final slide */
@@ -366,7 +408,7 @@ li {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .control select,
@@ -521,7 +563,7 @@ li {
 .slide-footnote,
 .chart-hint {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Footnote at bottom of slide 3 */
@@ -663,7 +705,7 @@ li {
   flex-direction: column;
   gap: 4px;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .yearly-trend-container {
@@ -1102,18 +1144,7 @@ body {
   opacity: 1;
 }
 
-.slide-intro::before {
-  content: "";
-  position: absolute;
-  inset: -15%;
-  pointer-events: none;
-  z-index: 0;
 
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),   /* cool sky */
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%), /* vegetation */
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%); /* warm sun */
-}
 
 /* =========================================
    SLIDE 1 – TEXT DIRECTLY ON BACKGROUND
@@ -1172,22 +1203,7 @@ body {
   align-self: flex-start;
 }
 
-/* ================================
-   SLIDE 1 – SLEEK BACKGROUND + ANIMATION
-   ================================ */
 
-.slide-text.type-slide[data-slide-index="1"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  /* very subtle neutral gradients */
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),   /* cool sky */
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%), /* vegetation */
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%); /* warm sun */
-}
 
 /* Typewriter intro line – subtle accent bar + fade-up */
 .slide-text.type-slide[data-slide-index="1"] .typewriter {
@@ -1409,18 +1425,7 @@ body {
   font-family: var(--font-main);
 }
 
-/* soft colored glows behind the slide */
-#seasonSlide::before {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* main content container for the slide */
 #seasonSlide .slide-inner {
@@ -1461,7 +1466,7 @@ body {
 #seasonSlide .slide-header p {
   font-size: 1.05rem;
   line-height: 1.9;
-  color: var(--text-muted);
+  color: var(--text-main);;
   text-align: left;
   margin: 0 0 1.2rem;
 }
@@ -1595,17 +1600,8 @@ body {
   margin: 1.1rem 0 2.2rem;
 }
 
-/* card containers for map + chart */
-#seasonSlide .season-layout > div,
-#seasonSlide .season-viz-row > div {
-  border-radius: 18px;
-  padding: 1.1rem 1.25rem 1.2rem;
-  background:
-    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.18), transparent 60%),
-    rgba(15, 23, 42, 0.94);
-  border: 1px solid rgba(148, 163, 255, 0.35);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
-}
+
+
 
 /* map & chart titles + subtitles */
 #seasonSlide .season-layout h3,
@@ -1622,7 +1618,7 @@ body {
 #seasonSlide .season-viz-row p.subtitle {
   font-size: 0.9rem;
   line-height: 1.7;
-  color: var(--text-muted);   /* was black; use muted on dark card */
+  color: var(--text-main);;   /* was black; use muted on dark card */
   margin: 0 0 0.9rem;
 }
 
@@ -1639,7 +1635,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   text-align: center;
 }
 
@@ -1676,7 +1672,7 @@ body {
 }
 
 #seasonSlide #seasonMapLegend .map-legend-item span {
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* pills */
@@ -1860,18 +1856,7 @@ body {
   line-height: 1.85;
 }
 
-/* same soft gradient behind the text */
-.slide-text.type-slide[data-slide-index="5"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* intro line + accent bar */
 .slide-text.type-slide[data-slide-index="5"] .typewriter {
@@ -2020,7 +2005,7 @@ body {
 .slide-viz[data-slide-index="6"] .slide-header .slide-subtitle {
   font-size: 1.02rem;
   line-height: 1.85;
-  color: var(--text-muted);
+  color: var(--text-main);;
   max-width: 100rem;
 }
 
@@ -2243,18 +2228,7 @@ svg text.axis-label {
   border: 2px solid #ffffff;
 }
 
-/* === Slide 5 background gradient (whole slide) === */
-.slide[data-slide-index="6"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%,  rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* Make sure all slide content sits above the gradient */
 .slide[data-slide-index="6"] .slide-inner {
@@ -2313,7 +2287,7 @@ svg text.axis-label {
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: var(--text-muted);       /* muted gray */
+  color: var(--text-main);;       /* muted gray */
 }
 
 /* Bigger mouse icon */
@@ -2433,18 +2407,7 @@ svg text.axis-label {
   line-height: 1.85;
 }
 
-/* soft gradient behind the text */
-.slide-text.type-slide[data-slide-index="9"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* intro line + accent bar */
 .slide-text.type-slide[data-slide-index="9"] .typewriter {
@@ -2553,7 +2516,7 @@ svg text.axis-label {
 #timelineLegend.timeline-legend {
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   display: flex;
   flex-wrap: wrap;
   gap: 1.2rem;
@@ -2593,19 +2556,6 @@ svg text.axis-label {
   box-sizing: border-box;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  font-family: var(--font-main);
-  background:
-    radial-gradient(circle at 0% -10%, #9aa9bc 0, transparent 45%),
-    radial-gradient(circle at 100% -5%, #111827 0, transparent 45%),
-    linear-gradient(to bottom, var(--bg-dark), var(--bg-horizon) 65%);
-  color: var(--text-main);
-}
 
 /* Layout for the 3D slide ONLY */
 .viz-root {
@@ -2687,7 +2637,7 @@ body {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .controls {
@@ -2701,7 +2651,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--text-muted);
+  color: var(--text-main);;
   margin-bottom: 0.4rem;
 }
 
@@ -2803,7 +2753,7 @@ body {
   align-items: center;
   gap: 0.45rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .legend-swatch {
@@ -2836,7 +2786,7 @@ body {
 
 .global-total-label {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .global-total-value {
@@ -2849,7 +2799,7 @@ body {
 .caption {
   margin-top: 1.1rem;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   line-height: 1.6;
 }
 
@@ -2895,7 +2845,7 @@ body {
 }
 
 .tooltip-body {
-  color: var(--text-muted);
+  color: var(--text-main);;
   line-height: 1.4;
 }
 
@@ -2928,7 +2878,7 @@ body {
 
 .sector-subtitle {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   margin-top: 0.2rem;
 }
 
@@ -2997,7 +2947,7 @@ body {
   align-items: center;
   gap: 0.35rem;
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .sector-legend-swatch {
@@ -3229,7 +3179,7 @@ body {
   font-size: 0.78rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-main);;
   margin-bottom: 0.2rem;
 }
 
@@ -3259,7 +3209,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .sector-metric-dot {
@@ -3293,7 +3243,7 @@ body {
 .caption {
   margin-top: 1rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   line-height: 1.6;
 }
 
@@ -3307,7 +3257,7 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 0.4rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .interaction-hints {
@@ -3359,7 +3309,7 @@ li,
 .slide-footnote,
 .chart-hint,
 .tooltip-body {
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* === HERO TITLE: make it white + pop off the background === */
@@ -3410,7 +3360,7 @@ li,
   font-size: 0.85rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-muted);    /* grey text like the rest of the UI */
+  color: var(--text-main);;    /* grey text like the rest of the UI */
 }
 
 /* base key style (both ENTER and →) */
@@ -3512,10 +3462,7 @@ li,
 
 /* Background only, now centers content vertically + horizontally */
 #timelineSlide {
-  background:
-    radial-gradient(circle at 0% -10%, #1f2937 0, transparent 45%),
-    radial-gradient(circle at 100% -5%, #111827 0, transparent 45%),
-    linear-gradient(to bottom, var(--bg-dark), var(--bg-horizon) 65%);
+  
   color: var(--text-main);
 
   min-height: 100vh;
@@ -3529,7 +3476,7 @@ li,
 
 /* Inner cluster – wider and centered */
 #timelineSlide .slide-inner {
-  max-width: 1300px;          /* wider than before */
+  max-width: 1800px;          /* wider than before */
   width: 100%;
   margin: 0 auto;
   padding: 0;
@@ -3562,7 +3509,7 @@ li,
   margin: 0;
   font-size: 0.97rem;
   line-height: 1.75;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* ----- Timeline + skinny summary column layout ----- */
@@ -3620,7 +3567,7 @@ li,
 #timelineSlide .viz-card .subtitle {
   margin: 0.25rem 0 0.6rem;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* ---------- TIMELINE CARD ---------- */
@@ -3672,7 +3619,7 @@ li,
 #timelineSlide .timeline-note {
   margin-top: 0.8rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 #timelineSlide .timeline-legend {
@@ -3681,7 +3628,7 @@ li,
   flex-wrap: wrap;
   gap: 0.45rem 0.9rem;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 #timelineSlide .timeline-legend .legend-item {
@@ -3727,7 +3674,7 @@ li,
 #timelineSlide #timelineSummaryText {
   font-size: 0.87rem;
   line-height: 1.75;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Summary links – pill buttons */
@@ -3847,7 +3794,7 @@ li,
   margin: 0;
   font-size: 0.98rem;
   line-height: 1.7;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* --- MAP + CHART LAYOUT --- */
@@ -3888,7 +3835,7 @@ li,
   margin: 0 0 1.1rem;
   font-size: 0.88rem;
   line-height: 1.6;
-  color: var(--text-muted);
+  color: white;
 }
 
 /* Map container smaller */
@@ -3920,20 +3867,20 @@ li,
   gap: 1.1rem;
   margin-top: 0.75rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 #seasonSlide .season-note {
   margin-top: 0.4rem;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Footnote across bottom */
 #seasonSlide .season-footnote {
   margin-top: 1.8rem;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Stack cards on small screens */
@@ -4072,28 +4019,7 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
-:root {
-  --bg-dark: #0b1120;
-  --bg-horizon: #1e293b;
 
-  --bg-panel: rgba(15, 23, 42, 0.8);
-  --bg-panel-soft: rgba(15, 23, 42, 0.72);
-
-  --accent: #4f8df5;
-  --accent-soft: #7ac9ff;
-  --us-color: #f5c04f;
-  --other-color: #4f8df5;
-
-  --text-main: #f9fafb;
-  --text-muted: #9aa4c6;
-
-  --border-subtle: rgba(148, 163, 255, 0.36);
-  --radius-lg: 26px;
-  --shadow-soft: 0 32px 80px rgba(15, 23, 42, 0.75);
-
-  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Roboto", "Segoe UI", sans-serif;
-}
 
 /* ========= Slide 7: Climate Policy Impact Simulator ========= */
 
@@ -4653,3 +4579,111 @@ input[type="range"]::-webkit-slider-thumb {
 #slide5 .slide5-right-card {
   margin-top: 0;
 }
+
+/* Emissions projection chart – make axes white */
+.projection-x-axis path,
+.projection-x-axis line,
+.projection-y-axis path,
+.projection-y-axis line {
+  stroke: #e5e7eb;      /* light gray/white lines */
+}
+
+.projection-x-axis text,
+.projection-y-axis text {
+  fill: #e5e7eb;        /* light labels */
+}
+
+/* Overall padding so the slide isn't floating awkwardly */
+#timelineSlide {
+  padding-top: 72px;
+  padding-bottom: 80px;
+}
+
+/* Shared width for header + cards */
+.timeline-shell {
+  max-width: 1180px;          /* tune if needed */
+  margin: 0 auto;
+}
+
+/* Title + subtitle "card" that lines up with the two viz cards */
+.timeline-header-card {
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.26), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86));
+  border-radius: 28px;
+  padding: 24px 40px 28px;
+  margin-bottom: -30px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.85);
+}
+
+/* Tighten the header text a bit so it feels less “floaty” */
+.timeline-header-card .slide-title {
+  margin: 0 0 10px;
+  font-size: 40px;
+  letter-spacing: 0.13em;
+  font-weight: 800;
+}
+
+.timeline-header-card .slide-subtitle {
+  margin: 0;
+  max-width: 52rem;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+/* Two-card layout under the header, aligned with it */
+.timeline-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 28px;
+}
+
+/* Make both cards the same visual height & remove extra inner gaps */
+.timeline-row .viz-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Optional: reduce extra space above the SVG inside the left card */
+#timelineContainer {
+  margin-top: 16px;
+}
+
+/* Optional: tighten the summary body so it reads like a column */
+.timeline-summary-card #timelineSummaryText {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Responsive: stack the cards on narrow widths */
+@media (max-width: 900px) {
+  .timeline-row {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-header-card {
+    padding: 20px 24px;
+  }
+}
+
+/* Projection slide – dashed milestone lines + labels */
+.proj-policy-line {
+  stroke: #e5e7eb;      /* light line */
+}
+
+.proj-policy-label {
+  fill: #e5e7eb;        /* light text */
+}
+
+#timelineSlide {
+  padding-top: 64px;
+  padding-bottom: 80px;
+  display: flex;
+  justify-content: center;   /* center the inner shell */
+}
+

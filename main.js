@@ -246,7 +246,7 @@ const timelineStories = {
     ]
   },
   2021: {
-    title: "2021: U.S. Rejoins the Paris Agreement",
+    title: "2021 - 2025: U.S. Rejoins the Paris Agreement",
     summary:
       "In early 2021, the U.S. reversed course and rejoined the Paris Agreement, signaling a return to international climate cooperation.",
     bullets: [
@@ -2570,8 +2570,8 @@ function updateYearTracker() {
   const y = ySeasonScale(yValue);
   
   // Convert to absolute positioning (matching your chart margins)
-  const marginLeft = 118;  // Left margin of chart
-  const marginTop = 51;   // Top margin of chart
+  const marginLeft = 121;  // Left margin of chart
+  const marginTop = 54;   // Top margin of chart
   
   const dotSize = 6; // Half the tracker dot size
   const newX = (marginLeft + x - dotSize);

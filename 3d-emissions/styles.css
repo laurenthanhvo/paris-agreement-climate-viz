@@ -109,7 +109,7 @@ body {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .controls {
@@ -123,7 +123,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--text-muted);
+  color: var(--text-main);;
   margin-bottom: 0.4rem;
 }
 
@@ -225,7 +225,7 @@ body {
   align-items: center;
   gap: 0.45rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .legend-swatch {
@@ -259,7 +259,7 @@ body {
 
 .global-total-label {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .global-total-value {
@@ -272,7 +272,7 @@ body {
 .caption {
   margin-top: 1.1rem;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   line-height: 1.6;
 }
 
@@ -318,7 +318,7 @@ body {
 }
 
 .tooltip-body {
-  color: var(--text-muted);
+  color: var(--text-main);;
   line-height: 1.4;
 }
 
@@ -351,7 +351,7 @@ body {
 
 .sector-subtitle {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   margin-top: 0.2rem;
 }
 
@@ -420,7 +420,7 @@ body {
   align-items: center;
   gap: 0.35rem;
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .sector-legend-swatch {
@@ -652,7 +652,7 @@ body {
   font-size: 0.78rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-main);;
   margin-bottom: 0.2rem;
 }
 
@@ -682,7 +682,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .sector-metric-dot {
@@ -714,7 +714,7 @@ body {
 .caption {
   margin-top: 1rem;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
   line-height: 1.6;
 }
 
@@ -728,7 +728,7 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 0.4rem; /* space between heading and first hint */
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .interaction-hints {
