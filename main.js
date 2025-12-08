@@ -246,7 +246,7 @@ const timelineStories = {
     ]
   },
   2021: {
-    title: "2021: U.S. Rejoins the Paris Agreement",
+    title: "2021 - 2025: U.S. Rejoins the Paris Agreement",
     summary:
       "In early 2021, the U.S. reversed course and rejoined the Paris Agreement, signaling a return to international climate cooperation.",
     bullets: [
@@ -1631,23 +1631,24 @@ function initTimeline() {
     .attr("y2", centerY);
 
   // colored membership phases
-  g.selectAll("rect.phase")
-    .data(usParisPhases)
-    .join("rect")
-    .attr("class", "phase")
-    .attr("x", (d) => x(d.start))
-    .attr("y", centerY - 12)
-    .attr("width", (d) => x(d.end) - x(d.start))
-    .attr("height", 24)
-    .attr("fill", (d) => d.color)
-    .attr("opacity", 0.85)
-    .on("mouseenter", (event, d) => {
-      d3.select("#timelineNote").text(d.label);
+const phaseHeight = 6; // thinner bar
 
-      if (activeClickedYear === null) {
-        updateTimelineSummary(d.year);
-      }
-    });
+g.selectAll("rect.phase")
+  .data(usParisPhases)
+  .join("rect")
+  .attr("class", "phase")
+  .attr("x", (d) => x(d.start))
+  .attr("y", centerY - phaseHeight / 2)   // recenter vertically
+  .attr("width", (d) => x(d.end) - x(d.start))
+  .attr("height", phaseHeight)           // use new height
+  .attr("fill", (d) => d.color)
+  .attr("opacity", 0.85)
+  .on("mouseenter", (event, d) => {
+    d3.select("#timelineNote").text(d.label);
+    if (activeClickedYear === null) {
+      updateTimelineSummary(d.year);
+    }
+  });
 
   // milestones as dots
   const dots = g
@@ -1936,7 +1937,7 @@ function initProjectionSlide() {
     .attr("x", w / 2)
     .attr("y", h + 32)
     .attr("text-anchor", "middle")
-    .attr("fill", "#4b5563")
+    .attr("fill", "#ffffffff")
     .attr("font-size", 13)
     .attr("font-weight", "600")
     .text("Year");
@@ -1947,7 +1948,7 @@ function initProjectionSlide() {
     .attr("x", -h / 2)
     .attr("y", -30)
     .attr("text-anchor", "middle")
-    .attr("fill", "#4b5563")
+    .attr("fill", "#ffffffff")
     .attr("font-size", 20)
     .attr("font-weight", "600")
     .text("Global greenhouse gas emissions (GtCO₂e)");
@@ -1970,7 +1971,7 @@ function initProjectionSlide() {
     .attr("x2", d => xProjScale(d))
     .attr("y1", 0)
     .attr("y2", h)
-    .attr("stroke", "#6b7280")
+    .attr("stroke", "#ffffffff")
     .attr("stroke-width", 1)
     .attr("stroke-dasharray", "4,4")
     .attr("opacity", 0.7);
@@ -1982,7 +1983,7 @@ function initProjectionSlide() {
     .attr("x", d => xProjScale(d))
     .attr("y", -8)              // slightly above the plotting area
     .attr("text-anchor", "middle")
-    .attr("fill", "#9ca3af")
+    .attr("fill", "#ffffffff")
     .attr("font-size", 15)
     .text(d => policyLabels[d]);
   
@@ -2569,8 +2570,8 @@ function updateYearTracker() {
   const y = ySeasonScale(yValue);
   
   // Convert to absolute positioning (matching your chart margins)
-  const marginLeft = 109;  // Left margin of chart
-  const marginTop = 51;   // Top margin of chart
+  const marginLeft = 121;  // Left margin of chart
+  const marginTop = 54;   // Top margin of chart
   
   const dotSize = 6; // Half the tracker dot size
   const newX = (marginLeft + x - dotSize);
@@ -2965,6 +2966,26 @@ document.addEventListener("DOMContentLoaded", () => {
   Object.values(sliders).forEach(sl => sl.addEventListener("input", update));
 
   update();
+});
+
+const prevBtn = document.querySelector('.nav-arrow-prev');   // <-- update selector
+const nextBtn = document.querySelector('.nav-arrow-next');   // <-- update selector
+
+window.addEventListener('keydown', (e) => {
+  const key = e.key;
+
+  // Only allow arrow keys for slide navigation
+  if (key === 'ArrowLeft' || key === 'ArrowRight' ||
+      key === 'ArrowUp'   || key === 'ArrowDown') {
+    e.preventDefault();       // stop scrolling or any other control using arrows
+    e.stopPropagation();
+  }
+
+  if (key === 'ArrowLeft' && prevBtn) {
+    prevBtn.click();
+  } else if (key === 'ArrowRight' && nextBtn) {
+    nextBtn.click();
+  }
 });
 
 

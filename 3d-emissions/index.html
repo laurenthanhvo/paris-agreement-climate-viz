@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Emissions Landscape</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ui-panel">
+    <div class="ui-header">
+      <h1>3D Global Emissions Landscape</h1>
+      <p>
+        Rotate and explore how total greenhouse gas emissions are distributed
+        across the world's top emitters. Use the year slider to see how the
+        landscape changes over time. The United States is highlighted.
+      </p>
+    </div>
+
+        <div class="controls">
+      <div class="play-row">
+        <button id="play-button" class="play-button">PLAY</button>
+        <div class="play-year">
+          <span class="play-year-number" id="year-value"></span>
+        </div>
+      </div>
+
+      <label for="year-slider">
+        Year
+      </label>
+      <input
+        type="range"
+        id="year-slider"
+        min="0"
+        max="0"
+        value="0"
+        step="1"
+      />
+
+      <!-- NEW: global total display -->
+      <div class="global-total-row">
+        <div class="global-total-label">Global emissions</div>
+        <div class="global-total-value" id="global-total-value">—</div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-swatch legend-swatch--us"></span>
+          <span>United States</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch legend-swatch--other"></span>
+          <span>Other top emitters</span>
+        </div>
+      </div>
+    </div>
+
+
+        <div class="caption">
+  <p>
+    Bars show total GHG emissions per country (MtCO₂e) based on EDGAR data.
+    Heights are normalized per year so the tallest bar always fills the scene.
+  </p>
+
+  <div class="caption-howto">How to use the 3D model</div>
+
+  <div class="interaction-hints">
+    <div class="hint">
+      <div class="hint-icon hint-icon--rotate"></div>
+      <div class="hint-text">
+        <span class="hint-label">Rotate</span>
+        Use one finger (or click + drag) to orbit around the 3D bars.
+      </div>
+    </div>
+
+    <div class="hint">
+      <div class="hint-icon hint-icon--pan"></div>
+      <div class="hint-text">
+        <span class="hint-label">Pan</span>
+        Use two fingers (or right-click + drag) to slide the scene left, right, up, or down.
+      </div>
+    </div>
+
+    <div class="hint">
+      <div class="hint-icon hint-icon--zoom"></div>
+      <div class="hint-text">
+        <span class="hint-label">Zoom</span>
+        Pinch with two fingers (or scroll) to move closer or farther from the bars.
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+  <!-- Right column: 3D scene + detail panel -->
+  <div class="viz-column">
+    <div id="scene-container"></div>
+
+    <div id="sector-panel">
+      <div class="sector-header">
+        <div>
+          <h2 id="sector-title">Click a bar to explore sectors</h2>
+          <p id="sector-subtitle" class="sector-subtitle">
+            Select a country in the 3D chart to see how its emissions are distributed
+            across sectors such as power, transport, and buildings.
+          </p>
+        </div>
+        <div class="sector-pill" id="sector-year-pill">Year</div>
+      </div>
+      <!-- NEW: main flex row -->
+  <div class="sector-main">
+    <div id="sector-viz-container"></div>
+
+    <!-- NEW: metrics sidebar -->
+    <div id="sector-metrics" class="sector-metrics">
+      <div class="sector-metrics-title">Sector breakdown</div>
+      <div id="sector-metrics-list"></div>
+    </div>
+  </div>
+      <div id="sector-viz-container"></div>
+      <div id="sector-legend"></div>
+
+      
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip" style="display:none;">
+    <div class="tooltip-title" id="tooltip-country"></div>
+    <div class="tooltip-body">
+      <div><span id="tooltip-year"></span></div>
+      <div>Emissions: <span id="tooltip-emissions"></span> MtCO₂e</div>
+      <div>Share of global: <span id="tooltip-share"></span>%</div>
+      <div>Rank: <span id="tooltip-rank"></span></div>
+    </div>
+  </div>
+
+    <div class="tooltip-title" id="tooltip-country"></div>
+    <div class="tooltip-body">
+      <div><span id="tooltip-year"></span></div>
+      <div>Emissions: <span id="tooltip-emissions"></span> MtCO₂e</div>
+      <div>Share of global: <span id="tooltip-share"></span>%</div>
+      <div>Rank: <span id="tooltip-rank"></span></div>
+    </div>
+  </div>
+
+  <!-- Map bare specifier "three" to a real URL -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js"
+    }
+  }
+  </script>
+
+  <!-- Load libs as a module, then expose them globally + run main.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
+      "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js",
+      "d3": "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+    }
+  }
+  </script>
+
+  <!-- Load our main file as an ES module -->
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

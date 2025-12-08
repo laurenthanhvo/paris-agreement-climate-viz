@@ -1,3 +1,26 @@
+:root {
+  --bg-dark: #0b1120;
+  --bg-horizon: #1e293b;
+
+  --bg-panel: rgba(15, 23, 42, 0.8);
+  --bg-panel-soft: rgba(15, 23, 42, 0.72);
+
+  --accent: #4f8df5;
+  --accent-soft: #7ac9ff;
+  --us-color: #f5c04f;
+  --other-color: #4f8df5;
+
+  --text-main: #f9fafb;
+  --text-muted: #9aa4c6;
+
+  --border-subtle: rgba(148, 163, 255, 0.36);
+  --radius-lg: 26px;
+  --shadow-soft: 0 32px 80px rgba(15, 23, 42, 0.75);
+
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Roboto", "Segoe UI", sans-serif;
+}
+
 *,
 *::before,
 *::after {
@@ -8,58 +31,16 @@ html,
 body {
   margin: 0;
   padding: 0;
-}
-
-/* Design tokens */
-:root {
-  --bg-page: #f5f4f2;           /* warm light background */
-  --bg-panel: #ffffff;          /* white panels */
-  --bg-panel-soft: #f9fafb;
-  --border-subtle: #e2e5ea;
-  --border-strong: #c5cad3;
-  --text-main: #111827;
-  --text-muted: #6b7280;
-  --text-soft: #9ca3af;
-  --accent-main: #1d4ed8;       /* deep blue */
-  --accent-secondary: #0f766e;  /* teal */
-  --accent-warm: #b45309;       /* amber accent */
-  --accent-light: #e5edff;
-  --accent-bg-line: #d1d5db;
-  --radius-large: 20px;
-  --radius-medium: 14px;
-  --radius-pill: 999px;
-  --shadow-soft:
-    0 14px 30px rgba(15, 23, 42, 0.06),
-    0 2px 4px rgba(15, 23, 42, 0.04);
-  --shadow-subtle: 0 10px 18px rgba(15, 23, 42, 0.04);
-  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-}
-
-/* -------------------------------------------------------------------
-   1. GLOBAL LAYOUT
-   ------------------------------------------------------------------- */
-
-body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
   font-family: var(--font-main);
-  background-color: var(--bg-page);
+  background:
+    radial-gradient(circle at 0% -10%, #1f2937 0, transparent 45%),
+    radial-gradient(circle at 100% -5%, #111827 0, transparent 45%),
+    linear-gradient(to bottom, var(--bg-dark), var(--bg-horizon) 65%);
   color: var(--text-main);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
 }
-
-/* App wrapper */
-#app {
-  position: relative;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-bottom: 56px;
-}
-
 /* -------------------------------------------------------------------
    2. SLIDE SYSTEM
    ------------------------------------------------------------------- */
@@ -154,14 +135,14 @@ body {
   margin: 10px 0 18px;
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-main);;
   max-width: 32rem;
 }
 
 /* Intro paragraph */
 .slide-intro p {
   margin: 0 0 0.75rem;
-  color: #4b5563;
+  color: var(--text-main);;
 }
 
 /* Right column: slim vertical accent + hint */
@@ -174,7 +155,7 @@ body {
   height: 90%;
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.18),
+    rgba(255, 255, 255, 0.545),
     rgba(148, 163, 184, 0.04)
   );
 }
@@ -197,11 +178,11 @@ body {
   padding: 3px 10px;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  background: #000000;
   box-shadow: 0 2px 0 #e5e7eb;
   font-family: var(--font-mono);
   font-size: 0.8rem;
-  color: #111827;
+  color: var(--text-main);
 }
 
 /* Primary CTA button used on text slides */
@@ -274,7 +255,7 @@ li {
 .subtitle {
   margin: 0 0 6px;
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Slide-specific title on final slide */
@@ -291,7 +272,7 @@ li {
   margin-top: 1.5rem;
   font-size: 1.05rem;
   font-weight: 500;
-  color: var(--accent-main);
+  color: white;
 }
 
 /* -------------------------------------------------------------------
@@ -308,12 +289,12 @@ li {
 
 .top-right-btn {
   border-radius: var(--radius-pill);
-  background: #ffffff;
+  background: #000000;
   border: 1px solid rgba(148, 163, 184, 0.8);
   padding: 7px 16px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-main);
   text-decoration: none;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -325,7 +306,7 @@ li {
 .top-right-btn:hover {
   background: #111827;
   color: #f9fafb;
-  border-color: #111827;
+  border-color: var(--text-main);
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.28);
 }
@@ -340,7 +321,7 @@ li {
   border-radius: var(--radius-pill);
   border: 1px solid rgba(148, 163, 184, 0.8);
   background: rgba(255, 255, 255, 0.9);
-  color: #111827;
+  color: var(--text-main);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -354,16 +335,26 @@ li {
 
 .nav-arrow-left {
   left: 20px;
+  background: #111827;
+  color: #f9fafb;
+  border-color: var(--text-main);
+  transform: translateY(-50%) translateY(-1px);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.35);
 }
 
 .nav-arrow-right {
   right: 20px;
+  background: #111827;
+  color: #f9fafb;
+  border-color: var(--text-main);
+  transform: translateY(-50%) translateY(-1px);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.35);
 }
 
 .nav-arrow:hover {
-  background: #111827;
-  color: #f9fafb;
-  border-color: #111827;
+  background: white;
+  color: black;
+  border-color: black;
   transform: translateY(-50%) translateY(-1px);
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.35);
 }
@@ -417,7 +408,7 @@ li {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: #4b5563;
+  color: var(--text-main);;
 }
 
 .control select,
@@ -433,7 +424,7 @@ li {
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-subtle);
   background: #ffffff;
-  color: #111827;
+  color: var(--text-main);
   padding: 7px 15px;
   font-size: 0.9rem;
   appearance: none;
@@ -529,7 +520,7 @@ li {
   background: #ffffff;
   font-size: 0.86rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-main);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -541,7 +532,7 @@ li {
 .play-btn:hover {
   background: #111827;
   color: #f9fafb;
-  border-color: #111827;
+  border-color: var(--text-main);
   transform: translateY(-1px);
 }
 
@@ -572,7 +563,7 @@ li {
 .slide-footnote,
 .chart-hint {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 /* Footnote at bottom of slide 3 */
@@ -714,7 +705,7 @@ li {
   flex-direction: column;
   gap: 4px;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);;
 }
 
 .yearly-trend-container {
@@ -775,80 +766,6 @@ li {
 .yearly-expl-card p {
   font-size: 0.94rem;
   color: #374151;
-}
-
-
-/* ======================================================
-   SLIDE 6 – GLOBAL EMISSIONS BAR RACE + SECTOR PIE
-   Same design language as Slide 3
-   ====================================================== */
-/* ==========================
-   SLIDE 6 LAYOUT FIXES
-========================== */
-
-#slide6 .slide6-layout {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-
-  width: 100%;
-  gap: 35px;
-}
-
-/* Left column — BAR RACE */
-#slide6BarRaceContainer {
-  flex: 1.6;              /* Wider bar race area */
-  min-width: 950px;       /* Forces wide layout */
-}
-
-#slide6BarRace {
-  width: 100% !important;
-  height: 700px !important;
-}
-
-/* Right column — PIE CHART */
-#slide6PieContainer {
-  flex: 0.9;
-  min-width: 450px;
-}
-
-#slide6PieChart {
-  width: 520px;     /* size on the page */
-  height: 520px;
-}
-#slide6PieContainer {
-  margin-left: 40px;
-}
-
-
-/* Header tweaks */
-#slide6 h2 {
-  margin-bottom: 8px;
-}
-
-#slide6 .control-row {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  /* margin-top: 12px; */
-}
-
-.slider-with-play {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#slide6YearLabel {
-  font-size: 20px;
-  font-weight: 600;
-}
-/* Tooltip improvements */
-.chartjs-tooltip {
-  font-size: 16px !important;       /* Bigger font */
-  padding: 10px 14px !important;    /* Larger box */
-  border-radius: 8px !important;
 }
 
 
@@ -1057,8 +974,8 @@ svg text {
 @supports not (-webkit-background-clip: text) {
   .slide-intro h1 {
     background-image: none;
-    color: #111827;
-    -webkit-text-fill-color: #111827;
+    color: var(--text-main);
+    -webkit-text-fill-color: var(--text-main);
     text-shadow: none;
   }
 }
@@ -1163,7 +1080,7 @@ body {
   /* turn OFF clipping and transparency */
   -webkit-background-clip: initial;
   background-clip: initial;
-  color: #111827;                         /* solid dark text */
+  color: var(--text-main);                         /* solid dark text */
   -webkit-text-fill-color: #000000;
 
   font-weight: 800;                       /* chunkier look */
@@ -1227,18 +1144,7 @@ body {
   opacity: 1;
 }
 
-.slide-intro::before {
-  content: "";
-  position: absolute;
-  inset: -15%;
-  pointer-events: none;
-  z-index: 0;
 
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),   /* cool sky */
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%), /* vegetation */
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%); /* warm sun */
-}
 
 /* =========================================
    SLIDE 1 – TEXT DIRECTLY ON BACKGROUND
@@ -1276,7 +1182,7 @@ body {
   margin-top: 0;
   font-size: 1.02rem;
   line-height: 1.75;
-  color: #111827;
+  color: var(--text-main);
 }
 
 /* bullets – simple, clean */
@@ -1297,22 +1203,7 @@ body {
   align-self: flex-start;
 }
 
-/* ================================
-   SLIDE 1 – SLEEK BACKGROUND + ANIMATION
-   ================================ */
 
-.slide-text.type-slide[data-slide-index="1"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  /* very subtle neutral gradients */
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),   /* cool sky */
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%), /* vegetation */
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%); /* warm sun */
-}
 
 /* Typewriter intro line – subtle accent bar + fade-up */
 .slide-text.type-slide[data-slide-index="1"] .typewriter {
@@ -1334,7 +1225,7 @@ body {
   height: 1.9rem;
   border-radius: 999px;
   /* neutral grey bar instead of blue/green */
-  background: linear-gradient(180deg, #6b7280, #111827);
+  background: linear-gradient(180deg, #ffffff, #ffffff);
 }
 
 /* Bullets – clean, custom dots + staggered animation */
@@ -1360,7 +1251,7 @@ body {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 999px;
-  background: #4b5563; /* grey dot */
+  background: #ffffff; /* grey dot */
   box-shadow: 0 0 0 6px rgba(15, 23, 42, 0.06); /* soft grey halo */
 }
 
@@ -1396,8 +1287,8 @@ body {
 
 /* Monochrome button styling just for this slide */
 .slide-text.type-slide[data-slide-index="1"] .primary-link-btn {
-  border-color: #111827;
-  color: #111827;
+  border-color: var(--text-main);
+  color: var(--text-main);
   background: transparent;
 }
 
@@ -1465,12 +1356,12 @@ body {
 
 /* Slightly darker accent bar to anchor the text */
 .slide-text.type-slide[data-slide-index="1"] .typewriter::before {
-  background: linear-gradient(180deg, #4b5563, #111827);
+  background: linear-gradient(180deg, #ffffff, #ffffff);
 }
 
 /* Bullet dots a little stronger so they read as a design element */
 .slide-text.type-slide[data-slide-index="1"] .background-bullets li::before {
-  background: #374151;
+  background: #fafafa;
   box-shadow: 0 0 0 7px rgba(15, 23, 42, 0.07);
 }
 
@@ -1523,1072 +1414,44 @@ body {
   text-transform: uppercase; /* matches the rest of your UI */
 }
 
-
-/* =========================================================
-   SLIDE 2 – FULL-BLEED, SLEEK TIMELINE (NO WHITE CONTAINERS)
-   ========================================================= */
-
-/* Layout: no white panel, centered vertically, full viewport */
-.slide-viz[data-slide-index="2"] .slide-inner {
-  background: none;
-  box-shadow: none;
-  border-radius: 0;
-  margin: 0 72px;              /* left/right breathing room */
-  padding: 72px 0 56px;
-  min-height: 100vh;           /* fill the screen */
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 28px;
-}
-
-/* Header sits above the dark timeline bar */
-.slide-viz[data-slide-index="2"] .slide-header h2 {
-  font-size: 2.1rem;
-  letter-spacing: 0.02em;
-  margin-bottom: 0.25rem;
-}
-
-.slide-viz[data-slide-index="2"] .slide-header p {
-  max-width: 720px;
-  font-size: 0.95rem;
-}
-
-/* Remove card look on this slide – just clean text + viz */
-.slide-viz[data-slide-index="2"] .viz-card {
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
-/* Stack timeline + summary with a bit of space */
-.slide-viz[data-slide-index="2"] .timeline-stack {
-  margin-top: 18px;
-  gap: 18px;
-}
-
-/* =====================
-   Dark navy timeline bar
-   ===================== */
-
-
-
-.slide-viz[data-slide-index="2"] #timelineSvg {
-  width: 100%;
-  height:100%;
-}
-
-
-
-/* Tiny dots along the line */
-.slide-viz[data-slide-index="2"] #timelineSvg circle,
-.slide-viz[data-slide-index="2"] .timeline-dot {
-  fill: #f8faf3 !important;       /* soft beige */
-  stroke: #020617;
-  stroke-width: 2px;
-}
-
-/* Selected / hovered year dot – a little larger */
-.slide-viz[data-slide-index="2"] .timeline-dot.selected,
-.slide-viz[data-slide-index="2"] #timelineSvg circle.timeline-hover-dot {
-  r: 7.5;
-  stroke-width: 3px;
-}
-
-/* Hover guide line + any extra lines */
-.slide-viz[data-slide-index="2"] #timelineSvg line {
-  stroke: rgba(248, 250, 244, 0.7);
-}
-
-/* All labels inside the dark bar in beige */
-.slide-viz[data-slide-index="2"] #timelineContainer text {
-  fill: #f8faf3 !important;
-  font-size: 15px;
-}
-
-/* Note under the bar */
-.slide-viz[data-slide-index="2"] .timeline-note {
-  margin-top: 10px;
-  font-size: 0.8rem;
-  color: #111827;
-}
-
-/* =========================
-   Summary text under timeline
-   ========================= */
-
-.slide-viz[data-slide-index="2"] .timeline-summary-card {
-  margin-top: 6px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(15, 23, 42, 0.12);
-}
-
-.slide-viz[data-slide-index="2"] .timeline-summary-card h3 {
-  font-size: 0.95rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #111827;
-  margin-bottom: 0.6rem;
-}
-
-.slide-viz[data-slide-index="2"] .timeline-summary-text {
-  max-width: 780px;
-}
-
-.slide-viz[data-slide-index="2"] .timeline-summary-text p,
-.slide-viz[data-slide-index="2"] .timeline-summary-text li {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #111827;
-}
-
-/* Primary-source buttons – dark navy pill, no bright colors */
-.slide-viz[data-slide-index="2"] .timeline-link-btn {
-  background: #020617;
-  border: 1px solid #020617;
-  color: #f8faf3;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-}
-
-.slide-viz[data-slide-index="2"] .timeline-link-btn:hover {
-  background: #050816;
-  border-color: #050816;
-}
-
-/* =========================
-   Small-screen tweak
-   ========================= */
-@media (max-width: 1100px) {
-  .slide-viz[data-slide-index="2"] .slide-inner {
-    margin: 0 20px;
-    padding: 64px 0 48px;
-  }
-}
-
-/* =========================================
-   SLIDE 2 – CLEAN, FULL-WIDTH TIMELINE
-   (OVERRIDES – put at bottom of styles.css)
-   ========================================= */
-
-/* Make slide 2 fill the viewport and center the content */
-#timelineSlide {
-  position: relative;
-  overflow: hidden;
-}
-
-#timelineSlide .slide-inner {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 3rem 4vw 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2.25rem;
-}
-
-/* Keep the beige + soft navy background like other slides */
-#timelineSlide::before {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(15, 23, 42, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 80%, rgba(15, 23, 42, 0.10), transparent 55%);
-}
-
-/* Header text stays fixed at top-left of the slide */
-#timelineSlide .slide-header {
-  max-width: 660px;
-}
-
-#timelineSlide .slide-header h2 {
-  font-size: clamp(1.9rem, 2.3vw, 2.3rem);
-  letter-spacing: 0.02em;
-  margin-bottom: 0.4rem;
-}
-
-#timelineSlide .slide-header p {
-  font-size: 0.96rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-/* Layout: timeline on the left, explanation on the right */
-#timelineSlide .timeline-stack {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: center;
-}
-
-/* Remove the card look just for this slide */
-#timelineSlide .viz-card,
-#timelineSlide .timeline-summary-card {
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  border: none !important;
-  padding: 0 !important;
-}
-
-/* Full-bleed timeline: stretch to full screen width */
-
-
-/* Straight horizontal base line */
-#timelineSvg .timeline-base {
-  stroke: #111827;
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-
-/* Hide the fat phase “pills” so we only see a clean line + dots */
-#timelineSvg rect.phase {
-  display: none;
-}
-
-
-
-/* Year labels */
-#timelineSvg text {
-  fill: #111827 !important;
-  font-size: 0.75rem;
-}
-
-/* Slight emphasis on hover */
-#timelineSvg .timeline-dot:hover {
-  stroke-width: 3 !important;
-}
-
-/* Note under the line */
-#timelineNote {
-  margin-top: 0.8rem;
-  font-size: 0.8rem;
-  color: #6b7280;
-}
-
-/* Summary text on the right: keep height stable so layout doesn’t jump */
-#timelineSummaryText {
-  min-height: 7.5rem;
-}
-
-#timelineSlide .timeline-summary-card h3 {
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  margin-bottom: 0.6rem;
-}
-
-#timelineSlide .timeline-summary-card p,
-#timelineSlide .timeline-summary-card li {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-#timelineSlide .timeline-summary-card ul {
-  margin: 0.4rem 0 0.8rem;
-  padding-left: 1.1rem;
-}
-
-/* Responsive: stack for smaller screens */
-@media (max-width: 900px) {
-  #timelineSlide .slide-inner {
-    padding: 2.5rem 1.75rem 2.4rem;
-  }
-
-  #timelineSlide .timeline-stack {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.8rem;
-  }
-
-}
-
-/* =========================================
-   SLIDE 2 – CLEAN, FULL-WIDTH TIMELINE
-   ========================================= */
-
-/* Layout: title + copy stay fixed at top, timeline centered below */
-#timelineSlide {
-  position: relative;
-  overflow: hidden;
-}
-
-#timelineSlide .slide-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 3.2rem 4vw 2.4rem;
-  min-height: 100vh;
-  box-sizing: border-box;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2.4rem;
-}
-
-/* Use the same soft beige + subtle navy glow as other slides */
-#timelineSlide::before {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(15, 23, 42, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 80%, rgba(15, 23, 42, 0.10), transparent 55%);
-}
-
-/* Header text */
-#timelineSlide .slide-header {
-  max-width: 660px;
-}
-
-#timelineSlide .slide-header h2 {
-  font-size: 1.8rem;
-  letter-spacing: 0.02em;
-  margin-bottom: 0.4rem;
-}
-
-#timelineSlide .slide-header p {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-/* Timeline + summary side-by-side, no visible cards */
-#timelineSlide .timeline-stack {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: flex-start;
-  margin-top: 0.5rem;
-}
-
-/* kill all dark containers just on this slide */
-#timelineSlide .viz-card,
-#timelineSlide .timeline-summary-card {
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-}
-
-/* summary typography */
-#timelineSlide .timeline-summary-card h3 {
-  font-size: 0.95rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-}
-
-#timelineSlide .timeline-summary-text {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-/* =========================================
-   TIMELINE SVG – FULL-WIDTH, STRAIGHT LINE
-   ========================================= */
-
-
-
-/* base line – straight horizontal bar */
-#timelineSvg line.timeline-base-line {
-  stroke: #111827;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-}
-
-
-
-/* dots */
-#timelineSvg circle.milestone {
-  fill: #f5f4f2;
-  stroke: #020617;
-  stroke-width: 2;
-}
-
-#timelineSvg circle.milestone:hover {
-  stroke-width: 3;
-}
-
-/* year labels */
-#timelineSvg text {
-  fill: #111827;
-  font-size: 0.75rem;
-}
-
-/* timeline note under the bar */
-#timelineNote {
-  font-size: 0.98rem;    /* increase size */
-  font-weight: 600;      /* make it bold-ish */
-  letter-spacing: 0.03em;
-  color: #111827; 
-}
-
-/* responsive: stack timeline + summary vertically on small screens */
-@media (max-width: 900px) {
-  #timelineSlide .slide-inner {
-    padding: 2.4rem 1.6rem 2.2rem;
-  }
-
-  #timelineSlide .timeline-stack {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
-  }
-}
-
-/* =====================================
-   TIMELINE SLIDE – STACKED, NO CONTAINER
-   ===================================== */
-
-/* Layout for the whole slide */
-#timelineSlide {
-  position: relative;
-  overflow: hidden;
-}
-
-#timelineSlide .slide-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 3rem 4vw 2.4rem;
-  min-height: 100vh;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 2.4rem;
-}
-
-/* Stack timeline on top, summary below */
-#timelineSlide .timeline-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1.8rem;
-  width: 100%;
-}
-
-/* Kill the card look just for this slide */
-#timelineSlide .viz-card,
-#timelineSlide .timeline-summary-card {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-}
-
-
-/* Base line of the timeline – straight horizontal line */
-#timelineSvg line.timeline-base {
-  stroke: #111827;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-}
-
-/* Year dots */
-#timelineSvg circle.milestone {
-  fill: #f9fafb;
-  stroke: #020617;
-  stroke-width: 2;
-}
-
-/* Year labels */
-#timelineSvg text {
-  fill: #111827;
-  font-size: 11px;
-}
-
-/* Summary text styling */
-#timelineSummaryTitle {
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  margin-bottom: 0.5rem;
-}
-
-#timelineSummaryText {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-#timelineSummaryLinks a {
-  font-size: 0.88rem;
-  text-decoration: underline;
-}
-
-/* FINAL TIMELINE TWEAKS – THIN BLACK LINE, NO THICK BAR */
-
-
-
-/* dots on the line */
-#timelineSvg circle.milestone {
-  fill: #f9fafb !important;     /* light center */
-  stroke: #111827 !important;   /* black outline */
-  stroke-width: 2 !important;
-}
-
-/* year labels in black */
-#timelineSvg text {
-  fill: #111827 !important;
-  font-weight: 500;
-}
-
-/* Make timeline year labels black */
-#timelineSvg text.milestone-label {
-  fill: #111827 !important;  /* near-black */
-}
-
-/* ---- Final polish for Slide 2 timeline ---- */
-
-/* Light, subtle base line instead of a harsh black bar */
-#timelineSlide #timelineSvg .timeline-base {
-  stroke: #cbd5e1;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-/* Make all year labels in the SVG solid black */
-#timelineSlide #timelineSvg text,
-#timelineSlide #timelineContainer text,
-#timelineSlide #timelineSvg .milestone-label {
-  fill: #111827 !important;
-}
-
-/* Timeline dots: light fill, dark outline (matches header theme) */
-#timelineSlide #timelineSvg .timeline-dot,
-#timelineSlide #timelineContainer .timeline-dot {
-  fill: #f9fafb;
-  stroke: #111827;
-  stroke-width: 2px;
-}
-
-/* Tighten the spacing a bit so the stack feels intentional */
-#timelineSlide #timelineContainer {
-  margin-top: 10px;
-}
-
-#timelineSlide .timeline-hover-zone {
-  fill: transparent !important;
-  stroke: none !important;
-}
-
-#timelineNote {
-  margin-top: -2rem;   /* was larger before */
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* Timeline button – match primary-link-btn style */
-.timeline-link-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.78rem 1.85rem;
-  border-radius: 999px;
-  border: 1px solid #020617;
-  background: rgba(15, 23, 42, 0.03);
-  color: #111827;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 600;
-  text-decoration: none;
-  gap: 0.4rem;
-  margin-top: 1.5rem;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.09);
-  transition:
-    background 0.18s ease,
-    color 0.18s ease,
-    transform 0.16s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.timeline-link-btn::after {
-  content: "↗";
-  font-size: 0.8rem;
-}
-
-.timeline-link-btn:hover {
-  background: #020617;
-  color: #f9fafb;
-  border-color: #020617;
-  transform: translateY(-1px);
-  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.2);
-}
-
-/* =======================================================
-   TIMELINE SLIDE – BIGGER, CLEANER TYPOGRAPHY + SPACING
-   (place this at the END of styles.css)
-   ======================================================= */
-
-/* Main header + intro text */
-#timelineSlide .slide-header h2 {
-  font-size: clamp(2.1rem, 2.6vw, 2.5rem);
-  letter-spacing: 0.04em;
-  margin-bottom: 0.6rem;
-}
-
-#timelineSlide .slide-header p {
-  font-size: 1.05rem;
-  line-height: 1.85;
-  color: #4b5563;
-}
-
-/* “Timeline of U.S. Membership” title + subtitle */
-#timelineSlide .viz-title {
-  font-size: 1.05rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-#timelineSlide .timeline-subtitle {
-  font-size: 0.98rem;
-  line-height: 1.75;
-  color: #4b5563;
-}
-
-/* SVG year labels + dots */
-#timelineSlide #timelineSvg text,
-#timelineSlide #timelineSvg .milestone-label {
-  fill: #111827 !important;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-/* Timeline note under the bar */
-#timelineSlide #timelineNote {
-  margin-top: 0.4rem;
-  font-size: 1.02rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  color: #111827;
-}
-
-/* Summary card title + body */
-#timelineSlide #timelineSummaryTitle {
-  font-size: 1.05rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  margin-bottom: 0.7rem;
-}
-
-#timelineSlide #timelineSummaryText p,
-#timelineSlide #timelineSummaryText li {
-  font-size: 0.98rem;
-  line-height: 1.8;
-}
-
-/* Keep the pill button chunky enough to match previous slide */
-#timelineSlide .timeline-link-btn {
-  font-size: 0.9rem;
-  padding: 0.9rem 2.1rem;
-}
-
-/* --- Global slide background: sky + vegetation + warm sun --- */
-.slide-intro::before,
-.slide-text::before,
-#timelineSlide::before,
-#seasonsSlide::before,
-#yearlyLineSlide::before,
-#projectionSlide::before,
-#writeupSlide::before {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),   /* cool sky */
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%), /* vegetation */
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%); /* warm sun */
-}
-
-/* Timeline slide title with image-filled text */
-#timelineSlide .timeline-title {
-  font-size: 2rem;
-  font-weight: 900;
-  line-height: 3;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 0.9rem;
-
-  /* fallback plain dark text */
-  color: #111827;
-
-  /* image fill effect */
-  background-image: url("assets/paris-hero-text.jpg");  /* use your Earth/satellite image */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  text-align: left;
-}
-
-/* Slight glow behind the title for contrast on the light gradient */
-#timelineSlide .slide-header {
-  position: relative;
-}
-
-#timelineSlide .slide-header::before {
-  content: "";
-  position: absolute;
-  inset: -1.5rem 10%;
-  background: radial-gradient(
-    circle at 50% 0%,
-    rgba(15, 23, 42, 0.12),
-    transparent 60%
-  );
-  opacity: 0.7;
-  z-index: 0;
-}
-
-#timelineSlide .slide-header > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ===========================================
-   TIMELINE SLIDE – HEADER LAYOUT (TEXT + GLOBE)
-   =========================================== */
-
-/* Make header a two-column grid: text on left, globe on right */
-#timelineSlide .slide-header {
-  position: relative;
-  max-width: 1000px;
-  margin: 0 auto 3rem;
-  display: grid;
-  grid-template-columns: minmax(0, 2.5fr) auto;
-  align-items: center;
-  column-gap: 2.5rem;
-  text-align: left;
-}
-
-/* Title + paragraph both live in the left column */
-#timelineSlide .slide-header h2,
-#timelineSlide .slide-header p {
-  grid-column: 1 / 2;
-}
-
-/* Globe sits in the right column */
-#timelineSlide .timeline-globe {
-  grid-column: 2 / 3;
-  justify-self: center;
-  margin-top: 0; /* override previous margin */
-}
-
-/* Globe styling */
-#timelineSlide .timeline-globe img {
-  width: 300px;
-  height: 300px;
-  object-fit: contain;
-  filter: drop-shadow(0 22px 45px rgba(15, 23, 42, 0.45));
-}
-
-/* Bigger, image-filled title still works, just left-aligned now */
-#timelineSlide .timeline-title {
-  font-size: clamp(2.3rem, 3vw, 2.8rem);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  line-height: 1.25;
-  margin-bottom: 0.8rem;
-
-  color: #111827; /* fallback */
-
-  background-image: url("assets/paris-hero-text.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Intro paragraph next to globe */
-#timelineSlide .slide-header p {
-  font-size: 1.05rem;
-  line-height: 1.9;
-  color: #4b5563;
-  max-width: 620px;
-}
-
-/* Remove the old glow 'container' behind the header */
-#timelineSlide .slide-header::before {
-  content: none !important;
-}
-
-/* ===========================================
-   REMOVE CARD / CONTAINER LOOK ON THIS SLIDE
-   =========================================== */
-
-/* Make the inner column invisible (no white panel) */
-#timelineSlide .slide-inner {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-/* Kill card styling for timeline and summary on this slide */
-#timelineSlide .viz-card,
-#timelineSlide .timeline-summary-card {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-}
-
-/* Keep summary text readable without the box */
-#timelineSlide #timelineSummaryTitle {
-  font-size: 1.05rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  margin-bottom: 0.7rem;
-}
-
-#timelineSlide #timelineSummaryText p,
-#timelineSlide #timelineSummaryText li {
-  font-size: 0.98rem;
-  line-height: 1.8;
-  color: #374151;
-}
-
-/* Keep the background just as your global gradient;
-   no extra overlays on this slide */
-#timelineSlide::before {
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
-
-
-/* ---------------------------------------------------
-   Align timeline header with the timeline text
-   --------------------------------------------------- */
-
-/* Make the header span the same width as the timeline stack
-   instead of being a centered, narrower block */
-#timelineSlide .slide-header {
-  max-width: 100%;          /* take full inner width */
-  margin: 0 0 3rem;         /* no auto-centering */
-  justify-items: flex-start;
-}
-
-/* Keep the title and intro text left-aligned */
-#timelineSlide .slide-header h2,
-#timelineSlide .slide-header p {
-  text-align: left;
-}
-
-/* ---------------------------------------------------
-   Center the summary section under the timeline
-   --------------------------------------------------- */
-
-/* Center the container that holds the summary text */
-#timelineSlide .timeline-summary-card {
-  max-width: 780px;
-  margin: 3rem auto 0 auto;  /* horizontally centered */
-}
-
-/* Center the text inside the summary */
-#timelineSlide #timelineSummaryTitle,
-#timelineSlide #timelineSummaryText {
-  text-align: center;
-}
-
-/* Bullets still readable but centered under the title */
-#timelineSlide #timelineSummaryText p,
-#timelineSlide #timelineSummaryText li {
-  margin-left: 0;
-}
-
-/* ---------------------------------------------
-   TIMELINE SLIDE – bigger title, tighter layout
-   --------------------------------------------- */
-
-/* Make the main title much larger */
-#timelineSlide .slide-header h2 {
-  font-size: clamp(3rem, 4vw, 3.6rem);  /* bigger than before */
-  line-height: 1.18;
-  letter-spacing: 0.08em;
-}
-
-/* Pull the timeline up closer to the subtitle/globe */
-#timelineSlide .slide-header {
-  margin-bottom: 1rem;   /* was larger */
-}
-
-#timelineSlide .timeline-stack {
-  margin-top: 0rem;      /* reduce gap above the timeline section */
-}
-
-/* Keep the summary block centered on the page... */
-#timelineSlide .timeline-summary-card {
-  max-width: 880px;
-  margin: 2.4rem auto 0 auto;  /* centered, a bit closer to the timeline */
-}
-
-/* ...but make its text left-aligned again */
-#timelineSlide #timelineSummaryTitle,
-#timelineSlide #timelineSummaryText {
-  text-align: left;
-}
-
-/* Slight indent for summary body text so it looks clean */
-#timelineSlide #timelineSummaryText p,
-#timelineSlide #timelineSummaryText li {
-  margin-left: 0;
-}
-
-/* ------------------------------------------------
-   TIMELINE SLIDE – spacing + globe + summary width
-   ------------------------------------------------ */
-
-/* 1) Make the title larger and tighten title ↔ subtitle gap */
-#timelineSlide .slide-header h2 {
-  font-size: clamp(3.4rem, 4.6vw, 3.9rem);
-  line-height: 1.1;
-  letter-spacing: 0.08em;
-  margin-bottom: -5rem;   /* less gap before subtitle */
-}
-
-#timelineSlide .slide-header p {
-  margin-top: 0.35rem;      /* keep subtitle tucked under the title */
-}
-
-/* 2) Move the globe higher */
-#timelineSlide .timeline-globe {
-  top: -10rem !important;   /* was lower – pull it up */
-  
-}
-
-/* 3) Reduce empty space above the timeline */
-#timelineSlide .timeline-stack {
-  margin-top: -8rem !important;   /* tighten header → timeline spacing */
-}
-
-/* 4) Reduce space above the summary + match width to timeline/text */
-#timelineSlide .timeline-summary-card {
-  margin-top: 1rem !important;   /* less gap above summary */
-  max-width: 3060px;                /* roughly the same width as the timeline */
-  width: 200%;
-  margin-left: auto;
-
-  /* keep it visually “container-less” */
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/* Summary text left-aligned inside that wider block */
-#timelineSlide #timelineSummaryTitle,
-#timelineSlide #timelineSummaryText {
-  text-align: left;
-}
-
-/* Make the timeline summary text span the full content width */
-#timelineSlide .timeline-summary-card {
-  max-width: 100% !important;   /* as wide as the slide's content column */
-  width: 100% !important;
-}
-
-/* Remove the narrow max-width on the paragraphs & bullets */
-#timelineSlide #timelineSummaryText {
-  max-width: 100% !important;
-}
-
-#timelineSlide #timelineSummaryText p,
-#timelineSlide #timelineSummaryText li {
-  max-width: none !important;
-  width: 100% !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
-#timelineSlide #timelineSummaryText p:last-of-type {
-  margin-bottom: 0rem;          /* was larger by default */
-}
-
-#timelineSlide .timeline-link-btn {
-  margin-top: 0rem !important;  /* was ~1.5–1.6rem before */
-}
-
 /* ======================================================
    SLIDE 3 – HOW DO U.S. SEASONS LOOK FROM SPACE?
-   Match margins & proportions with the timeline slide
+   Modern, techy styling + clean containers
    ====================================================== */
 
-#seasonSlide::before {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
+#seasonSlide {
+  position: relative;
+  color: var(--text-main);
+  font-family: var(--font-main);
 }
 
-/* No card background */
+
+
+/* main content container for the slide */
 #seasonSlide .slide-inner {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-}
-
-#seasonSlide .slide-inner {
-  max-width: 1600px;   /* was ~1100px */
-  width: 94vw;         /* use more of the viewport horizontally */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-/* Make the control row span the same width and hug the left edge */
-#seasonSlide .control-row.season-controls {
-  width: 100%;
-  max-width: 7000px;
-  margin-left: 0;
-  margin-right: 0;
-  margin-bottom: 0;
+  position: relative;
+  max-width: 1200px;
+  width: 94vw;
+  margin: 28px auto 24px;
+  z-index: 1;               /* above the glow */
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
 }
 
 /* ------------------------------
-   Title – same image-text style
+   Title + subtitle
    ------------------------------ */
+
 #seasonSlide .slide-header h2 {
   font-size: clamp(3rem, 4vw, 3.8rem);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   line-height: 1.1;
-  margin-bottom: 0.8rem;
+  margin: 0 0 0.8rem;
   text-align: left;
-
-  /* fallback text color */
-  color: #111827;
 
   /* photo texture inside text */
   background-image: url("assets/paris-hero-text.jpg");
@@ -2600,328 +1463,63 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* Subtitle paragraph */
 #seasonSlide .slide-header p {
   font-size: 1.05rem;
   line-height: 1.9;
-  color: #4b5563;
+  color: var(--text-main);;
   text-align: left;
+  margin: 0 0 1.2rem;
 }
 
 /* ------------------------------
-   Controls row
+   Controls row (variable / month / year)
    ------------------------------ */
-#seasonSlide .season-controls {
-  margin-top: 0rem;
-  margin-bottom: 1rem;
-}
 
-/* ------------------------------
-   Map + Line Chart Layout
-   ------------------------------ */
-#seasonSlide .season-layout {
+#seasonSlide .control-row.season-controls {
+  width: 100%;
+  margin: 0 0 1.1rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: start;
-  margin-top: 1rem;
-  margin-bottom: 3rem;
-  text-align: left;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
 }
 
-/* Remove white box visuals */
-#seasonSlide .season-layout > div {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-/* Map and chart titles */
-#seasonSlide .season-layout h3 {
-  font-size: 1.05rem;
+#seasonSlide .control label {
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #111827;
-  margin-bottom: 0.7rem;
-}
-
-/* Map/chart subtitles */
-#seasonSlide .season-layout p.subtitle {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #000000;
-  margin-bottom: 1.25rem;
-}
-
-/* ============================
-   Slide 3 – Map legend pills
-   ============================ */
-
-#seasonSlide #seasonMapLegend {
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: #111827;
-  width: fit-content;        /* keep legend tight under caption */
-}
-
-/* "January 2014 – NDVI (unitless)" */
-#seasonSlide #seasonMapLegend .map-legend-title {
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-/* Row of pills (side-by-side) */
-#seasonSlide #seasonMapLegend .map-legend-pills {
-  display: flex;             /* <- makes them horizontal */
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 1.25rem;
-}
-
-/* Each pill + its label */
-#seasonSlide #seasonMapLegend .map-legend-item {
-  display: flex;
-  flex-direction: column;    /* pill on top, label below */
-  align-items: center;
-  gap: 0.15rem;
-}
-
-/* Generic pill styling */
-#seasonSlide #seasonMapLegend .map-pill {
+  color: var(--text-main);
   display: block;
-  width: 34px;
-  height: 10px;
+  margin-bottom: 0.35rem;
+}
+
+#seasonSlide .control select {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
   border-radius: 999px;
-}
-
-/* NDVI colors for each break */
-#seasonSlide #seasonMapLegend .map-pill-1 { background: #dff3d6; } /* -0.1–0.0 */
-#seasonSlide #seasonMapLegend .map-pill-2 { background: #c6e9b9; } /*  0.0–0.2 */
-#seasonSlide #seasonMapLegend .map-pill-3 { background: #9bd487; } /*  0.2–0.4 */
-#seasonSlide #seasonMapLegend .map-pill-4 { background: #6bbf5b; } /*  0.4–0.6 */
-#seasonSlide #seasonMapLegend .map-pill-5 { background: #429543; } /*  0.6–0.8 */
-#seasonSlide #seasonMapLegend .map-pill-6 { background: #236333; } /*  0.8–0.9 */
-
-/* ==== Slide 3: Year slider + play button, timeline style ==== */
-
-/* Layout */
-#slide3 .slider-with-play {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Year label: simple text, no yellow pill */
-#slide3 #yearLabel {
-  font-weight: 600;
-  color: #111827;
-  background: none;
-  padding: 0;
-  margin-left: 0;
-  font-size: 0.85rem;
-  min-width: 40px;
-  display: inline-block;
-}
-
-/* Track = light grey bar */
-#slide3 #yearSlider {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  border: 1px solid #cbd5e1;
-}
-
-/* WebKit thumb (Chrome, Safari) */
-#slide3 #yearSlider::-webkit-slider-runnable-track {
-  height: 6px;
-  background: transparent;
-}
-
-#slide3 #yearSlider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #0f172a;         /* black outline like timeline dots */
-  box-shadow: 0 2px 4px rgba(15,23,42,0.20);
-  margin-top: -7px;                  /* vertically center on the track */
-}
-
-/* Firefox thumb */
-#slide3 #yearSlider::-moz-range-track {
-  height: 6px;
-  background: transparent;
-}
-#slide3 #yearSlider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #0f172a;
-  box-shadow: 0 2px 4px rgba(15,23,42,0.20);
-}
-
-/* Play button: white pill like the nav arrows */
-#slide3 .play-btn {
-  padding: 6px 16px;
-  background: #ffffff;
-  color: #111827;
-  border-radius: 999px;
-  border: 1px solid #cbd5e1;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.18);
-  transition: background 0.15s ease, border-color 0.15s ease,
-              transform 0.1s ease, box-shadow 0.15s ease;
-}
-
-#slide3 .play-btn:hover {
-  background: #f9fafb;
-  border-color: #111827;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(15,23,42,0.25);
-}
-
-/* When playing: invert colors */
-#slide3 .play-btn.playing {
-  background: #111827;
-  color: #f9fafb;
-  border-color: #111827;
-}
-
-/* Tracker dot on the line chart – white center + colored ring */
-#slide3 #yearTracker .tracker-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 3px solid #2563eb; /* or #f97316 if you want it orange */
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
-}
-
-/* Make milestone-style vertical lines + labels readable on light bg */
-#slide3 .yearly-milestone-line {
-  stroke: #9ca3af;
-  stroke-dasharray: 4 4;
-  opacity: 0.9;
-}
-
-#slide3 .yearly-milestone-label {
-  fill: #111827;
+  border: 1px solid rgba(148, 163, 255, 0.35);
+  background: rgba(15, 23, 42, 0.96);
+  color: var(--text-main);
   font-size: 0.8rem;
-  font-weight: 600;
-  text-anchor: middle;
+  font-weight: 500;
 }
 
-/* Make viz slides use more horizontal space */
-.slide-viz .slide-inner {
-  max-width: 3000px;            /* wider than the default */
-  margin: 24px auto 0px;       /* center, small side margins */
-}
-
-/* Make the header, controls, map+chart row and footnote all use that width */
-#seasonSlide .slide-header,
-#seasonSlide .season-controls,
-#seasonSlide .season-layout,
-#seasonSlide .season-footnote {
-  max-width: 3000px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* ==== Slide 3: Year slider + play button ==== */
-
-#slide3 .slider-with-play {
+/* year slider + play button container */
+#seasonSlide .slider-with-play {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-#slide3 #yearLabel {
-  font-weight: 600;
-  color: #111827;
-  background: none;
-  padding: 0;
-  margin-left: 0;
+/* "CHART YEAR: 2018" value */
+#seasonSlide #yearLabel {
+  font-weight: 800;
+  color: var(--text-main);
   font-size: 0.85rem;
   min-width: 40px;
-  display: inline-block;
 }
 
-/* Track = white with black outline */
-#slide3 #yearSlider {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 8px;
-  background: #ffffff;
-  border-radius: 999px;
-  border: 2px solid #111827;
-}
-
-/* WebKit */
-#slide3 #yearSlider::-webkit-slider-runnable-track {
-  height: 8px;
-  background: transparent;
-}
-
-#slide3 .play-btn.playing {
-  background: #111827 !important;   /* black */
-  color: #f9fafb !important;        /* white text */
-  border-color: #111827 !important;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
-}
-
-#seasonSlide .season-viz-row {
-  display: grid; /* just to be safe / override */
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
-  column-gap: 2rem;     /* adjust gap if you want */
-}
-
-/* The SVG container must be relative so we can absolutely place the tracker */
-#seasonBarContainer {
-  position: relative;
-}
-
-/* Wrapper that moves with the highlighted point */
-#yearTracker {
-  position: absolute;
-  display: none;               /* JS will show/hide */
-  align-items: center;
-  pointer-events: none;        /* don't block hover on circles */
-  transform: translate(-50%, -50%);  /* center on cx, cy */
-}
-
-/* The moving dot itself */
-#yearTracker .tracker-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background: #000000;         /* pure black */
-  border: 2px solid #ffffff;   /* thin white edge so it pops on the line */
-}
-
-/* Black pill with text: "2024: 0.502" */
-#yearTracker .tracker-label {
-  margin-left: 8px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #020617;         /* near-black */
-  color: #f9fafb;
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.6);
-}
-
-/* Slide 3 – year slider thumb (the circle on the timeline) */
+/* slider track + thumb */
 #seasonSlide #yearSlider {
   flex: 1;
   -webkit-appearance: none;
@@ -2932,28 +1530,23 @@ body {
   border: 1px solid #000000;
 }
 
-/* WebKit (Chrome, Safari) */
 #seasonSlide #yearSlider::-webkit-slider-runnable-track {
   height: 6px;
   background: transparent;
 }
-
 #seasonSlide #yearSlider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #000;          /* pure black circle */
-  border: 2px solid #ffffff; /* white outline */
-  margin-top: -7px;          /* centers on the 6px track */
+  background: #000;
+  border: 2px solid #ffffff;
+  margin-top: -7px;
 }
-
-/* Firefox */
 #seasonSlide #yearSlider::-moz-range-track {
   height: 6px;
   background: transparent;
 }
-
 #seasonSlide #yearSlider::-moz-range-thumb {
   width: 18px;
   height: 18px;
@@ -2962,54 +1555,280 @@ body {
   border: 2px solid #ffffff;
 }
 
-/* Slide 3 – Play / Pause button styling */
+/* play / pause pill */
 #seasonSlide .play-btn {
   padding: 6px 16px;
-  background: #ffffff;          /* white when idle */
+  background: #ffffff;
   color: #111827;
   border-radius: 999px;
   border: 1px solid #cbd5e1;
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.18);
-  transition: background 0.15s ease, border-color 0.15s ease,
-              transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
 }
 
 #seasonSlide .play-btn:hover {
   background: #f9fafb;
-  border-color: #111827;
+  border-color: var(--text-main);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
 }
 
-/* When it’s in “playing” state, make it black instead of blue */
 #seasonSlide .play-btn.playing {
-  background: #111827;          /* black */
-  color: #f9fafb;               /* white text */
-  border-color: #111827;
-  box-shadow: 0 3px 8px rgba(15,23,42,0.3);
+  background: #111827;
+  color: #f9fafb;
+  border-color: var(--text-main);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.3);
 }
 
-/* Slide 3 – make control labels dark + bold */
-#seasonSlide .control label {
-  font-size: 1rem;
-  font-weight: 700;      /* bold */
-  letter-spacing: 0.04em;
+/* ------------------------------
+   Map + line chart row
+   ------------------------------ */
+
+#seasonSlide .season-layout,
+#seasonSlide .season-viz-row {           /* support either class name */
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+  column-gap: 2.25rem;
+  align-items: flex-start;
+  margin: 1.1rem 0 2.2rem;
+}
+
+
+
+
+/* map & chart titles + subtitles */
+#seasonSlide .season-layout h3,
+#seasonSlide .season-viz-row h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #111827;        /* dark */
+  color: var(--text-main);
+  margin: 0 0 0.4rem;
 }
 
-/* "2023" part inside "CHART YEAR: 2023" */
-#seasonSlide #yearLabel {
-  font-weight: 800;
-  color: #111827;
+#seasonSlide .season-layout p.subtitle,
+#seasonSlide .season-viz-row p.subtitle {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-main);;   /* was black; use muted on dark card */
+  margin: 0 0 0.9rem;
 }
 
-/* Text inside the dropdowns on this slide */
-#seasonSlide .control select {
-  color: #111827;
+/* SVG containers */
+#seasonMapContainer,
+#seasonBarContainer {
+  width: 100%;
+  height: 320px;
+  position: relative; /* for tracker overlay */
+}
+
+/* footnote at bottom */
+#seasonSlide .season-footnote {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-size: 0.78rem;
+  color: var(--text-main);;
+  text-align: center;
+}
+
+/* ------------------------------
+   Map legend pills
+   ------------------------------ */
+
+#seasonSlide #seasonMapLegend {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  width: fit-content;
+}
+
+#seasonSlide #seasonMapLegend .map-legend-title {
   font-weight: 500;
+  margin-bottom: 0.25rem;
 }
+
+/* row of pills */
+#seasonSlide #seasonMapLegend .map-legend-pills {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+/* pill + label */
+#seasonSlide #seasonMapLegend .map-legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+#seasonSlide #seasonMapLegend .map-legend-item span {
+  color: var(--text-main);;
+}
+
+/* pills */
+#seasonSlide #seasonMapLegend .map-pill {
+  display: block;
+  width: 34px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+#seasonSlide #seasonMapLegend .map-pill-1 { background: #dff3d6; }
+#seasonSlide #seasonMapLegend .map-pill-2 { background: #c6e9b9; }
+#seasonSlide #seasonMapLegend .map-pill-3 { background: #9bd487; }
+#seasonSlide #seasonMapLegend .map-pill-4 { background: #6bbf5b; }
+#seasonSlide #seasonMapLegend .map-pill-5 { background: #429543; }
+#seasonSlide #seasonMapLegend .map-pill-6 { background: #236333; }
+
+/* ------------------------------
+   Line chart tracker & milestones
+   ------------------------------ */
+
+#yearTracker {
+  position: absolute;
+  display: none;               /* JS shows it */
+  align-items: center;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+#yearTracker .tracker-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #000;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+}
+
+#yearTracker .tracker-label {
+  margin-left: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #020617;
+  color: #f9fafb;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.6);
+}
+
+.yearly-milestone-line {
+  stroke: #9ca3af;
+  stroke-dasharray: 4 4;
+  opacity: 0.9;
+}
+
+.yearly-milestone-label {
+  fill: #f9fafb;           /* light on dark chart */
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+/* ------------------------------
+   Responsive tweak
+   ------------------------------ */
+
+@media (max-width: 900px) {
+  #seasonSlide .control-row.season-controls {
+    grid-template-columns: 1fr;
+  }
+
+  #seasonSlide .season-layout,
+  #seasonSlide .season-viz-row {
+    grid-template-columns: 1fr;
+    row-gap: 1.6rem;
+  }
+}
+
+/* Use more width and height for this slide */
+#seasonSlide .slide-inner {
+  max-width: 1400px;      /* wider cards */
+  width: 96vw;
+  margin: 28px auto 32px;
+}
+
+/* Map + chart row now uses full width */
+#seasonSlide .season-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.4fr); /* map ~43%, chart ~57% */
+  column-gap: 2.5rem;
+  align-items: stretch;
+  margin: 1.2rem 0 2.4rem;
+}
+
+/* generic card shell (map + chart) */
+#seasonSlide .season-card {
+  border-radius: 20px;
+  padding: 1.1rem 1.4rem 1.3rem;
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.18), transparent 60%),
+    rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 255, 0.35);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+}
+
+/* controls row now lives inside the map card */
+#seasonSlide .season-map-card .season-controls {
+  width: 100%;
+  margin: 0 0 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem 1.1rem;
+}
+
+#seasonSlide .season-map-card h3 {
+  margin-top: 0.1rem;
+}
+
+/* chart header = title + (subtitle + slider) aligned in one row */
+#seasonSlide .season-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.6rem;
+  margin-bottom: 0.8rem;
+}
+
+/* keep chart text compact */
+#seasonSlide .season-chart-header h3 {
+  margin: 0 0 0.25rem;
+}
+
+#seasonSlide .season-chart-header .subtitle {
+  margin: 0;
+}
+
+/* slider + play inside the chart card */
+#seasonSlide .slider-with-play {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0.25rem;
+}
+
+/* year label in the chart header */
+#seasonSlide #yearLabel {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  min-width: 46px;
+  text-align: right;
+}
+
 
 /* =========================================
    SLIDE 5 – REUSE SLIDE 1 LOOK
@@ -3037,18 +1856,7 @@ body {
   line-height: 1.85;
 }
 
-/* same soft gradient behind the text */
-.slide-text.type-slide[data-slide-index="5"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* intro line + accent bar */
 .slide-text.type-slide[data-slide-index="5"] .typewriter {
@@ -3058,7 +1866,7 @@ body {
   letter-spacing: 0.01em;
   line-height: 1.7;
   margin: 0 0 1.1rem 0;
-  color: #111827;
+  color: var(--text-main);
 
   opacity: 0;
   transform: translateY(10px);
@@ -3072,7 +1880,7 @@ body {
   width: 6px;
   height: 1.9rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #4b5563, #111827);
+  background: linear-gradient(180deg, #ffffff, #ffffff);
 }
 
 /* bullets like slide 1 – custom dots, no default list-style */
@@ -3087,7 +1895,7 @@ body {
   padding-left: 1.5rem;
   margin-bottom: 0.55rem;
   font-size: 1.08rem;
-  color: #374151;
+  color: #ffffff;
 
   opacity: 0;
   transform: translateY(6px);
@@ -3101,7 +1909,7 @@ body {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 999px;
-  background: #374151;
+  background: #ffffff;
   box-shadow: 0 0 0 7px rgba(15, 23, 42, 0.07);
 }
 
@@ -3115,8 +1923,8 @@ body {
   text-transform: uppercase;
   border-width: 1.5px;
 
-  border-color: #111827;
-  color: #111827;
+  border-color: var(--text-main);
+  color: var(--text-main);
   background: transparent;
 
   opacity: 0;
@@ -3181,7 +1989,7 @@ body {
   margin: 0 0 0.7rem;
 
   /* fallback solid color */
-  color: #111827;
+  color: var(--text-main);
 
   /* image in the font */
   background-image: url("assets/paris-hero-text.jpg");
@@ -3197,7 +2005,7 @@ body {
 .slide-viz[data-slide-index="6"] .slide-header .slide-subtitle {
   font-size: 1.02rem;
   line-height: 1.85;
-  color: #4b5563;
+  color: var(--text-main);;
   max-width: 100rem;
 }
 
@@ -3328,7 +2136,7 @@ body {
   flex-direction: column;
   gap: 0.4rem;
   font-size: 0.85rem;
-  color: #111827;
+  color: var(--text-main);
 }
 
 /* Each legend row */
@@ -3355,13 +2163,13 @@ body {
 svg text.axis-label {
   font-size: 13px !important;
   font-weight: 600;
-  fill: #4b5563;
+  fill: #ffffff;
 }
 
 .axis-label {
   font-size: 13px;
   font-weight: 600;
-  fill: #4b5563;
+  fill: #ffffff;
 }
 
 /* Slide 6 – GHG year slider styling */
@@ -3376,7 +2184,7 @@ svg text.axis-label {
 #slide5 #projectionYearLabel {
   font-size: 14px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-main);
 }
 
 /* Base slider track */
@@ -3420,18 +2228,7 @@ svg text.axis-label {
   border: 2px solid #ffffff;
 }
 
-/* === Slide 5 background gradient (whole slide) === */
-.slide[data-slide-index="6"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%,  rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* Make sure all slide content sits above the gradient */
 .slide[data-slide-index="6"] .slide-inner {
@@ -3466,11 +2263,13 @@ svg text.axis-label {
 #slide5 .card-title {
   font-size: 20px;      /* bump size */
   font-weight: 700;     /* bold */
+  color: white;
 }
 
 /* Make the "Model:" label + dropdown text bold */
 #slide5 .card-controls label {
   font-weight: 500;
+  color: white;
 }
 
 #slide5 #projectionModelSelect {
@@ -3478,6 +2277,7 @@ svg text.axis-label {
   padding: 6px 14px;            /* keeps the pill look */
   border-radius: 999px;
   width: 250px;                 /* make dropbox pill longer in length */
+  color: black;
 }
 
 /* Scroll instruction text under the legend */
@@ -3487,7 +2287,7 @@ svg text.axis-label {
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: #4b5563;       /* muted gray */
+  color: var(--text-main);;       /* muted gray */
 }
 
 /* Bigger mouse icon */
@@ -3495,7 +2295,7 @@ svg text.axis-label {
   width: 26px;          /* was 18px */
   height: 40px;         /* was 28px */
   border-radius: 14px;  /* keep it rounded, but a bit larger */
-  border: 3px solid #9ca3af;  /* slightly thicker border */
+  border: 3px solid #ffffff;  /* slightly thicker border */
   position: relative;
   box-sizing: border-box;
   transform: translateY(-16px);
@@ -3549,7 +2349,7 @@ svg text.axis-label {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #374151;
+  color: #ffffff;
   cursor: default;
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
@@ -3568,7 +2368,7 @@ svg text.axis-label {
   gap: 12px;
   font-size: 14px;
   line-height: 1.4;
-  color: #374151;
+  color: #ffffff;
   font-weight: 500;
 }
 
@@ -3607,18 +2407,7 @@ svg text.axis-label {
   line-height: 1.85;
 }
 
-/* soft gradient behind the text */
-.slide-text.type-slide[data-slide-index="9"]::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 0% 15%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(circle at 105% 75%, rgba(16, 185, 129, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(251, 191, 36, 0.06), transparent 60%);
-}
+
 
 /* intro line + accent bar */
 .slide-text.type-slide[data-slide-index="9"] .typewriter {
@@ -3628,7 +2417,7 @@ svg text.axis-label {
   letter-spacing: 0.01em;
   line-height: 1.7;
   margin: 0 0 1.1rem 0;
-  color: #111827;
+  color: var(--text-main);
 
   opacity: 0;
   transform: translateY(10px);
@@ -3642,7 +2431,7 @@ svg text.axis-label {
   width: 6px;
   height: 1.9rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #4b5563, #111827);
+  background: linear-gradient(180deg, #ffffff, #ffffff);
 }
 
 /* bullets – exact same style as slide 1/5 */
@@ -3657,7 +2446,7 @@ svg text.axis-label {
   padding-left: 1.5rem;
   margin-bottom: 0.55rem;
   font-size: 1.08rem;
-  color: #374151;
+  color: #ffffff;
 
   opacity: 0;
   transform: translateY(6px);
@@ -3671,7 +2460,7 @@ svg text.axis-label {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 999px;
-  background: #374151;
+  background: #fdfeff;
   box-shadow: 0 0 0 7px rgba(15, 23, 42, 0.07);
 }
 
@@ -3718,39 +2507,7 @@ svg text.axis-label {
   fill: #ef4444 !important;   /* red */
 }
 
-/* =========================================
-   FINAL OVERRIDE: color-coded timeline phases
-   ========================================= */
 
-/* Keep same thickness/shape, just recolor */
-#timelineSlide #timelineSvg line.timeline-phase {
-  stroke-width: 4;
-  stroke-linecap: round;
-}
-
-/* 1) Joined & ratified (2015–2017) – green */
-#timelineSlide #timelineSvg line.timeline-phase:nth-of-type(1) {
-  stroke: #22c55e !important;
-  stroke-width: 15;
-}
-
-/* 2) Withdrawal announced – yellow */
-#timelineSlide #timelineSvg line.timeline-phase:nth-of-type(2) {
-  stroke: #facc15 !important;
-  stroke-width: 15;
-}
-
-/* 3) U.S. formally leaves – red */
-#timelineSlide #timelineSvg line.timeline-phase:nth-of-type(3) {
-  stroke: #ef4444 !important;
-  stroke-width: 15;
-}
-
-/* 4) U.S. rejoins – green again */
-#timelineSlide #timelineSvg line.timeline-phase:nth-of-type(4) {
-  stroke: #22c55e !important;
-  stroke-width: 15;
-}
 
 /* =======================
    Timeline color legend
@@ -3759,7 +2516,7 @@ svg text.axis-label {
 #timelineLegend.timeline-legend {
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: #4b5563;
+  color: var(--text-main);;
   display: flex;
   flex-wrap: wrap;
   gap: 1.2rem;
@@ -3792,6 +2549,1400 @@ svg text.axis-label {
   background: #ef4444;   /* red */
 }
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+/* Layout for the 3D slide ONLY */
+.viz-root {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  grid-template-rows: 100%;
+  gap: 1.75rem;
+  padding: 1.9rem 2.4rem;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .viz-root {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(320px, 1fr);
+    padding: 1.1rem;
+  }
+}
+
+
+@media (max-width: 900px) {
+  body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(320px, 1fr);
+    padding: 1.1rem;
+  }
+}
+
+/* Shared “glass” shell for all major cards */
+
+.ui-panel,
+#scene-container,
+#sector-panel {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.26), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86));
+  backdrop-filter: blur(22px);
+}
+
+/* Subtle inner highlight line */
+
+.ui-panel::before,
+#scene-container::before,
+#sector-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+/* Left panel */
+
+/* Wrapper only – no big card */
+.ui-panel {
+  max-width: 1600px;
+  margin: 1.5rem auto 0;  /* still centers the 3 blocks on the slide */
+  padding: 0;             /* no padded “card” look */
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.ui-header h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.8rem 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff !important;
+}
+
+.ui-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-main);;
+}
+
+.controls {
+  margin-top: 1.35rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(148, 163, 255, 0.24);
+}
+
+.controls label {
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-main);;
+  margin-bottom: 0.4rem;
+}
+
+/* Play + year */
+
+.play-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+.play-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: radial-gradient(circle at 20% 0%, #f9fafb, #d1d5db);
+  color: var(--text-main);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.5);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.play-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.7);
+}
+
+.play-button.playing {
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+  color: #f9fafb;
+}
+
+.play-year {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.play-year-number {
+  font-variant-numeric: tabular-nums;
+}
+
+#year-value {
+  font-weight: 600;
+  color: var(--accent-soft);
+}
+
+/* Slider */
+
+#year-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 255, 0.25);
+  outline: none;
+  cursor: pointer;
+}
+
+#year-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 25% 0%, #ffffff, #93c5fd);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.26);
+}
+
+#year-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle at 25% 0%, #ffffff, #93c5fd);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.26);
+}
+
+/* Legend + totals */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--text-main);;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.7);
+}
+
+.legend-swatch--us {
+  background: linear-gradient(135deg, var(--us-color), #f3b23a);
+}
+
+.legend-swatch--other {
+  background: linear-gradient(135deg, #5a8df7, #67e3ff);
+}
+
+.global-total-row {
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.16), transparent 60%),
+    rgba(15, 23, 42, 0.85);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.global-total-label {
+  font-size: 0.8rem;
+  color: var(--text-main);;
+}
+
+.global-total-value {
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--accent-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.caption {
+  margin-top: 1.1rem;
+  font-size: 0.78rem;
+  color: var(--text-main);;
+  line-height: 1.6;
+}
+
+/* Right column: 3D + detail panel */
+
+.viz-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+/* 3D container */
+
+#scene-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 2 1 60%;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #111827 0, #020617 65%);
+}
+
+/* Tooltip */
+
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  min-width: 190px;
+  max-width: 260px;
+  background: rgba(8, 12, 26, 0.97);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.78rem;
+  z-index: 50;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.tooltip-body {
+  color: var(--text-main);;
+  line-height: 1.4;
+}
+
+/* Sector detail panel */
+
+#sector-panel {
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.2), transparent 55%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.88));
+  padding: 1rem 1.35rem 1.3rem;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sector-header h2 {
+  font-size: 1rem;
+  margin: 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.sector-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-main);;
+  margin-top: 0.2rem;
+}
+
+.sector-pill {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 255, 0.4);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--accent-soft);
+}
+
+/* Radar chart container */
+
+#sector-viz-container {
+  width: 100%;
+  height: 260px;
+}
+
+#sector-viz-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Radar chart styles */
+
+.radar-grid-circle {
+  fill: none;
+  stroke: rgba(148, 163, 255, 0.25);
+  stroke-dasharray: 3 4;
+}
+
+.radar-axis-line {
+  stroke: rgba(148, 163, 255, 0.25);
+  stroke-width: 0.7;
+}
+
+.radar-axis-label {
+  fill: var(--text-muted);
+  font-size: 0.68rem;
+  text-anchor: middle;
+}
+
+.radar-polygon {
+  fill: rgba(96, 165, 250, 0.32);
+  stroke: #60a5fa;
+  stroke-width: 1.6;
+}
+
+.radar-point {
+  stroke: #020617;
+  stroke-width: 1;
+}
+
+/* Legend under radar chart */
+
+#sector-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.sector-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--text-main);;
+}
+
+.sector-legend-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+/* Labels above bars */
+
+.bar-label {
+  position: absolute;
+  pointer-events: none;
+  font-size: 0.65rem;
+  color: rgba(241, 245, 249, 0.96);
+  text-shadow: 0 1px 3px rgba(15, 23, 42, 0.9);
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+}
+
+/* Mouse hints */
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hint-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  position: relative;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 25% 15%, #ffffff33, #020617f0);
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow:
+    0 6px 12px rgba(15, 23, 42, 0.6),
+    0 0 0 1px rgba(15, 23, 42, 0.9);
+  overflow: hidden;
+}
+
+/* Mouse body + wheel (shared) */
+.hint-icon::before,
+.hint-icon::after {
+  content: "";
+  position: absolute;
+}
+
+.hint-icon::before {
+  width: 14px;
+  height: 20px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 30%,
+      #e5e7eb 30%,
+      #e5e7eb 38%,
+      transparent 38%,
+      transparent 100%
+    );
+}
+
+/* ROTATE */
+
+.hint-icon--rotate::after {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(129, 140, 248, 0.95);
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  animation: mouse-rotate 1.9s linear infinite;
+}
+
+@keyframes mouse-rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* PAN */
+
+.hint-icon--pan::after {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.95);
+  top: 50%;
+  left: 50%;
+  box-shadow:
+    -8px 0 0 rgba(96, 165, 250, 0.35),
+    8px 0 0 rgba(96, 165, 250, 0.35);
+  transform-origin: center center;
+  animation: mouse-pan 1.6s ease-in-out infinite;
+}
+
+@keyframes mouse-pan {
+  0% {
+    transform: translate(-60%, -50%);
+  }
+  50% {
+    transform: translate(-40%, -50%);
+  }
+  100% {
+    transform: translate(-60%, -50%);
+  }
+}
+
+/* ZOOM */
+
+.hint-icon--zoom::after {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 2px solid rgba(45, 212, 191, 0.95);
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  animation: mouse-zoom 1.8s ease-in-out infinite;
+}
+
+@keyframes mouse-zoom {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+/* Small screens tweak */
+
+@media (max-width: 600px) {
+  .ui-panel {
+    padding: 1.3rem 1.4rem;
+  }
+  .ui-header h1 {
+    font-size: 1.45rem;
+  }
+}
+
+/* --- Techy container motion --- */
+
+.ui-panel,
+#scene-container,
+#sector-panel {
+  opacity: 0;
+  transform: translateY(18px) scale(0.985);
+  animation: shell-in 0.7s cubic-bezier(0.18, 0.95, 0.35, 1.02) forwards;
+}
+
+#scene-container {
+  animation-delay: 0.08s;
+}
+
+#sector-panel {
+  animation-delay: 0.16s;
+}
+
+@keyframes shell-in {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* micro-hover lift / glow */
+
+.ui-panel:hover,
+#scene-container:hover,
+#sector-panel:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.75);
+  border-color: rgba(148, 163, 255, 0.6);
+}
+
+/* Layout: radar + metrics side by side */
+
+.sector-main {
+  display: flex;
+  gap: 1.8rem;
+  align-items: flex-start;
+  margin-top: 0.5rem;
+}
+
+#sector-viz-container {
+  flex: 0 0 55%;
+  height: 280px;
+}
+
+.sector-metrics {
+  flex: 1;
+  padding: 0.75rem 0.4rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* Title */
+
+.sector-metrics-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-main);;
+  margin-bottom: 0.2rem;
+}
+
+/* Rows */
+
+#sector-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sector-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.78rem;
+  padding: 0.18rem 0.2rem;
+  border-radius: 999px;
+  background: radial-gradient(
+      circle at 0 50%,
+      rgba(148, 163, 255, 0.18),
+      transparent 65%
+    );
+}
+
+.sector-metric-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-main);;
+}
+
+.sector-metric-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
+}
+
+.sector-metric-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+/* Small screens: stack radar above metrics */
+
+@media (max-width: 900px) {
+  .sector-main {
+    flex-direction: column;
+  }
+
+  #sector-viz-container {
+    width: 100%;
+    height: 260px;
+  }
+}
+
+/* Caption tweaks under left panel */
+
+.caption {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-main);;
+  line-height: 1.6;
+}
+
+.caption p {
+  margin: 0 0 0.85rem;
+}
+
+.caption-howto {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  color: var(--text-main);;
+}
+
+.interaction-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.hint-text {
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.hint-label {
+  font-weight: 600;
+  margin-right: 0.3rem;
+}
+
+/* === DARK THEME TYPE HIERARCHY OVERRIDE === */
+
+/* default: body copy is muted grey */
+body {
+  color: white;
+}
+
+/* "big important" text – bright white */
+h1,
+h2,
+h3,
+h4,
+.slide-title,
+.timeline-title,
+.ui-header h1,
+#timelineSlide .slide-header h2,
+.sector-header h2,
+.play-year,
+.global-total-value {
+  color: var(--text-main);
+}
+
+/* normal copy + helper text – muted grey */
+p,
+li,
+.subtitle,
+.caption,
+.milestone-note,
+.season-note,
+.timeline-note,
+.slide-footnote,
+.chart-hint,
+.tooltip-body {
+  color: var(--text-main);;
+}
+
+/* === HERO TITLE: make it white + pop off the background === */
+
+/* wrapper around the big CARBON IN AMERICA text */
+.hero-title-wrap {
+  position: relative;
+}
+
+/* the actual big text */
+.hero-title {
+  /* kill the image-mask / gradient and make it bright white */
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  color: #f9fafb !important;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.85),
+    0 0 26px rgba(15, 23, 42, 0.9);
+}
+
+/* soft “spotlight” behind the title to separate it from the dark bg */
+.hero-title-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -8vh -12vw;           /* how big the glow area is */
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(255, 255, 255, 0.26),
+      transparent 65%
+    ),
+    radial-gradient(
+      circle at 80% 90%,
+      rgba(15, 23, 42, 0.8),
+      rgba(15, 23, 42, 0.98)
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* === PRESS ENTER / → styling === */
+
+.hero-cta {
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-main);;    /* grey text like the rest of the UI */
+}
+
+/* base key style (both ENTER and →) */
+.hero-cta .key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  background: #020617;         /* dark blue keycap */
+  color: #f9fafb;              /* white label */
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.7);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* slightly narrower for the arrow key if you have a separate class */
+.hero-cta .key-arrow {
+  padding-inline: 0.55rem;
+}
+
+/* === HERO TITLE: make it white + pop off the background === */
+
+/* wrapper around the big CARBON IN AMERICA text */
+.hero-title-wrap {
+  position: relative;
+}
+
+/* the actual big text */
+.hero-title {
+  /* kill the image-mask / gradient and make it bright white */
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  color: #f9fafb !important;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.85),
+    0 0 26px rgba(15, 23, 42, 0.9);
+}
+
+/* soft “spotlight” behind the title to separate it from the dark bg */
+.hero-title-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -8vh -12vw;           /* how big the glow area is */
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      rgba(255, 255, 255, 0.26),
+      transparent 65%
+    ),
+    radial-gradient(
+      circle at 80% 90%,
+      rgba(15, 23, 42, 0.8),
+      rgba(15, 23, 42, 0.98)
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+
+
+.slide-intro .intro-content h1,
+.slide-intro .intro-content h2,
+.slide-intro .intro-content p {
+  color: #ffffff !important;
+}
+
+/* === Slide 2: make bullets white === */
+.slide-text .background-bullets,
+.slide-text .background-bullets li {
+  color: #ffffff !important;   /* text + bullet markers */
+}
+
+/* === Button: black bg, white border, no shadow === */
+.slide-text button,
+.slide-text .btn {
+  background-color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.primary-link-btn {
+  background-color: #000000 !important;   /* black background */
+  color: #ffffff !important;              /* white text */
+  border: 1px solid #ffffff !important;   /* white border */
+  box-shadow: none !important;            /* no shadow */
+  text-decoration: none;                  /* remove underline */
+}
+
+/* =========================================
+   TIMELINE SLIDE – CLEAN TECHY VERSION
+   ========================================= */
+
+/* Background only, now centers content vertically + horizontally */
+#timelineSlide {
+  
+  color: var(--text-main);
+
+  min-height: 100vh;
+  padding: 2.6rem 6vw 3rem;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Inner cluster – wider and centered */
+#timelineSlide .slide-inner {
+  max-width: 1800px;          /* wider than before */
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  backdrop-filter: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2.6rem;                /* a bit more breathing room */
+}
+
+#timelineSlide .slide-inner::before {
+  content: none;
+}
+
+/* Header */
+
+#timelineSlide .timeline-title {
+  margin: 0 0 0.9rem 0;
+  font-size: clamp(2.3rem, 3.4vw, 2.9rem);  /* slightly larger */
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+#timelineSlide .slide-header p {
+  margin: 0;
+  font-size: 0.97rem;
+  line-height: 1.75;
+  color: var(--text-main);;
+}
+
+/* ----- Timeline + skinny summary column layout ----- */
+
+#timelineSlide .timeline-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.95fr); /* wider left */
+  gap: 2rem;
+  align-items: stretch;
+}
+
+/* Shared glass card shell (timeline + summary) */
+#timelineSlide .viz-card {
+  position: relative;
+  width: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(148, 163, 255, 0.36);
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.9);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.18), transparent 60%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.18), transparent 65%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.9));
+  padding: 1.9rem 2.2rem 2.1rem;     /* bigger panels */
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+#timelineSlide .viz-card:first-child {
+  box-shadow: 0 34px 90px rgba(15, 23, 42, 0.95);  /* emphasize timeline card */
+}
+
+#timelineSlide .viz-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+#timelineSlide .viz-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 36px 96px rgba(0, 0, 0, 0.95);
+}
+
+/* Card headings + subtitles */
+#timelineSlide .viz-card h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+#timelineSlide .viz-card .subtitle {
+  margin: 0.25rem 0 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text-main);;
+}
+
+/* ---------- TIMELINE CARD ---------- */
+
+#timelineSlide #timelineContainer {
+  margin-top: 0.6rem;
+  padding: 1.2rem 1.5rem 1.2rem;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 0 100%, rgba(15, 23, 42, 0.9), transparent 70%),
+    linear-gradient(to bottom right, #020617, #020617);
+  border: 1px solid rgba(15, 23, 42, 0.9);
+}
+
+#timelineSlide #timelineSvg {
+  width: 100%;
+  height: 260px;              /* larger timeline area */
+  display: block;
+}
+
+/* Base line + dots = sleek timeline */
+#timelineSlide #timelineSvg .timeline-base {
+  stroke: #94a3b8;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+#timelineSlide #timelineSvg .timeline-dot,
+#timelineSlide #timelineSvg circle.milestone {
+  fill: #f9fafb;
+  stroke: #020617;
+  stroke-width: 2;
+  transition: stroke-width 0.12s ease, transform 0.12s ease;
+}
+
+#timelineSlide #timelineSvg .timeline-dot:hover,
+#timelineSlide #timelineSvg circle.milestone:hover {
+  stroke-width: 3;
+}
+
+/* Year labels */
+#timelineSlide #timelineSvg text,
+#timelineSlide #timelineSvg .milestone-label {
+  fill: #e5e7eb !important;
+  font-size: 0.82rem;
+}
+
+/* Note + legend */
+#timelineSlide .timeline-note {
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  color: var(--text-main);;
+}
+
+#timelineSlide .timeline-legend {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+  font-size: 0.78rem;
+  color: var(--text-main);;
+}
+
+#timelineSlide .timeline-legend .legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+#timelineSlide .timeline-legend .legend-pill {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+}
+
+/* Status colors */
+#timelineSlide .legend-pill.joined {
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+}
+#timelineSlide .legend-pill.withdrawal-announced {
+  background: linear-gradient(135deg, #f97316, #fdba74);
+}
+#timelineSlide .legend-pill.left {
+  background: linear-gradient(135deg, #ef4444, #fb7185);
+}
+#timelineSlide .legend-pill.rejoined {
+  background: linear-gradient(135deg, #22c55e, #2dd4bf);
+}
+
+/* ---------- SUMMARY CARD ---------- */
+
+#timelineSlide .timeline-summary-card {
+  margin-top: 0.2rem;
+}
+
+#timelineSlide #timelineSummaryTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.96rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+#timelineSlide #timelineSummaryText {
+  font-size: 0.87rem;
+  line-height: 1.75;
+  color: var(--text-main);;
+}
+
+/* Summary links – pill buttons */
+#timelineSlide #timelineSummaryLinks {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+#timelineSlide #timelineSummaryLinks a {
+  font-size: 0.78rem;
+  text-decoration: none;
+  color: var(--accent-soft);
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 255, 0.6);
+  background: rgba(15, 23, 42, 0.95);
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+#timelineSlide #timelineSummaryLinks a:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+  color: #020617;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.9);
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1100px) {
+  #timelineSlide {
+    padding: 2.3rem 1.8rem 2.8rem;
+  }
+
+  #timelineSlide .timeline-stack {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  #timelineSlide .slide-inner {
+    gap: 1.9rem;
+  }
+  #timelineSlide .timeline-title {
+    font-size: 1.8rem;
+  }
+}
+
+#timelineSlide #timelineSummaryLinks a {
+  font-size: 0.78rem;
+  text-decoration: none;
+  color: #ffffff;              /* white text */
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid #ffffff;   /* white border */
+  background: #020617;         /* nearly black background */
+  box-shadow: none;            /* no shadow */
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+#timelineSlide #timelineSummaryLinks a:hover {
+  background: #ffffff;         /* simple invert on hover (optional) */
+  color: #020617;
+  border-color: #ffffff;
+  box-shadow: none;            /* keep no shadow on hover too */
+}
+
+/* ============================
+   SLIDE 3 – Layout + cards
+   ============================ */
+
+/* Make this slide use almost the whole page width, like the 3D slide */
+#seasonSlide .season-inner {
+  max-width: 1800px;      /* a bit wider */
+  width: 96vw;            /* almost full viewport */
+  margin: 24px auto 48px; /* centered, closer to top */
+}
+
+/* --- HEADER CARD (make it line up with the cards) --- */
+
+#seasonSlide .season-header {
+  margin: 0 0 -50px;         /* no side centering */
+  padding: 20px 26px 22px;
+  border-radius: 26px;
+  border: 1px solid rgba(148, 163, 255, 0.4);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.15), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.88));
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.75);
+}
+
+/* Title – match “3D GLOBAL EMISSIONS LANDSCAPE” look */
+#seasonSlide .season-header h2 {
+  margin: 0 0 0.75rem 0;
+  font-size: 2.4rem;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 900;
+
+  /* solid white, no image mask */
+  background-image: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  color: #f9fafb;
+}
+
+#seasonSlide .season-header p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--text-main);;
+}
+
+/* --- MAP + CHART LAYOUT --- */
+
+/* Make the chart noticeably wider than the map */
+#seasonSlide .season-viz-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.9fr); /* map : chart ratio */
+  gap: 1rem;
+  margin-top: 2.4rem;
+}
+
+/* Shared “card” look for map + chart */
+#seasonSlide .viz-card {
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.18), transparent 60%),
+    rgba(15, 23, 42, 0.94);
+  border-radius: 24px;
+  padding: 1.5rem 1.8rem 1.6rem;
+  border: 1px solid rgba(148, 163, 255, 0.4);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.75);
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+}
+
+/* H3s inside cards */
+#seasonSlide .viz-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Subtitles under map / chart */
+#seasonSlide .viz-card .subtitle {
+  margin: 0 0 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: white;
+}
+
+/* Map container smaller */
+#seasonSlide #seasonMapContainer {
+  background: radial-gradient(circle at top, #020617, #020617 65%);
+  border-radius: 18px;
+  padding: 0.65rem;
+  height: 240px;  /* a bit shorter */
+}
+
+/* Chart container bigger horizontally/vertically */
+#seasonSlide #seasonBarContainer {
+  background: radial-gradient(circle at top, #020617, #020617 65%);
+  border-radius: 18px;
+  padding: 0.65rem;
+  height: 340px;
+}
+
+/* Let SVG fill each card’s inner container */
+#seasonSlide #seasonMapSvg,
+#seasonSlide #seasonBarSvg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Keep legend + note tidy under the chart */
+#seasonSlide .season-legend {
+  display: flex;
+  gap: 1.1rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-main);;
+}
+
+#seasonSlide .season-note {
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-main);;
+}
+
+/* Footnote across bottom */
+#seasonSlide .season-footnote {
+  margin-top: 1.8rem;
+  font-size: 0.78rem;
+  color: var(--text-main);;
+}
+
+/* Stack cards on small screens */
+@media (max-width: 900px) {
+  #seasonSlide .season-viz-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Slide 3 tidy-up overrides ===== */
+
+/* Give the whole slide a clean frame like the 3D slide */
+#seasonSlide .season-inner {
+  max-width: 1700px;
+  width: 96vw;
+  padding: 0 24px 32px;      /* side padding + less bottom space */
+  margin: 80px auto 24px;    /* less bottom margin */
+}
+
+/* Header card – no negative margin, just a small gap below */
+#seasonSlide .season-header {
+  width: 100%;
+  margin: 0 0 -10px;          /* was margin: 0 0 -50px; */
+}
+
+/* Title stays the same, just for reference
+#seasonSlide .season-header h2 { ... } */
+
+/* Make the map + chart row sit closer to the header and line up neatly */
+#seasonSlide .season-viz-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 2fr); /* map : chart ratio */
+  gap: 1.6rem;                 /* slightly smaller gap */
+  margin-top: 0;               /* remove extra space above cards */
+  align-items: stretch;        /* both cards same height */
+}
+
+/* Map a bit shorter, chart not so huge */
+#seasonSlide #seasonMapContainer {
+  height: 220px;               /* smaller map height */
+}
+
+#seasonSlide #seasonBarContainer {
+  height: 260px;               /* smaller chart height (was 340px) */
+  padding: 0.8rem 0.8rem 1.4rem; /* extra bottom padding for axis labels */
+}
+
+/* Make axis text easier to read */
+#seasonSlide #seasonBarSvg text {
+  fill: #e5e7eb;               /* light grey / almost white */
+  font-size: 11px;
+}
+
+/* Keep footnote tucked closer to cards */
+#seasonSlide .season-footnote {
+  margin-top: -2rem;
+}
+
+
+
+
+
 
 /* Layout */
 section {
@@ -3867,3 +4018,672 @@ input[type="range"]::-webkit-slider-thumb {
     width: 100%;
   }
 }
+
+
+
+/* ========= Slide 7: Climate Policy Impact Simulator ========= */
+
+/* Whole slide */
+#slide-policy-sim {
+  font-family: var(--font-main);
+  color: var(--text-main);
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+/* Title – match other tech headers */
+#slide-policy-sim h2 {
+  font-size: 1.75rem;
+  margin: 0 0 0.9rem 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Sliders stacked on top, like a vertical control panel */
+#slide-policy-sim .policy-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 420px;
+}
+
+/* Each slider "pill" */
+#slide-policy-sim .slider-block {
+  background:
+    radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.16), transparent 60%),
+    rgba(15, 23, 42, 0.92);
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 255, 0.45);
+  padding: 0.55rem 0.9rem 0.7rem;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Label + % text in pill */
+#slide-policy-sim .slider-block label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+#slide-policy-sim .slider-block label span {
+  font-weight: 600;
+  color: var(--accent-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sliders – reuse the tech slider style */
+#slide-policy-sim input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 255, 0.25);
+  outline: none;
+  cursor: pointer;
+}
+
+#slide-policy-sim input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 25% 0%, #ffffff, #93c5fd);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.26);
+}
+
+#slide-policy-sim input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle at 25% 0%, #ffffff, #93c5fd);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.26);
+}
+
+/* Gauge panel – stacked under sliders, full glass card */
+#slide-policy-sim .gauge-container {
+  margin-top: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.26), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+  backdrop-filter: blur(22px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.6rem 1.2rem;
+}
+
+#slide-policy-sim .gauge-container canvas {
+  max-width: 320px;
+  max-height: 320px;
+  width: 70%;
+  height: auto;
+}
+
+/* Big % text under gauge */
+#slide-policy-sim #percentDisplay {
+  margin-top: 0.5rem;
+  font-size: 2.1rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--accent-soft), #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hover glow on gauge card */
+#slide-policy-sim .gauge-container:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.75);
+  border-color: rgba(148, 163, 255, 0.6);
+}
+
+/* Mobile: keep stacked, tighten padding */
+@media (max-width: 900px) {
+  #slide-policy-sim {
+    padding: 1.4rem 1.6rem;
+  }
+
+  #slide-policy-sim .policy-grid {
+    max-width: 100%;
+  }
+}
+
+/* Sliders grid – 3 columns on wide screens */
+#slide-policy-sim .policy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr)); /* 3 columns */
+  gap: 0.9rem 1.2rem;                                  /* row / column gap */
+  max-width: 1100px;                                   /* keep it from going too wide */
+  margin: 0 auto;                                      /* center the grid */
+}
+
+/* Each slider pill stays the same */
+#slide-policy-sim .slider-block {
+  background:
+    radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.16), transparent 60%),
+    rgba(15, 23, 42, 0.92);
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 255, 0.45);
+  padding: 0.55rem 0.9rem 0.7rem;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Mobile / tablet: go back to stacked */
+@media (max-width: 900px) {
+  #slide-policy-sim {
+    padding: 1.4rem 1.6rem;
+  }
+
+  #slide-policy-sim .policy-grid {
+    grid-template-columns: 1fr;   /* single column */
+    max-width: 100%;
+  }
+}
+
+/* Full-bleed 3D slide wrapper */
+.slide.slide-3d-emitters {
+  background: #020617;        /* dark background so the 3D app blends in */
+  padding: 0;
+}
+
+/* Make the inner wrapper fill the slide area */
+.slide-3d-emitters .slide-inner-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Let the 3D app take over the whole slide */
+.slide-3d-emitters .slide-3d-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* --- Slide 7: Climate Policy Impact Simulator layout tweaks --- */
+
+/* Center the whole slide content a bit and stack nicely */
+#slide-policy-sim {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* Make the title feel like it belongs to the gauge card */
+#slide-policy-sim h2 {
+  max-width: 760px;                 /* same width as gauge card */
+  margin: 1.4rem auto 0.6rem;       /* center + sit right above card */
+  font-size: 1.25rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Stack sliders above, keep them a bit narrower too */
+#slide-policy-sim .policy-grid {
+  max-width: 760px;
+  margin: 0 auto 1.4rem;
+}
+
+/* Gauge “card” – narrower, centered, glassy panel */
+#slide-policy-sim .gauge-container {
+  max-width: 760px;                 /* << make gauge container less wide */
+  width: 70%;
+  margin: -0.4rem auto 0;           /* pulls card up under the title */
+  padding: 2.6rem 2.2rem 2.0rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.26), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86));
+  backdrop-filter: blur(22px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Make sure the canvas is centered inside the card */
+#slide-policy-sim .gauge-container canvas {
+  display: block;
+}
+
+/* Percentage sits just under the card, centered */
+#slide-policy-sim #percentDisplay {
+  margin-top: 0.7rem;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ===== Slide 3D – container instead of full-bleed ===== */
+
+
+
+/* 3D page just fills that card */
+.slide-3d-emitters .slide-3d-iframe {
+
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* --- Slide 7 layout polish: center + balance --- */
+
+#slide-policy-sim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 0 3.5rem;
+}
+
+/* Title: centered, not too far from content */
+#slide-policy-sim h2 {
+  margin: 0 0 1.8rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Sliders: centered block, 3 columns on desktop */
+#slide-policy-sim .policy-grid {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.2rem;
+}
+
+/* Slider “pills” keep your existing look, just a bit tighter */
+#slide-policy-sim .slider-block {
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+}
+
+/* Gauge card: centered, narrower, same glassy style as other panels */
+#slide-policy-sim .gauge-container {
+  width: 100%;
+  max-width: 720px;              /* controls how wide the gauge card is */
+  margin: 2.4rem auto 0;
+  padding: 2.2rem 2.4rem 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.26), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86));
+  backdrop-filter: blur(22px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#slide-policy-sim .gauge-container canvas {
+  display: block;
+}
+
+/* Percentage text just under the card */
+#slide-policy-sim #percentDisplay {
+  margin-top: 0.8rem;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Responsive: stack sliders and shrink card on smaller screens */
+@media (max-width: 900px) {
+  #slide-policy-sim {
+    padding: 2rem 0 3rem;
+  }
+
+  #slide-policy-sim .policy-grid {
+    max-width: 420px;
+    grid-template-columns: 1fr;
+  }
+
+  #slide-policy-sim .gauge-container {
+    max-width: 420px;
+  }
+}
+
+/* Bigger title */
+#slide-policy-sim h2 {
+  margin: 0 0 1.8rem;
+  font-size: 1.8rem;              /* was 1.2rem */
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Percentage centered under the gauge */
+#slide-policy-sim #percentDisplay {
+  margin-top: 0.9rem;
+  font-size: 2.1rem;
+  font-weight: 700;
+  text-align: center;             /* makes it centered under the canvas */
+  width: 100%;                    /* span full width of slide */
+}
+
+/* Intro slide: full-bleed background image */
+.slide-intro {
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.05)),
+    url("./assets/paris-hero-text.jpg") center center / cover no-repeat; /* <-- use your image path */
+  color: #ffffff;
+}
+
+/* Center the intro block nicely */
+.slide-intro .intro-content {
+  max-width: 720px;
+  padding: 4rem 5rem;
+}
+
+/* Title: force back to solid white text, remove text-mask */
+.slide-intro .intro-content h1 {
+  margin: 0 0 1.8rem;
+  font-size: 4.2rem;
+  line-height: 1.02;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+
+  /* undo any previous background-clip / transparent text */
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Subtitle + body text */
+.slide-intro .intro-content h2 {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
+
+/* "Press Enter" hint */
+.slide-intro .intro-hint {
+  margin-top: 2.4rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
+
+
+/* ===== Slide 6 (id="slide5") – title container + white text ===== */
+
+#slide5 .slide-header {
+  /* container card */
+  margin: 1.5rem auto 1.2rem;      /* pull it down a bit, small gap below */
+  padding: 1.25rem 1.8rem 1.4rem;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 255, 0.45);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.75);
+}
+
+/* Modern / techy title */
+#slide5 .slide-header h2 {
+  margin: 0 0 0.5rem;
+  font-size: 2.2rem;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 900;
+
+  /* force solid white text, not image-masked */
+  background-image: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  color: #f9fafb;
+}
+
+/* Subtitle – softer white */
+#slide5 .slide-header .slide-subtitle {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: rgba(241, 245, 249, 0.88);  /* soft white */
+}
+
+
+/* ===== Slide 6 (id="slide5") – spacing + text color only ===== */
+
+/* Pull everything on this slide in a bit and center it */
+#slide5 .slide-inner {
+  max-width: 1400px;
+  margin: 32px auto 40px;   /* top / sides / bottom */
+}
+
+/* Reduce the gap under the header card */
+#slide5 .slide-header {
+  margin-bottom: 12px !important;
+}
+
+/* Remove extra top gap before the chart/text area */
+#slide5 .slide-grid-5 {
+  margin-top: 0 !important;
+}
+
+/* Tighten spacing in the right-hand explanation block */
+#slide5 #projectionExplTitle {
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+}
+
+#slide5 #projectionExplBody {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+}
+
+/* Make all text on this slide white / soft white */
+#slide5 h2,
+#slide5 h3,
+#slide5 .card-title,
+#slide5 label,
+#slide5 p {
+  color: #f9fafb;
+}
+
+/* Slightly softer white for body / hint text so hierarchy looks nice */
+#slide5 .slide-header p,
+#slide5 #projectionExplBody,
+#slide5 .projection-anno-text,
+#slide5 .chart-hint {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+/* --- Glass panels: TIMELINE slide only --- */
+#timelineSlide .viz-card {
+  width: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(148, 163, 255, 0.36);
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.9);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.18), transparent 60%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.18), transparent 65%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.9));
+  padding: 1.9rem 2.2rem 2.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+/* --- Glass panels: 3D GLOBAL EMISSIONS slide only --- */
+#slide-3d .ui-panel,
+#slide-3d #sector-panel {
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(148, 163, 255, 0.36);
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.9);
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.18), transparent 60%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.18), transparent 65%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.9));
+}
+
+/* ---- Slide 5 layout & spacing tweaks ---- */
+#slide5 .slide-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 48px 48px;
+}
+
+/* Put the pill header and the content on the same left edge
+   and tighten the gap below it */
+#slide5 .slide-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* align with chart/text, not centered alone */
+  margin: 0 0 16px;
+}
+
+
+
+/* Make sure the two cards don’t add extra top margin */
+#slide5 .slide5-left-card,
+#slide5 .slide5-right-card {
+  margin-top: 0;
+}
+
+/* Emissions projection chart – make axes white */
+.projection-x-axis path,
+.projection-x-axis line,
+.projection-y-axis path,
+.projection-y-axis line {
+  stroke: #e5e7eb;      /* light gray/white lines */
+}
+
+.projection-x-axis text,
+.projection-y-axis text {
+  fill: #e5e7eb;        /* light labels */
+}
+
+/* Overall padding so the slide isn't floating awkwardly */
+#timelineSlide {
+  padding-top: 72px;
+  padding-bottom: 80px;
+}
+
+/* Shared width for header + cards */
+.timeline-shell {
+  max-width: 1180px;          /* tune if needed */
+  margin: 0 auto;
+}
+
+/* Title + subtitle "card" that lines up with the two viz cards */
+.timeline-header-card {
+  background:
+    radial-gradient(circle at 0 0, rgba(148, 163, 255, 0.26), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.16), transparent 60%),
+    linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86));
+  border-radius: 28px;
+  padding: 24px 40px 28px;
+  margin-bottom: -30px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.85);
+}
+
+/* Tighten the header text a bit so it feels less “floaty” */
+.timeline-header-card .slide-title {
+  margin: 0 0 10px;
+  font-size: 40px;
+  letter-spacing: 0.13em;
+  font-weight: 800;
+}
+
+.timeline-header-card .slide-subtitle {
+  margin: 0;
+  max-width: 52rem;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+/* Two-card layout under the header, aligned with it */
+.timeline-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 28px;
+}
+
+/* Make both cards the same visual height & remove extra inner gaps */
+.timeline-row .viz-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Optional: reduce extra space above the SVG inside the left card */
+#timelineContainer {
+  margin-top: 16px;
+}
+
+/* Optional: tighten the summary body so it reads like a column */
+.timeline-summary-card #timelineSummaryText {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Responsive: stack the cards on narrow widths */
+@media (max-width: 900px) {
+  .timeline-row {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-header-card {
+    padding: 20px 24px;
+  }
+}
+
+/* Projection slide – dashed milestone lines + labels */
+.proj-policy-line {
+  stroke: #e5e7eb;      /* light line */
+}
+
+.proj-policy-label {
+  fill: #e5e7eb;        /* light text */
+}
+
+#timelineSlide {
+  padding-top: 64px;
+  padding-bottom: 80px;
+  display: flex;
+  justify-content: center;   /* center the inner shell */
+}
+
