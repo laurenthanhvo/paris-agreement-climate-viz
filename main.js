@@ -2871,6 +2871,103 @@ async function initSlide6() {
 
 window.initSlide6 = initSlide6;
 
+document.addEventListener("DOMContentLoaded", () => {
+
+  // sliders
+  const ids = [
+    "renew","evs","build","industry","methane","forest",
+    "diet","waste","transit","rnd"
+  ];
+  const sliders = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
+  const labels = Object.fromEntries(ids.map(id => [`lbl-${id}`, document.getElementById(`lbl-${id}`)]));
+
+  // mitigation potentials (Gt CO₂e)
+  const potentials = {
+    renew: 4.8,
+    evs: 2.5,
+    build: 2.2,
+    industry: 3.5,
+    methane: 4.5,
+    forest: 3.8,
+    diet: 1.6,
+    waste: 1.4,
+    transit: 0.9,
+    rnd: 1.0
+  };
+
+  const globalGap = 23; // Gt needed for 1.5°C
+
+  // Canvas Gauge
+  const canvas = document.getElementById("policyGauge");
+  const ctx = canvas.getContext("2d");
+  const percentText = document.getElementById("percentDisplay");
+
+  function drawGauge(pct) {
+    const radius = 110;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // background arc
+    ctx.beginPath();
+    ctx.lineWidth = 18;
+    ctx.strokeStyle = "#e5e7eb";
+    ctx.arc(130, 140, radius, Math.PI, 2 * Math.PI);
+    ctx.stroke();
+
+    // progress arc
+    ctx.beginPath();
+    ctx.strokeStyle = pct >= 100 ? "#22c55e" : "#3b82f6";
+    ctx.arc(130, 140, radius, Math.PI, Math.PI + Math.PI * (pct / 100));
+    ctx.stroke();
+  }
+
+  function score() {
+    let total = 0;
+    ids.forEach(id => {
+      const pct = +sliders[id].value / 100;
+      total += pct * potentials[id];
+    });
+    return Math.min(100, Math.round((total / globalGap) * 100));
+  }
+
+  // Confetti
+  function fireConfetti() {
+    const duration = 2000;
+    const end = Date.now() + duration;
+
+    (function frame() {
+      confetti({
+        particleCount: 4,
+        startVelocity: 20,
+        spread: 80,
+        origin: { x: Math.random(), y: Math.random() - 0.2 }
+      });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  }
+
+  let lastPct = 0;
+
+  function update() {
+    ids.forEach(id => {
+      labels[`lbl-${id}`].textContent = sliders[id].value + "%";
+    });
+
+    const pct = score();
+    percentText.textContent = pct + "%";
+    drawGauge(pct);
+
+    if (pct === 100 && lastPct !== 100) {
+      fireConfetti();
+    }
+    lastPct = pct;
+  }
+
+  Object.values(sliders).forEach(sl => sl.addEventListener("input", update));
+
+  update();
+});
+
+
 
 /* -------------------- Init -------------------- */
 
