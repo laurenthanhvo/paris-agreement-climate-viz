@@ -2872,122 +2872,278 @@ async function initSlide6() {
 
 window.initSlide6 = initSlide6;
 
+/* -------------------- Slide 5: Policy gauge -------------------- */
+/* -------------------- Slide 5: Policy gauge -------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
-  // sliders
-  const ids = [
-    "renew","evs","build","industry","methane","forest",
-    "diet","waste","transit","rnd"
-  ];
+  const ids = ["renew","evs","build","industry","methane","forest","diet","waste","transit","rnd"];
   const sliders = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
   const labels = Object.fromEntries(ids.map(id => [`lbl-${id}`, document.getElementById(`lbl-${id}`)]));
 
-  // mitigation potentials (Gt CO₂e)
   const potentials = {
-    renew: 4.8,
-    evs: 2.5,
-    build: 2.2,
-    industry: 3.5,
-    methane: 4.5,
-    forest: 3.8,
-    diet: 1.6,
-    waste: 1.4,
-    transit: 0.9,
-    rnd: 1.0
+    renew:4.8, evs:2.5, build:2.2, industry:3.5,
+    methane:4.5, forest:3.8, diet:1.6, waste:1.4,
+    transit:0.9, rnd:1.0
   };
 
-  const globalGap = 23; // Gt needed for 1.5°C
+  const globalGap = 23;
 
-  // Canvas Gauge
   const canvas = document.getElementById("policyGauge");
   const ctx = canvas.getContext("2d");
   const percentText = document.getElementById("percentDisplay");
+  const policyText = document.getElementById("policyMessage");
+
+
+/* -------------------------------------------------------------------------
+   🌼 FLOWER SETUP — MOVED ABOVE update() SO THE VARIABLE EXISTS EARLIER
+---------------------------------------------------------------------------*/
+const flowers = document.querySelectorAll(".flower");
+
+flowers.forEach(svg => {
+  const color = svg.dataset.color;
+  const petalGroup = svg.querySelector(".petals");
+
+  // dynamic color gradients
+  petalGroup.innerHTML = `
+    <defs>
+      <radialGradient id="${color}-petalGrad" cx="50%" cy="40%">
+        <stop offset="0%" stop-color="${color === 'pink' ? '#ffd7ef' :
+                                       color === 'orange' ? '#ffe4c4' : '#e4d4ff'}"/>
+        <stop offset="80%" stop-color="${color === 'pink' ? '#ff8cc5' :
+                                       color === 'orange' ? '#ff9450' : '#b27aff'}"/>
+      </radialGradient>
+    </defs>
+
+    <circle cx="60" cy="60" r="0" fill="url(#${color}-petalGrad)" />
+    <circle cx="60" cy="35" r="0" fill="url(#${color}-petalGrad)" />
+    <circle cx="82" cy="52" r="0" fill="url(#${color}-petalGrad)" />
+    <circle cx="38" cy="52" r="0" fill="url(#${color}-petalGrad)" />
+    <circle cx="60" cy="78" r="0" fill="url(#${color}-petalGrad)" />
+  `;
+
+  svg.style.transformOrigin = "center bottom";
+  svg.style.transform = "scale(0.2)";
+  svg.dataset.bloomed = "false";
+});
+
+
+function updateFlowerGrowth(pct) {
+  flowers.forEach(svg => {
+    const stem = svg.querySelector("rect");
+    const petals = svg.querySelectorAll(".petals circle");
+
+    // stem growth
+    const maxHeight = 110;
+    const newHeight = maxHeight * (pct / 100);
+    const baseY = 180;
+
+    stem.setAttribute("height", Math.max(5, newHeight));
+    stem.setAttribute("y", baseY - newHeight);
+
+    if (pct < 70) {
+      petals.forEach(p => p.setAttribute("r", 0));
+      svg.style.transform = "scale(" + (0.2 + pct / 500) + ")";
+      return;
+    }
+
+    if (svg.dataset.bloomed === "false" && pct >= 70) {
+      petals.forEach((p, i) => {
+        setTimeout(() => {
+          p.animate(
+            [
+              { r: 0 },
+              { r: 12, transform: "rotate(-4deg)" },
+              { r: 14, transform: "rotate(2deg)" }
+            ],
+            {
+              duration: 400,
+              easing: "cubic-bezier(.25,1.6,.3,1)",
+              fill: "forwards"
+            }
+          );
+        }, i * 80);
+      });
+
+      svg.animate(
+        [
+          { transform: "scale(0.5) rotate(-3deg)" },
+          { transform: "scale(1.1) rotate(2deg)" },
+          { transform: "scale(1) rotate(0)" }
+        ],
+        {
+          duration: 600,
+          easing: "cubic-bezier(.25,1.6,.3,1)",
+          fill: "forwards"
+        }
+      );
+
+      svg.dataset.bloomed = "true";
+    }
+  });
+}
+
+
+/* -------------------------------------------------------------------------
+   GAUGE + POLICY MESSAGE LOGIC (unchanged)
+---------------------------------------------------------------------------*/
 
   function drawGauge(pct) {
-    const radius = 110;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // background arc
     ctx.beginPath();
     ctx.lineWidth = 18;
     ctx.strokeStyle = "#e5e7eb";
-    ctx.arc(130, 140, radius, Math.PI, 2 * Math.PI);
+    ctx.arc(130,140,110,Math.PI,2*Math.PI);
     ctx.stroke();
 
-    // progress arc
     ctx.beginPath();
     ctx.strokeStyle = pct >= 100 ? "#22c55e" : "#3b82f6";
-    ctx.arc(130, 140, radius, Math.PI, Math.PI + Math.PI * (pct / 100));
+    ctx.arc(130,140,110,Math.PI,Math.PI + Math.PI*(pct/100));
     ctx.stroke();
   }
 
   function score() {
     let total = 0;
-    ids.forEach(id => {
-      const pct = +sliders[id].value / 100;
-      total += pct * potentials[id];
-    });
-    return Math.min(100, Math.round((total / globalGap) * 100));
+    ids.forEach(id => total += (+sliders[id].value / 100) * potentials[id]);
+    return Math.min(100, Math.round(total / globalGap * 100));
   }
 
-  // Confetti
-  function fireConfetti() {
-    const duration = 2000;
-    const end = Date.now() + duration;
+  const policySentences = {
+    renew: ["Expanding solar, wind, and geothermal power.","Scaling up clean energy across the grid."],
+    evs: ["Accelerating electric vehicle adoption.","Building nationwide EV charging networks."],
+    build: ["Improving building efficiency and insulation.","Upgrading homes to use less energy."],
+    industry: ["Decarbonizing steel, cement, and manufacturing.","Introducing low-carbon industrial processes."],
+    methane: ["Reducing methane leaks from oil and gas operations.","Cutting methane emissions from agriculture."],
+    forest: ["Protecting forests and restoring ecosystems.","Expanding reforestation and conservation efforts."],
+    diet: ["Shifting toward climate-friendly food systems.","Reducing agricultural emissions through dietary changes."],
+    waste: ["Improving recycling and methane capture.","Cutting waste through smarter resource use."],
+    transit: ["Expanding public transit and walkable cities.","Reducing car dependence with smarter design."],
+    rnd: ["Investing in next-generation technologies.","Boosting innovation in climate and energy research."]
+  };
 
-    (function frame() {
-      confetti({
-        particleCount: 4,
-        startVelocity: 20,
-        spread: 80,
-        origin: { x: Math.random(), y: Math.random() - 0.2 }
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    })();
+  function updateMessage(id) {
+    if (!id) return;
+    const choices = policySentences[id];
+    policyText.textContent = choices[Math.floor(Math.random() * choices.length)];
   }
 
-  let lastPct = 0;
-
-  function update() {
-    ids.forEach(id => {
-      labels[`lbl-${id}`].textContent = sliders[id].value + "%";
-    });
+  function update(lastId = null) {
+    ids.forEach(id => labels[`lbl-${id}`].textContent = sliders[id].value + "%");
 
     const pct = score();
     percentText.textContent = pct + "%";
     drawGauge(pct);
 
-    if (pct === 100 && lastPct !== 100) {
+    updateMessage(lastId);
+    updateFlowerGrowth(pct);
+
+    if (pct === 100) {
       fireConfetti();
+      updateMessage("YOU DID IT!");
     }
-    lastPct = pct;
   }
 
-  Object.values(sliders).forEach(sl => sl.addEventListener("input", update));
+  Object.values(sliders).forEach(slider => {
+    slider.addEventListener("input", () => update(slider.id));
+  });
 
   update();
-});
 
-const prevBtn = document.querySelector('.nav-arrow-prev');   // <-- update selector
-const nextBtn = document.querySelector('.nav-arrow-next');   // <-- update selector
 
-window.addEventListener('keydown', (e) => {
-  const key = e.key;
+/* -------------------------------------------------------------------------
+   Ghibli Clouds (unchanged)
+---------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------
+   Clouds — Option 2 (soft, rounded, cute)
+---------------------------------------------------------------------------*/
+const CLOUD_PATH = `
+  M45 80
+  Q40 60 60 55
+  Q70 35 95 40
+  Q110 20 135 30
+  Q150 25 160 45
+  Q185 50 180 75
+  Q170 100 140 95
+  Q110 115 75 100
+  Q50 105 45 80
+  Z
+`;
 
-  // Only allow arrow keys for slide navigation
-  if (key === 'ArrowLeft' || key === 'ArrowRight' ||
-      key === 'ArrowUp'   || key === 'ArrowDown') {
-    e.preventDefault();       // stop scrolling or any other control using arrows
-    e.stopPropagation();
+function createCloud() {
+  const cloud = document.createElement("div");
+  cloud.className = "cloud";
+
+  cloud.style.top = (50 + Math.random() * 400) + "px";
+  cloud.style.left = "-500px";
+
+  cloud.innerHTML = `
+    <svg viewBox="0 0 200 120">
+      <path d="${CLOUD_PATH}" />
+    </svg>
+  `;
+
+  cloudsContainer.appendChild(cloud);
+
+  let left = -600;
+  const speed = 0.3 + Math.random() * 0.5;
+
+  function animate() {
+    left += speed;
+    cloud.style.left = left + "px";
+
+    if (left < window.innerWidth + 400)
+      requestAnimationFrame(animate);
+    else
+      cloud.remove();
   }
 
-  if (key === 'ArrowLeft' && prevBtn) {
-    prevBtn.click();
-  } else if (key === 'ArrowRight' && nextBtn) {
-    nextBtn.click();
-  }
-});
+  animate();
+}
 
+setInterval(() => createCloud(), 2000 + Math.random() * 2000);
+
+
+
+/* -------------------------------------------------------------------------
+   Confetti (unchanged)
+---------------------------------------------------------------------------*/
+function fireConfetti() {
+  const confettiContainer = document.createElement("div");
+  confettiContainer.className = "confetti-container";
+  document.body.appendChild(confettiContainer);
+
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.width = piece.style.height = (6 + Math.random() * 6) + "px";
+    piece.style.background = `hsl(${Math.random() * 360}, 80%, 60%)`;
+    piece.style.animationDuration = (2 + Math.random() * 2) + "s";
+
+    confettiContainer.appendChild(piece);
+  }
+
+  setTimeout(() => confettiContainer.remove(), 5000);
+}
+
+
+/* -------------------------------------------------------------------------
+   Buttons (unchanged)
+---------------------------------------------------------------------------*/
+function randomizeTheme(min, max) {
+  ids.forEach(id => {
+    sliders[id].value = Math.floor(Math.random() * (max - min + 1)) + min;
+  });
+  const randomId = ids[Math.floor(Math.random() * ids.length)];
+  update(randomId);
+}
+
+document.getElementById("btnAggressive").addEventListener("click", () => randomizeTheme(70,100));
+document.getElementById("btnModerate").addEventListener("click", () => randomizeTheme(30,70));
+document.getElementById("btnMinimal").addEventListener("click", () => randomizeTheme(0,30));
+
+});
 
 
 /* -------------------- Init -------------------- */
