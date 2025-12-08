@@ -4067,6 +4067,113 @@ input[type="range"]::-webkit-slider-thumb {
   font-weight: 500;
   color: #ffffff;
 }
+.flower-container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+
+/* Gentle idle swaying */
+.flower {
+  width: 160px;
+  animation: sway 5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes sway {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(1.6deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-1.6deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Pop-open bloom animation */
+.petals {
+  transform-origin: center;
+  animation: bloom 1.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes bloom {
+  0% {
+    transform: scale(0.2) rotate(-8deg);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Back petals bloom slightly slower */
+.petals.back {
+  animation-delay: 0.15s;
+}
+
+/* Front petals bloom slightly faster */
+.petals.front {
+  animation-delay: 0.05s;
+}
+.flowers-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  padding: 0 20px;
+}
+
+.flowers-left,
+.flowers-right {
+  display: flex;
+  gap: 20px;
+}
+
+.flowers-gap {
+  width: 250px;   /* Adjust this to make the center opening larger or smaller */
+}
+
+/* ===================== CONFETTI ===================== */
+
+.confetti-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 999999; /* above everything */
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
 
 
 /* ========= Slide 7: Climate Policy Impact Simulator ========= */
