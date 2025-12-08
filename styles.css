@@ -3970,6 +3970,7 @@ h2 {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 16px;
+  z-index: 1;
 }
 
 .slider-block label {
@@ -3986,6 +3987,7 @@ input[type="range"] {
   border-radius: 4px;
   background: #d1d5db;
   cursor: pointer;
+
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -4021,12 +4023,13 @@ input[type="range"]::-webkit-slider-thumb {
 #sliderButtons {
   text-align: center;
   margin-bottom: 20px;
+  z-index: 1;
 }
-
 #sliderButtons button {
   padding: 10px 18px;
   margin: 4px 6px;
   border: none;
+  z-index: 1;
   
   background: linear-gradient(135deg, #3b82f6, #60a5fa);
   color: white;
@@ -4060,7 +4063,7 @@ input[type="range"]::-webkit-slider-thumb {
   position: absolute;
   inset: 0;
   overflow: visible;   /* prevent “bitten” clouds */
-  z-index: -2;          /* behind slides + globe */
+  z-index: 0;          /* behind slides + globe */
   pointer-events: none;
 }
 
@@ -4203,6 +4206,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
+  z-index:1;
 }
 
 /* Title – match other tech headers */
@@ -4211,6 +4215,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin: 0 0 0.9rem 0;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  z-index: 1;
 }
 
 /* Sliders stacked on top, like a vertical control panel */
