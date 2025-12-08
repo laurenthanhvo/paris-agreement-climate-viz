@@ -386,75 +386,68 @@
 <section class="slide" id="slide-policy-sim">
   <h2>Climate Policy Impact Simulator</h2>
 
-  <div class="policy-grid">
+  <!-- Random Buttons -->
+  <div id="sliderButtons">
+    <button id="btnAggressive">Aggressive Action</button>
+    <button id="btnModerate">Moderate Action</button>
+    <button id="btnMinimal">Minimal Action</button>
+  </div>
 
-    <!-- RENEWABLES -->
+  <!-- Sliders -->
+  <div class="policy-grid">
     <div class="slider-block">
       <label>🌞 Renewables <span id="lbl-renew">0%</span></label>
       <input type="range" id="renew" min="0" max="100" value="0">
     </div>
-
-    <!-- EVS -->
     <div class="slider-block">
-      <label>🚗⚡ Electric Vehicles <span id="lbl-evs">0%</span></label>
+      <label>🚗⚡ EVs <span id="lbl-evs">0%</span></label>
       <input type="range" id="evs" min="0" max="100" value="0">
     </div>
-
-    <!-- BUILDINGS -->
     <div class="slider-block">
-      <label>🏠 Efficiency (Buildings) <span id="lbl-build">0%</span></label>
+      <label>🏠 Buildings <span id="lbl-build">0%</span></label>
       <input type="range" id="build" min="0" max="100" value="0">
     </div>
-
-    <!-- INDUSTRY -->
     <div class="slider-block">
-      <label>🏭 Industry Efficiency <span id="lbl-industry">0%</span></label>
+      <label>🏭 Industry <span id="lbl-industry">0%</span></label>
       <input type="range" id="industry" min="0" max="100" value="0">
     </div>
-
-    <!-- METHANE -->
     <div class="slider-block">
-      <label>🐄 Methane Reduction <span id="lbl-methane">0%</span></label>
+      <label>🐄 Methane <span id="lbl-methane">0%</span></label>
       <input type="range" id="methane" min="0" max="100" value="0">
     </div>
-
-    <!-- FORESTS -->
     <div class="slider-block">
-      <label>🌳 Reforestation <span id="lbl-forest">0%</span></label>
+      <label>🌳 Forests <span id="lbl-forest">0%</span></label>
       <input type="range" id="forest" min="0" max="100" value="0">
     </div>
-
-    <!-- NEW: DIET SHIFT -->
     <div class="slider-block">
-      <label>🥗 Dietary Shifts <span id="lbl-diet">0%</span></label>
+      <label>🥗 Diet <span id="lbl-diet">0%</span></label>
       <input type="range" id="diet" min="0" max="100" value="0">
     </div>
-
-    <!-- NEW: WASTE -->
     <div class="slider-block">
-      <label>🗑️ Waste Reduction <span id="lbl-waste">0%</span></label>
+      <label>🗑️ Waste <span id="lbl-waste">0%</span></label>
       <input type="range" id="waste" min="0" max="100" value="0">
     </div>
-
-    <!-- NEW: TRANSIT -->
     <div class="slider-block">
-      <label>🚉 Public Transit Shift <span id="lbl-transit">0%</span></label>
+      <label>🚉 Transit <span id="lbl-transit">0%</span></label>
       <input type="range" id="transit" min="0" max="100" value="0">
     </div>
-
-    <!-- NEW: R&D -->
     <div class="slider-block">
-      <label>🧪 Climate R&D & Innovation <span id="lbl-rnd">0%</span></label>
+      <label>🧪 R&D <span id="lbl-rnd">0%</span></label>
       <input type="range" id="rnd" min="0" max="100" value="0">
     </div>
-
   </div>
+  <div id="policyMessage" class="policy-message">
+  Move a slider to see feedback…
+</div>
 
   <!-- Gauge -->
   <div class="gauge-container">
     <canvas id="policyGauge" width="260" height="260"></canvas>
   </div>
   <div id="percentDisplay">0%</div>
+
+  <!-- Clouds -->
+  <div id="cloudsContainer"></div>
 </section>
 
 

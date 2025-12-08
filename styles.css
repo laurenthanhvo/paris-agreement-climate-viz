@@ -3939,10 +3939,7 @@ li,
   margin-top: -2rem;
 }
 
-
-
-
-
+/* ========= Slide 4: Policy Impact Simulator ========= */
 
 /* Layout */
 section {
@@ -4019,6 +4016,57 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
+/* Random Buttons */
+#sliderButtons {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#sliderButtons button {
+  padding: 6px 12px;
+  margin: 3px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#sliderButtons button:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Clouds */
+#cloudsContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;               /* behind everything */
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  opacity: 0.9;
+  filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
+}
+
+.cloud svg {
+  width: 200px;             /* scale cloud here */
+  height: auto;
+  fill: white;
+}
+
+.policy-message {
+  margin: 15px auto;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
 
 
 /* ========= Slide 7: Climate Policy Impact Simulator ========= */

@@ -2872,122 +2872,222 @@ async function initSlide6() {
 
 window.initSlide6 = initSlide6;
 
+/* -------------------- Slide 5: Policy gauge -------------------- */
+/* -------------------- Slide 5: Policy gauge -------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
-  // sliders
-  const ids = [
-    "renew","evs","build","industry","methane","forest",
-    "diet","waste","transit","rnd"
-  ];
+  const ids = ["renew","evs","build","industry","methane","forest","diet","waste","transit","rnd"];
   const sliders = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
   const labels = Object.fromEntries(ids.map(id => [`lbl-${id}`, document.getElementById(`lbl-${id}`)]));
 
-  // mitigation potentials (Gt CO₂e)
   const potentials = {
-    renew: 4.8,
-    evs: 2.5,
-    build: 2.2,
-    industry: 3.5,
-    methane: 4.5,
-    forest: 3.8,
-    diet: 1.6,
-    waste: 1.4,
-    transit: 0.9,
-    rnd: 1.0
+    renew:4.8, evs:2.5, build:2.2, industry:3.5,
+    methane:4.5, forest:3.8, diet:1.6, waste:1.4,
+    transit:0.9, rnd:1.0
   };
 
-  const globalGap = 23; // Gt needed for 1.5°C
+  const globalGap = 23;
 
-  // Canvas Gauge
   const canvas = document.getElementById("policyGauge");
   const ctx = canvas.getContext("2d");
   const percentText = document.getElementById("percentDisplay");
+  const policyText = document.getElementById("policyMessage");
 
+  /* -------------------- Gauge Drawing -------------------- */
   function drawGauge(pct) {
-    const radius = 110;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
     // background arc
     ctx.beginPath();
     ctx.lineWidth = 18;
     ctx.strokeStyle = "#e5e7eb";
-    ctx.arc(130, 140, radius, Math.PI, 2 * Math.PI);
+    ctx.arc(130,140,110,Math.PI,2*Math.PI);
     ctx.stroke();
 
     // progress arc
     ctx.beginPath();
     ctx.strokeStyle = pct >= 100 ? "#22c55e" : "#3b82f6";
-    ctx.arc(130, 140, radius, Math.PI, Math.PI + Math.PI * (pct / 100));
+    ctx.arc(130,140,110,Math.PI,Math.PI + Math.PI*(pct/100));
     ctx.stroke();
   }
 
+  /* -------------------- Scoring -------------------- */
   function score() {
     let total = 0;
-    ids.forEach(id => {
-      const pct = +sliders[id].value / 100;
-      total += pct * potentials[id];
-    });
-    return Math.min(100, Math.round((total / globalGap) * 100));
+    ids.forEach(id => total += (+sliders[id].value / 100) * potentials[id]);
+    return Math.min(100, Math.round(total / globalGap * 100));
   }
 
-  // Confetti
-  function fireConfetti() {
-    const duration = 2000;
-    const end = Date.now() + duration;
+  /* -------------------- Policy Text Options -------------------- */
+  const policySentences = {
+    renew: [
+      "Expanding solar, wind, and geothermal power.",
+      "Scaling up clean energy across the grid."
+    ],
+    evs: [
+      "Accelerating electric vehicle adoption.",
+      "Building nationwide EV charging networks."
+    ],
+    build: [
+      "Improving building efficiency and insulation.",
+      "Upgrading homes to use less energy."
+    ],
+    industry: [
+      "Decarbonizing steel, cement, and manufacturing.",
+      "Introducing low-carbon industrial processes."
+    ],
+    methane: [
+      "Reducing methane leaks from oil and gas operations.",
+      "Cutting methane emissions from agriculture."
+    ],
+    forest: [
+      "Protecting forests and restoring natural ecosystems.",
+      "Expanding reforestation and conservation efforts."
+    ],
+    diet: [
+      "Shifting toward climate-friendly food systems.",
+      "Reducing agricultural emissions through dietary changes."
+    ],
+    waste: [
+      "Improving recycling and landfill methane capture.",
+      "Cutting waste through smarter resource use."
+    ],
+    transit: [
+      "Expanding public transit and walkable cities.",
+      "Reducing dependence on cars with smarter urban design."
+    ],
+    rnd: [
+      "Investing in next-generation clean technologies.",
+      "Boosting innovation in climate and energy research."
+    ]
+  };
 
-    (function frame() {
-      confetti({
-        particleCount: 4,
-        startVelocity: 20,
-        spread: 80,
-        origin: { x: Math.random(), y: Math.random() - 0.2 }
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    })();
+  /* -------------------- Helper for Policy Message -------------------- */
+  function updateMessage(id) {
+    if (!id) return;
+    const choices = policySentences[id];
+    policyText.textContent = choices[Math.floor(Math.random() * choices.length)];
   }
 
-  let lastPct = 0;
+  /* -------------------- Main Update Function -------------------- */
+  function update(lastId = null) {
+    // labels
+    ids.forEach(id => labels[`lbl-${id}`].textContent = sliders[id].value + "%");
 
-  function update() {
-    ids.forEach(id => {
-      labels[`lbl-${id}`].textContent = sliders[id].value + "%";
-    });
-
+    // gauge
     const pct = score();
     percentText.textContent = pct + "%";
     drawGauge(pct);
 
-    if (pct === 100 && lastPct !== 100) {
+    // message
+    updateMessage(lastId);
+
+    if (pct === 100) {
       fireConfetti();
+      updateMessage("YOU DID IT!");
     }
-    lastPct = pct;
+
+
   }
 
-  Object.values(sliders).forEach(sl => sl.addEventListener("input", update));
+  /* -------------------- Slider Events -------------------- */
+  Object.values(sliders).forEach(slider => {
+    slider.addEventListener("input", () => update(slider.id));
+  });
 
   update();
-});
 
-const prevBtn = document.querySelector('.nav-arrow-prev');   // <-- update selector
-const nextBtn = document.querySelector('.nav-arrow-next');   // <-- update selector
+  /* -------------------- Clouds (Studio Ghibli Style) -------------------- */
+  const CLOUD_PATH = `
+    M60 80 
+    Q40 20 100 20 
+    Q120 0 150 25 
+    Q200 0 240 40
+    Q300 20 320 60
+    Q350 50 360 80
+    Q340 120 300 120
+    Q260 160 200 140
+    Q160 180 100 150
+    Q40 160 60 120
+    Z
+  `;
 
-window.addEventListener('keydown', (e) => {
-  const key = e.key;
+  function createCloud() {
+    const cloud = document.createElement("div");
+    cloud.className = "cloud";
 
-  // Only allow arrow keys for slide navigation
-  if (key === 'ArrowLeft' || key === 'ArrowRight' ||
-      key === 'ArrowUp'   || key === 'ArrowDown') {
-    e.preventDefault();       // stop scrolling or any other control using arrows
-    e.stopPropagation();
+    cloud.style.top = (50 + Math.random() * 200) + "px";
+    cloud.style.left = "-500px";
+
+    cloud.innerHTML = `
+      <svg viewBox="0 0 400 200">
+        <path d="${CLOUD_PATH}" />
+      </svg>
+    `;
+
+    cloudsContainer.appendChild(cloud);
+
+    let left = -600;
+    const speed = 0.3 + Math.random() * 0.4;
+
+    function animate() {
+      left += speed;
+      cloud.style.left = left + "px";
+
+      if (left < window.innerWidth + 400)
+        requestAnimationFrame(animate);
+      else
+        cloud.remove();
+    }
+
+    animate();
   }
 
-  if (key === 'ArrowLeft' && prevBtn) {
-    prevBtn.click();
-  } else if (key === 'ArrowRight' && nextBtn) {
-    nextBtn.click();
-  }
-});
+  setInterval(() => createCloud(), 2000 + Math.random() * 1000);
 
+  /* -------------------- Confetti -------------------- */
+function fireConfetti() {
+  const confettiContainer = document.createElement("div");
+  confettiContainer.className = "confetti-container";
+  document.body.appendChild(confettiContainer);
+
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+
+    // random start position
+    piece.style.left = Math.random() * 100 + "vw";
+
+    // random size & color
+    piece.style.width = piece.style.height = (6 + Math.random() * 6) + "px";
+    piece.style.background = `hsl(${Math.random() * 360}, 80%, 60%)`;
+
+    // random fall duration
+    piece.style.animationDuration = (2 + Math.random() * 2) + "s";
+
+    confettiContainer.appendChild(piece);
+  }
+
+  // remove after animation ends
+  setTimeout(() => confettiContainer.remove(), 5000);
+}
+
+  /* -------------------- Buttons -------------------- */
+  function randomizeTheme(min, max) {
+    ids.forEach(id => {
+      sliders[id].value = Math.floor(Math.random() * (max - min + 1)) + min;
+    });
+
+    // pick a random policy category for the message
+    const randomId = ids[Math.floor(Math.random() * ids.length)];
+    update(randomId);
+  }
+
+  document.getElementById("btnAggressive").addEventListener("click", () => randomizeTheme(70,100));
+  document.getElementById("btnModerate").addEventListener("click", () => randomizeTheme(30,70));
+  document.getElementById("btnMinimal").addEventListener("click", () => randomizeTheme(0,30));
+
+});
 
 
 /* -------------------- Init -------------------- */
