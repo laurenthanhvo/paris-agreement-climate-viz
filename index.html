@@ -384,7 +384,10 @@
 
       <!-- Slide 7: Top Emitters & Sector Breakdown -->
 <section class="slide" id="slide-policy-sim">
-  <h2>Climate Policy Impact Simulator</h2>
+  <h2 style="margin-bottom: 0;">Climate Policy Impact Simulator</h2>
+  <p>Adjust the policy levers below to help the U.S. get to the Paris 2030
+    target. Powered by real U.S. emissions data (EPA, 2010-2022).
+  </p>
 
   <div class="policy-grid">
 
@@ -451,10 +454,14 @@
   </div>
 
   <!-- Gauge -->
-  <div class="gauge-container">
-    <canvas id="policyGauge" width="260" height="260"></canvas>
+  <div class="gauge-wrapper">
+    <div class="gauge-container">
+      <canvas id="policyGauge" width="260" height="260"></canvas>
+      <div id="percentDisplay">0%</div>
+    </div>
+    
   </div>
-  <div id="percentDisplay">0%</div>
+
 </section>
 
 
