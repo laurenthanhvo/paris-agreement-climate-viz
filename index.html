@@ -2,468 +2,169 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DSC 106 – Final Project</title>
+  <title>3D Emissions Landscape</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="assets/favicon.png">
-  <!-- main.js imports D3 + TopoJSON as ES modules -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" src="main.js" defer></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 </head>
 <body>
-  <div id="app">
-    <div class="top-right-container">
-      <a href="writeup.html" class="top-right-btn">Write-Up</a>
-    </div>
-
-    <!-- Left / right navigation arrows -->
-    <button id="prevSlide" class="nav-arrow nav-arrow-left" aria-label="Previous slide">
-      &#10094;
-    </button>
-    <button id="nextSlide" class="nav-arrow nav-arrow-right" aria-label="Next slide">
-      &#10095;
-    </button>
-
-    <div class="slides">
-      <!-- Slide 0: Title -->
-      <section class="slide slide-intro active" data-slide-index="0">
-        <div class="intro-content">
-          <h1>Carbon in America: Where Do We Stand?</h1>
-          <h2>HOW DOES GLOBAL CLIMATE POLICY AFFECT VEGETATION AND LAND SURFACE TEMPERATURE?</h2>
-          <p>
-            As satellites record states from above, the United States joins, leaves, and rejoins the
-            Paris Agreement. Are these environmental changes visible when looking at a map?
-          </p>
-          <p class="intro-hint">
-            Press
-            <span class="keycap">Enter</span>
-            or
-            <span class="keycap">→</span>
-            to continue
-          </p>
-        </div>
-      </section>
-
-      <!-- Slide 1: Background – What is the Paris Agreement? -->
-      <section class="slide slide-text type-slide" data-slide-index="1">
-        <div class="centered-text">
-          <p class="typewriter"
-            data-fulltext='The Paris Climate Agreement is a legally binding international treaty on climate change adopted at the 21st Conference of the Parties (COP21) in Paris in 2015. Its goals are to:'>
-          </p>
-
-          <ul class="background-bullets">
-            <li>Limit warming to well below 2°C (aim for 1.5°C)</li>
-            <li>Cut global emissions rapidly and reach net-zero later this century</li>
-            <li>Strengthen national climate plans every 5 years</li>
-            <li>Support adaptation and climate resilience</li>
-            <li>Provide financial and technological support to developing countries</li>
-            <!-- rewording -->
-             <li>Reduce greenhouse gas emissions by ~43% by 2030 after peaking in 2025</li>
-          </ul>
-
-          <a
-            href="https://www.un.org/en/climatechange/paris-agreement"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="primary-link-btn"
-          >
-            More information at the UN Climate site
-          </a>
-        </div>
-      </section>
-
-      <!-- Slide 2: Interactive timeline of U.S. involvement -->
-      <section class="slide slide-viz" id="timelineSlide" data-slide-index="2">
-        <div class="slide-inner">
-          <div class="slide-header">
-            <h2 class="timeline-title">
-        U.S. INVOLVEMENT<br />IN THE PARIS AGREEMENT
-      </h2>
-            <p>
-              The Paris Agreement sets a global temperature goal, but each country chooses how seriously
-              to participate. Use the timeline to see how U.S. membership has shifted over time, then
-              read primary sources in the summary box below.
-            </p>
-            <!-- Rotating earth gif -->
-            <div class="timeline-globe">
-              <img src="assets/earth-rotating.gif" alt="Rotating Earth from space" />
-            </div>
-          </div>
-
-          <!-- Stacked layout: timeline on top, summary underneath -->
-          <div class="timeline-stack">
-            <!-- Timeline visualization card -->
-            <div class="viz-card">
-              <h3>Timeline of U.S. Membership</h3>
-              <p class="subtitle">
-                Scrub across the bar or click the labeled dots to jump to key years. Colors show whether
-                the U.S. was in, stepping away from, or outside the Paris Agreement.
-              </p>
-              <div id="timelineContainer">
-                <svg id="timelineSvg"></svg>
-              </div>
-              <div id="timelineNote" class="timeline-note">
-                2015–2025: Move along the bar to explore how U.S. membership has changed.
-              </div>
-              <div id="timelineLegend" class="timeline-legend">
-  <span class="legend-item">
-    <span class="legend-pill joined"></span>
-    <span class="legend-text">Joined &amp; ratified</span>
-  </span>
-
-  <span class="legend-item">
-    <span class="legend-pill withdrawal-announced"></span>
-    <span class="legend-text">Withdrawal announced</span>
-  </span>
-
-  <span class="legend-item">
-    <span class="legend-pill left"></span>
-    <span class="legend-text">U.S. formally leaves</span>
-  </span>
-
-  <span class="legend-item">
-    <span class="legend-pill rejoined"></span>
-    <span class="legend-text">U.S. rejoins</span>
-  </span>
-</div>
-
-            </div>
-
-            <!-- Summary + sources card -->
-            <div class="viz-card timeline-summary-card">
-              <h3 id="timelineSummaryTitle">Why This Timeline Matters</h3>
-              <p id="timelineSummaryText" class="timeline-summary-text">
-                From 2015 onward, the Paris Agreement created a shared framework for limiting warming,
-                but the U.S. moved in and out of the treaty. Use the timeline above to jump to a year and
-                see what the government was saying &amp; doing about climate commitments.
-              </p>
-              <div id="timelineSummaryLinks" class="timeline-links">
-                <!-- Filled dynamically by main.js -->
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 3: Seasonal snapshot map + U.S. average seasonal pattern -->
-<section class="slide slide-viz" id="seasonSlide" data-slide-index="3">
-  <div class="slide-inner season-inner">
-    <div class="slide-header season-header">
-      <h2 class="timeline-title">
-        Tracking U.S. Environmental Change
-      </h2>
+  <div class="ui-panel">
+    <div class="ui-header">
+      <h1>3D Global Emissions Landscape</h1>
       <p>
-        This view uses MODIS satellite data for NDVI (vegetation greenness) and land surface
-        temperature (day, in °F). The map shows a seasonal snapshot; the chart shows how
-        a typical year unfolds for the U.S. and any state you click. Vegetation greenness ranges 
-        from 0.0 to 1.0 where values closer to 0 indicate barren land while values closer to 1 indicate
-        lushful areas.
+        Rotate and explore how total greenhouse gas emissions are distributed
+        across the world's top emitters. Use the year slider to see how the
+        landscape changes over time. The United States is highlighted.
       </p>
     </div>
 
-    <div class="control-row season-controls">
-      <div class="control">
-        <label for="seasonVarSelect">Variable</label>
-        <select id="seasonVarSelect">
-          <option value="ndvi">NDVI (Vegetation Greenness)</option>
-          <option value="lstDay">Land Surface Temp – Day (°F)</option>
-          <option value="lstNight">Land Surface Temp – Night (°F)</option>
-        </select>
+        <div class="controls">
+      <div class="play-row">
+        <button id="play-button" class="play-button">PLAY</button>
+        <div class="play-year">
+          <span class="play-year-number" id="year-value"></span>
+        </div>
       </div>
 
-      <div class="control">
-        <label for="seasonMonthSelect">Month (for map snapshot)</label>
-        <select id="seasonMonthSelect">
-          <option value="0">Yearly Average</option>
-          <option value="1">January</option>
-          <option value="2">February</option>
-          <option value="3">March</option>
-          <option value="4">April</option>
-          <option value="5">May</option>
-          <option value="6">June</option>
-          <option value="7">July</option>
-          <option value="8">August</option>
-          <option value="9">September</option>
-          <option value="10">October</option>
-          <option value="11">November</option>
-          <option value="12">December</option>
-        </select>
+      <label for="year-slider">
+        Year
+      </label>
+      <input
+        type="range"
+        id="year-slider"
+        min="0"
+        max="0"
+        value="0"
+        step="1"
+      />
+
+      <!-- NEW: global total display -->
+      <div class="global-total-row">
+        <div class="global-total-label">Global emissions</div>
+        <div class="global-total-value" id="global-total-value">—</div>
       </div>
 
-      <!-- Year control for the chart AND map -->
-      <div class="control">
-        <label for="yearSlider">Chart Year: <span id="yearLabel">2014</span></label>
-        <div class="slider-with-play">
-          <input type="range" id="yearSlider" min="2014" max="2024" value="2014" step="1" />
-          <button id="playButton" class="play-btn">▶ Play</button>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-swatch legend-swatch--us"></span>
+          <span>United States</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch legend-swatch--other"></span>
+          <span>Other top emitters</span>
         </div>
       </div>
     </div>
 
-    <div class="viz-row season-viz-row">
-      <!-- Seasonal snapshot map -->
-      <div class="viz-card">
-        <h3 id="mapTitle">Yearly Average Map</h3>
-        <p class="subtitle">
-          Each state is colored by the chosen variable, averaged for the selected year and month.
-          Click a state to see its full yearly curve on the right. Click again to remove.
-        </p>
-        <div id="seasonMapContainer">
-          <svg id="seasonMapSvg"></svg>
-        </div>
-        <div id="seasonMapLegend" aria-label="Map legend"></div>
-      </div>
 
-      <!-- Yearly chart -->
-      <div class="viz-card">
-        <h3 id="seasonTitle">U.S. Average Yearly Pattern</h3>
-        <p class="subtitle" id="seasonSubtitle">
-          Lines show the yearly averages for the selected variable. Use the year slider to animate
-          through time.
-        </p>
-        <div id="seasonBarContainer">
-          <svg id="seasonBarSvg"></svg>
-          <!-- Glowing dot for current year -->
-          <div id="yearTracker" class="year-tracker" style="display: none;">
-            <div class="tracker-dot"></div>
-            <div class="tracker-label"></div>
-          </div>
-        </div>
+        <div class="caption">
+  <p>
+    Bars show total GHG emissions per country (MtCO₂e) based on EDGAR data.
+    Heights are normalized per year so the tallest bar always fills the scene.
+  </p>
 
-        <div id="seasonLegend" class="season-legend">
-          <div class="legend-item">
-            <span class="legend-color us"></span> U.S. Average
-          </div>
-          <div class="legend-item" id="legendStateItem" style="display: none;">
-            <span class="legend-color state"></span>
-            <span id="legendStateLabel">Selected State</span>
-          </div>
-        </div>
+  <div class="caption-howto">How to use the 3D model</div>
 
-        <div class="season-note">
-          Tip: Use the Play button to animate through years. The glowing dot shows the current year's value.
-        </div>
+  <div class="interaction-hints">
+    <div class="hint">
+      <div class="hint-icon hint-icon--rotate"></div>
+      <div class="hint-text">
+        <span class="hint-label">Rotate</span>
+        Use one finger (or click + drag) to orbit around the 3D bars.
       </div>
     </div>
 
-    <p class="slide-footnote season-footnote">
-      All values are monthly means across 2014–2024. NDVI is unitless; land surface temperature is in
-      degrees Fahrenheit.
-    </p>
+    <div class="hint">
+      <div class="hint-icon hint-icon--pan"></div>
+      <div class="hint-text">
+        <span class="hint-label">Pan</span>
+        Use two fingers (or right-click + drag) to slide the scene left, right, up, or down.
+      </div>
+    </div>
+
+    <div class="hint">
+      <div class="hint-icon hint-icon--zoom"></div>
+      <div class="hint-text">
+        <span class="hint-label">Zoom</span>
+        Pinch with two fingers (or scroll) to move closer or farther from the bars.
+      </div>
+    </div>
   </div>
-</section>
+</div>
 
+    </div>
+
+  <!-- Right column: 3D scene + detail panel -->
+  <div class="viz-column">
+    <div id="scene-container"></div>
+
+    <div id="sector-panel">
+      <div class="sector-header">
+        <div>
+          <h2 id="sector-title">Click a bar to explore sectors</h2>
+          <p id="sector-subtitle" class="sector-subtitle">
+            Select a country in the 3D chart to see how its emissions are distributed
+            across sectors such as power, transport, and buildings.
+          </p>
+        </div>
+        <div class="sector-pill" id="sector-year-pill">Year</div>
+      </div>
+      <!-- NEW: main flex row -->
+  <div class="sector-main">
+    <div id="sector-viz-container"></div>
+
+    <!-- NEW: metrics sidebar -->
+    <div id="sector-metrics" class="sector-metrics">
+      <div class="sector-metrics-title">Sector breakdown</div>
+      <div id="sector-metrics-list"></div>
+    </div>
+  </div>
+      <div id="sector-viz-container"></div>
+      <div id="sector-legend"></div>
 
       
-      <!-- Slide 5: Future -->
-      <section class="slide slide-text type-slide" data-slide-index="5">
-        <div class="centered-text">
-          <p class="typewriter"
-            data-fulltext="The Paris Climate Agreement update as of 2025 is as follows:">
-          </p>
-
-          <ul class="background-bullets">
-            <li>In January 2025, President Trump signed an order to withdraw the U.S. from the Paris Climate Agreement again.</li>
-            <li>The U.S. sent formal notice to the UN, and the exit will take one year to become official.</li>
-            <li>Many states and cities say they will still follow Paris-aligned climate goals.</li>
-            <li>International groups warn the withdrawal weakens global climate cooperation.</li>
-          </ul>
-          <p class="typewriter"
-            data-fulltext="What would it take to get to this target?">
-          </p>
-          <a
-            href="https://www.congress.gov/crs-product/R48504"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="primary-link-btn"
-          >
-            More information at the Congress site
-          </a>
-          
-        </div>
-      </section>
-      <!-- Slide 6: Play Area – emissions projection -->
-      <section class="slide slide-viz" id="slide5" data-slide-index="6">
-        <div class="slide-inner">
-          <div class="slide-header">
-            <h2>Projecting the Warming Future</h2>
-            <p class="slide-subtitle">
-              Use a simple prediction model to see whether global emissions are on pace
-              for the 43% drop by 2030.
-            </p>
-          </div>
-
-          <!-- STACKED LAYOUT FOR SLIDE 6 -->
-          <div class="slide-grid-5">
-            <!-- Left card: chart + controls -->
-            <div class="viz-card slide5-left-card">
-              <div class="card-header-row">
-                <div class="card-title">Global greenhouse gas emissions (GtCO₂e) vs. 2030 pathway</div>
-                <div class="card-controls">
-                  <label for="projectionModelSelect">
-                    Model:
-                    <select id="projectionModelSelect">
-                      <option value="linear">Linear trend (business-as-usual)</option>
-                      <option value="faster-cut">Hypothetical faster cuts</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              <div id="projectionContainer">
-                <svg id="projectionSvg"></svg>
-              </div>
-              <p id="projectionAnno" class="projection-anno-text"></p>
-              <!-- Legend -->
-              <div class="projection-legend">
-                <div class="legend-item">
-                  <span class="legend-swatch legend-swatch-actual"></span>
-                  <span>Actual data (2010–2024)</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-swatch legend-swatch-model"></span>
-                  <span>Model projection</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-swatch legend-swatch-target"></span>
-                  <span>Paris-aligned pathway</span>
-                </div>
-                <div class="projection-scroll-hint">
-                <div class="scroll-mouse">
-                  <div class="scroll-wheel"></div>
-                </div>
-                <p>
-                  Use two fingers to scroll up<br> or down the chart
-                  to pan<br> the y-axis.
-                </p>
-              </div>
-
-              </div>
-
-              <!-- Slider -->
-              <div class="slider-row" id="ghgSliderRow">
-                <label for="projectionYearSlider" id="projectionYearLabel">
-                  Focus year: 2030
-                </label>
-                <input id="projectionYearSlider" type="range" />
-              </div>
-
-              <p id="ghgHint" class="chart-hint">
-                Hover or drag across the chart to inspect a year. Compare the model path
-                (pink) to the Paris-aligned path (green) and the actual data through
-                2024 (orange).
-              </p>
-            </div>
-
-            <!-- Right card: explanation -->
-            <div class="viz-card slide5-right-card">
-              <h3 id="projectionExplTitle">Are We On Track for 2030?</h3>
-              <p id="projectionExplBody"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Slide 7: Top Emitters & Sector Breakdown -->
-      <section class="slide slide-viz" id="slide6" data-slide-index="6">
-        <div class="slide-inner">
-
-          <!-- Header -->
-          <div class="slide-header">
-            <h2>U.S. Emissions vs. the Rest of the World</h2>
-            <p>
-              Watch countries rise and fall in total greenhouse gas emissions.  
-              Select any bar to see its sector breakdown and hover to see approximate
-              values and percentages. Sectors refer to the various factors that contribute
-              carbon emissions entering the atmosphere.
-            </p>
-          </div>
-
-          <!-- Controls Row -->
-          <div class="control-row slide6-controls">
-            <button id="slide6PlayBtn" class="play-btn">Play</button>
-
-            <div class="slider-with-play">
-              <span id="slide6YearLabel">1970</span>
-
-              <input
-                type="range"
-                id="slide6YearSlider"
-                min="1970"
-                max="2024"
-                step="1"
-                value="1970"
-              />
-            </div>
-          </div>
-
-          <!-- Visualization Layout -->
-          <div class="slide6-layout">
-
-            <!-- Bar Race Container -->
-            <div id="slide6BarRaceContainer">
-              <h3>Top Emitters Over Time</h3>
-
-              <!-- IMPORTANT: Chart.js requires <canvas> -->
-              <canvas id="slide6BarRaceChart"></canvas>
-            </div>
-
-            <!-- Pie Chart Container -->
-            <div id="slide6PieContainer">
-              <h3 id="slide6PieTitle">Sector Breakdown (Select a Country)</h3>
-
-              <!-- IMPORTANT: Chart.js requires <canvas> -->
-              <canvas id="slide6PieChart" width="550" height="550"></canvas>
-            </div>
-
-          </div>
-        </div>
-      </section>
-      <!-- Slide 8: Takeaways -->
-      <section class="slide slide-text type-slide" data-slide-index="1">
-        <div class="centered-text">
-          <!-- Intro line: same role as the other slides' typewriter -->
-          <p class="typewriter"
-                  data-fulltext="Key Takeaways">
-                </p>
-
-          <!-- Bullets use the same class as Slides 1 and 5 -->
-          <ul class="background-bullets">
-            <li>The U.S. is not on track for the Paris Agreement’s 43% emissions cut by 2030 under current trends.</li>
-            <li>Policy swings (join → withdraw → rejoin) create uncertainty and slow long-term progress.</li>
-            <li>U.S. seasonal data (NDVI and LST) already show warming patterns—hotter summers, shifting vegetation.</li>
-            <li>Global climate policy shapes future warming, which then shapes local U.S. environmental conditions.</li>
-            <li>The U.S. is a major contributor to global emissions, so we must play an equally significant role in protecting the planet.</li>
-          </ul>
-          
-          <!-- Closing callout -->
-          <p class="callout-text">
-            Every year we delay makes the slope steeper. The next few years decide the curve.
-          </p>
-          <a
-                  href="https://usclimatealliance.org/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="primary-link-btn"
-                >
-                  More information on policies at the U.S. Climate Alliance site
-                </a>
-        </div>
-      </section>
-
-
-
     </div>
-
-    <!-- Slide pager dots -->
-    <div id="pager" class="pager"></div>
   </div>
 
-  <!-- shared tooltip for charts -->
-  <div id="tooltip" class="tooltip" style="opacity:0;"></div>
-  
-  <!-- State hover stats -->
-  <div id="stateHoverStats" class="state-hover-stats"></div>
-  
+  <div id="tooltip" class="tooltip" style="display:none;">
+    <div class="tooltip-title" id="tooltip-country"></div>
+    <div class="tooltip-body">
+      <div><span id="tooltip-year"></span></div>
+      <div>Emissions: <span id="tooltip-emissions"></span> MtCO₂e</div>
+      <div>Share of global: <span id="tooltip-share"></span>%</div>
+      <div>Rank: <span id="tooltip-rank"></span></div>
+    </div>
+  </div>
+
+    <div class="tooltip-title" id="tooltip-country"></div>
+    <div class="tooltip-body">
+      <div><span id="tooltip-year"></span></div>
+      <div>Emissions: <span id="tooltip-emissions"></span> MtCO₂e</div>
+      <div>Share of global: <span id="tooltip-share"></span>%</div>
+      <div>Rank: <span id="tooltip-rank"></span></div>
+    </div>
+  </div>
+
+  <!-- Map bare specifier "three" to a real URL -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js"
+    }
+  }
+  </script>
+
+  <!-- Load libs as a module, then expose them globally + run main.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
+      "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js",
+      "d3": "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+    }
+  }
+  </script>
+
+  <!-- Load our main file as an ES module -->
+  <script type="module" src="./main.js"></script>
 </body>
 </html>

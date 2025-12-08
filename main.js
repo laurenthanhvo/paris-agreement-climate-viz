@@ -1,2902 +1,999 @@
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import { feature } from "https://cdn.jsdelivr.net/npm/topojson-client@3/+esm";
+// main.js — ES module version
 
-/* -------------------- Global state -------------------- */
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import * as d3 from "d3";
 
-let slides, pagerDots, currentSlide = 0;
-let typingStarted = new Set();
+console.log("main.js loaded; typeof THREE =", typeof THREE);
 
-let modisData = [];
-let usTopo = null;
-let statesGeo = null;
+const DATA_FILE = "GHG_totals_by_country.csv";
+const MAX_BARS = 18;
 
-/** Variables: only NDVI + land surface temperature (day & night) */
-const VAR_CONFIG = {
-  ndvi: {
-    field: "NDVI",
-    label: "NDVI (Vegetation Greenness)",
-    legendLabel: "NDVI (unitless)",
-    colorType: "greens"
-  },
-  lstDay: {
-    field: "LST_Day",
-    label: "Land Surface Temp – Day (°F)",
-    legendLabel: "Land Surface Temperature – Day (°F)",
-    colorType: "temp"
-  },
-  lstNight: {
-    field: "LST_Night",
-    label: "Land Surface Temp – Night (°F)",
-    legendLabel: "Land Surface Temperature – Night (°F)",
-    colorType: "temp"
-  }
-};
+// Color palette: similar to the 2D chart (US still special)
+const countryColorScale = d3
+  .scaleOrdinal(d3.schemeTableau10);
 
-let varStats = {};          // per-variable {min, max, thresholds, colors, scale}
-
-/* Seasonal snapshot controls (Slide 3) */
-let currentSeasonVar = "ndvi";
-let currentSeasonMonth = 1;
-let selectedState = null;   // null => U.S. average
-
-/* NEW: Year slider + play button variables for SLIDE 3*/
-let currentYear = 2014;
 let isPlaying = false;
-let playInterval = null;
-let yearTracker = null;
-let yearTrackerLabel = null;
+let playTimer = null;
 
-/* % change pre-computation (still used for any other % change views) */
-let changeVar = "ndvi";
-let percentChangeByVar = {};  // varKey -> Map(stateName -> pctChange)
-let changeScales = {};        // varKey -> color scale
-let usChangeAverages = {};    // varKey -> U.S. average % change
 
-/* Paris milestones for timeline */
-const milestones = [
-  { year: 2015, label: "2015: Paris Agreement adopted with U.S. support." },
-  { year: 2016, label: "2016: U.S. formally joins the Paris Agreement." },
-  { year: 2017, label: "2017: U.S. announces intent to withdraw." },
-  { year: 2018, label: "2018: Federal rollbacks contrast with growing state and local climate pledges." },
-  { year: 2019, label: "2019: Climate impacts mount while withdrawal looms." },
-  { year: 2020, label: "2020: U.S. withdrawal takes legal effect." },
-  { year: 2021, label: "2021: U.S. officially rejoins the Paris Agreement." },
-  { year: 2022, label: "2022: Major U.S. climate law aims to accelerate cuts toward Paris targets." },
-  { year: 2023, label: "2023: First global stocktake underscores gaps in meeting Paris goals." },
-  { year: 2024, label: "2024: Election-year debates put future U.S. climate ambition under scrutiny." },
-  { year: 2025, label: "2025: New executive order on international environmental agreements." }
+// NEW: sector breakdown data
+const SECTOR_FILE = "GHG_by_sector_and_country.csv";
+const SECTOR_ORDER = [
+  "Power Industry",
+  "Industrial Combustion",
+  "Buildings",
+  "Transport",
+  "Fuel Exploitation",
+  "Agriculture",
+  "Processes",
+  "Waste",
 ];
 
-/* Yearly trend controls (Slide 4 – separate from Slide 3) */
-const YEARLY_YEARS = d3.range(2014, 2025); // 2014–2024 inclusive
-let yearlyVar = "ndvi";     // "ndvi" or "lstDay"
-let yearlyState = "";       // "" => U.S. only
+const TRANSITION_SPEED = 0.18;
+const CAMERA_DISTANCE = 25;
 
-let yearlySvg,
-  yearlyG,
-  xYearScale,
-  yYearScale,
-  yearlyLineUS,
-  yearlyLineState,
-  yearlyPointsUS,
-  yearlyPointsState;
+const COLOR_US = new THREE.Color(0xf5c04f);
+const COLOR_OTHER = new THREE.Color(0x4f8df5);
+const COLOR_OTHER_DIM = new THREE.Color(0x243b73);
 
-const yearlyMilestones = [
-  { year: 2016, label: "Joins Paris" },
-  { year: 2017, label: "Exit announced" },
-  { year: 2020, label: "Exit in effect" },
-  { year: 2021, label: "Rejoins Paris" }
-];
+const container = document.getElementById("scene-container");
+const slider = document.getElementById("year-slider");
+const yearLabel = document.getElementById("year-value");
 
-const yearlyExplainers = {
-  ndvi: {
-    title: "How NDVI (Vegetation Greenness) shifts from 2014–2024",
-    body:
-      "This chart traces average NDVI (vegetation greenness) over time. The orange line shows the U.S. average; " +
-      "when you pick a state, the teal line shows that state. Look for bends around 2016–2017 (joining Paris), " +
-      "2017–2020 (exit signaled), and 2020–2021 (exit in effect vs. rejoining) to see whether the state moves " +
-      "with or against the national pattern."
-  },
-  lstDay: {
-    title: "How daytime land surface temperatures shift from 2014–2024",
-    body:
-      "This chart traces average daytime land surface temperature in °F. The orange line shows the U.S. average; " +
-      "when you pick a state, the teal line shows that state. Watch how the lines slope before and after the " +
-      "Paris Agreement milestones and whether your chosen state is consistently hotter or cooler than the U.S. average."
-  }
-};
+const tooltip = document.getElementById("tooltip");
+const tooltipCountry = document.getElementById("tooltip-country");
+const tooltipYear = document.getElementById("tooltip-year");
+const tooltipEmissions = document.getElementById("tooltip-emissions");
+const tooltipShare = document.getElementById("tooltip-share");
+const tooltipRank = document.getElementById("tooltip-rank");
+const globalTotalEl = document.getElementById("global-total-value");
 
-const usParisPhases = [
-  {
-    start: 2015,
-    end: 2017,
-    status: "In",
-    label: "Joined and ratified",
-    color: "#16a34a"
-  },
-  {
-    start: 2017,
-    end: 2020,
-    status: "In (undermined)",
-    label: "Withdrawal announced",
-    color: "#fbbf24"
-  },
-  {
-    start: 2020,
-    end: 2021,
-    status: "Out",
-    label: "U.S. formally leaves",
-    color: "#f97373"
-  },
-  {
-    start: 2021,
-    end: 2025,
-    status: "Back in",
-    label: "Rejoined Paris",
-    color: "#22c55e"
-  }
-];
+// Detail panel elements
+const sectorTitleEl = document.getElementById("sector-title");
+const sectorSubtitleEl = document.getElementById("sector-subtitle");
+const sectorYearPillEl = document.getElementById("sector-year-pill");
 
-/**
- * Narrative content that should show up in the big summary card
- * underneath the timeline.
- */
+// Sidebar metrics list (numbers per sector)
+const metricsListEl = document.getElementById("sector-metrics-list");
 
-function setTimelineSummaryDefault() {
-  const story = timelineStories.default;
-  const titleEl = d3.select("#timelineSummaryTitle");
-  const textEl = d3.select("#timelineSummaryText");
+function updateSectorMetrics(sectors) {
+  if (!metricsListEl || !sectors) return;
 
-  // Overall summary + why it matters when nothing is hovered
-  titleEl.text(story.title);
-  textEl.text(story.summary);
+  // Clear previous rows
+  metricsListEl.innerHTML = "";
 
-  // Clear any bullets/links from the last hovered year, so we only see the summary
-  const bulletsEl = d3.select("#timelineSummaryBullets");
-  if (!bulletsEl.empty()) {
-    bulletsEl.html("");
-  }
-  const linksEl = d3.select("#timelineSummaryLinks");
-  if (!linksEl.empty()) {
-    linksEl.html("");
-  }
+  sectors.forEach((s) => {
+    const row = document.createElement("div");
+    row.className = "sector-metric-row";
+
+    const label = document.createElement("span");
+    label.className = "sector-metric-label";
+
+    const dot = document.createElement("span");
+    dot.className = "sector-metric-dot";
+    // use provided color if present, else fall back to scale
+    dot.style.backgroundColor = s.color || sectorColorScale(s.name);
+
+    const name = document.createElement("span");
+    name.textContent = s.name;
+
+    label.appendChild(dot);
+    label.appendChild(name);
+
+    const value = document.createElement("span");
+    value.className = "sector-metric-value";
+    value.textContent = `${s.value.toLocaleString("en-US", {
+      maximumFractionDigits: 1,
+    })} MtCO₂e`;
+
+    row.appendChild(label);
+    row.appendChild(value);
+    metricsListEl.appendChild(row);
+  });
 }
 
-const timelineStories = {
-  default: {
-    title: "What Happens Across These Years?",
-    summary:
-      "From 2015 onward, the Paris Agreement creates a shared framework for limiting warming, " +
-      "but U.S. membership shifts several times. In 2015–2016 the U.S. helps negotiate and formally join the Agreement. " +
-      "In 2017 the administration announces plans to withdraw, and by 2020 that exit becomes official. " +
-      "In 2021 a new administration brings the U.S. back in, and by 2025 U.S. climate policy is again at a crossroads. " +
-      "This timeline matters because each turn—signing on, signaling an exit, leaving, and re-entering—sends a powerful signal " +
-      "to other countries about how seriously the U.S. treats its climate commitments.",
-    bullets: [],
-    links: []
-  },
-  2015: {
-    title: "2015: Paris Agreement Adopted",
-    summary:
-      "In December 2015, nearly every country on Earth agreed to the Paris Climate Agreement, including the United States. The deal set the long-term temperature goals and a process for updating national climate plans.",
-    bullets: [
-      "195 Parties adopted the Paris Agreement at COP21 in Paris.",
-      "The U.S. helped negotiate the deal and signaled support for keeping warming well below 2 °C.",
-      "Countries agreed to submit nationally determined contributions (NDCs) and strengthen them over time."
-    ],
-    links: []
-  },
-  2016: {
-    title: "2016: U.S. Formally Enters the Paris Agreement",
-    summary:
-      "In 2016, the U.S. formally joined the Paris Agreement, making its commitments official alongside other major emitters like China.",
-    bullets: [
-      "The U.S. submitted its formal instrument of acceptance and became a Party to the Agreement.",
-      "The U.S. NDC pledged to cut emissions 26–28% below 2005 levels by 2025.",
-      "The move was framed as a turning point for global climate cooperation."
-    ],
-    links: [
-      {
-        label: "Read the 2016 White House blog",
-        href: "https://obamawhitehouse.archives.gov/blog/2016/09/03/president-Obama-United-states-formally-enters-Paris-agreement"
-      }
-    ]
-  },
-  2017: {
-    title: "2017–2019: U.S. Signals an Exit",
-    summary:
-      "In 2017, the administration announced its intention to withdraw from the Paris Agreement, even though the U.S. had just recently joined.",
-    bullets: [
-      "The administration argued the pact disadvantaged U.S. workers and the economy.",
-      "The U.S. technically remained inside the Agreement until 2020, but the announcement weakened trust.",
-      "States, cities, and businesses responded by launching “We Are Still In” and other initiatives to keep cutting emissions."
-    ],
-    links: [
-      {
-        label: "2017 State Department statement on withdrawal",
-        href: "https://2017-2021.state.gov/on-the-u-s-withdrawal-from-the-paris-agreement/"
-      }
-    ]
-  },
-  2019: {
-    title: "2019: Climate Impacts During the Paris 'Limbo'",
-    summary:
-      "By 2019, the withdrawal process was underway, but the U.S. was still technically in the Agreement while climate impacts kept intensifying.",
-    bullets: [
-      "Record-breaking heat, wildfires, and hurricanes highlighted the rising costs of delay.",
-      "Many U.S. states and cities continued setting their own climate targets.",
-      "Internationally, other countries watched to see whether the U.S. would eventually follow through on its exit."
-    ],
-    links: []
-  },
-  2020: {
-    title: "2020: Withdrawal Takes Effect",
-    summary:
-      "In November 2020, the U.S. withdrawal from the Paris Agreement became legally effective, just as the world needed stronger climate action.",
-    bullets: [
-      "The U.S. became the only country to formally leave the Paris Agreement.",
-      "The move created uncertainty about long-term U.S. climate commitments.",
-      "Global negotiations continued without the U.S. fully at the table."
-    ],
-    links: [
-      {
-        label: "State Department statement on withdrawal taking effect",
-        href: "https://2017-2021.state.gov/on-the-u-s-withdrawal-from-the-paris-agreement/"
-      }
-    ]
-  },
-  2021: {
-    title: "2021: U.S. Rejoins the Paris Agreement",
-    summary:
-      "In early 2021, the U.S. reversed course and rejoined the Paris Agreement, signaling a return to international climate cooperation.",
-    bullets: [
-      "On the first day in office, the new administration took steps to re-enter the Agreement.",
-      "The U.S. formally rejoined in February 2021.",
-      "The administration later announced a new 2030 target to cut emissions roughly in half from 2005 levels."
-    ],
-    links: [
-      {
-        label: "U.S. announcement about rejoining Paris",
-        href: "https://2021-2025.state.gov/the-united-states-officially-rejoins-the-paris-agreement/"
-      }
-    ]
-  },
-  2025: {
-    title: "2025: Looking Ahead",
-    summary:
-      "An executive order titled “Putting America First in International Environmental Agreements” (see link) outlines how the administration plans to approach environmental treaties going forward.",
-    bullets: [
-      "U.S. commitments after 2025 will shape whether the world can still meet the 1.5 °C goal.",
-      "Decisions in Washington influence how other countries design their own climate policies.",
-      "Scrubbing along this bar is a reminder that international agreements are political stories, not just lines of text."
-    ],
-    links: [
-      {
-        label: "2025 executive order on international environmental agreements",
-        href: "https://www.whitehouse.gov/presidential-actions/2025/01/putting-america-first-in-international-environmental-agreements/"
-      }
-    ]
-  }
-};
+// Radar-chart state
+let sectorDataByKey = {}; // key = `${iso}_${year}` -> { sectors: {...} }
 
-/* Shared tooltip */
-const tooltip = d3.select("#tooltip");
+let sectorSvg = null;
+let sectorG = null;
+let radarPath = null;
+let radarPointsGroup = null;
+let radarAngleScale = null;
+let radarRadius = 0;
+let selectedCountry = null;  // { iso, country }
+let currentYear = null;
 
-// fade-out timer for the play-area tooltip
-let projectionTooltipTimeout = null;
+const sectorColorScale = d3
+  .scaleOrdinal()
+  .domain(SECTOR_ORDER)
+  .range([
+    "#60a5fa",
+    "#34d399",
+    "#f97316",
+    "#facc15",
+    "#a855f7",
+    "#2dd4bf",
+    "#f472b6",
+    "#22c55e",
+  ]);
 
-/* Months for seasonal bar chart (still used for the map month dropdown) */
-const monthsSeason = d3.range(1, 13).map((m) => ({
-  month: m,
-  label: d3.timeFormat("%b")(new Date(2000, m - 1, 1))
-}));
+// --- Country label sprites (vertical text) -----------------------
+function createCountryLabel(text) {
+  const canvas = document.createElement("canvas");
+  const size = 256;
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext("2d");
 
-/* -------------------- Slide nav + typewriter -------------------- */
+  // Background transparent
+  ctx.clearRect(0, 0, size, size);
 
-function initSlides() {
-  console.log("Initializing slides...");
-  
-  slides = Array.from(document.querySelectorAll(".slide"));
-  console.log(`Found ${slides.length} slides`);
-  
-  // Initialize pager dots
-  const pager = document.getElementById("pager");
-  if (!pager) {
-    console.error("Pager element not found!");
-    return;
-  }
-  
-  pager.innerHTML = "";
-  slides.forEach((_, idx) => {
-    const dot = document.createElement("div");
-    dot.className = "pager-dot" + (idx === 0 ? " active" : "");
-    dot.dataset.index = idx;
-    dot.addEventListener("click", () => goToSlide(idx));
-    pager.appendChild(dot);
-  });
-  pagerDots = Array.from(document.querySelectorAll(".pager-dot"));
-  console.log(`Created ${pagerDots.length} pager dots`);
+  // Draw text in the middle, but rotate so it reads vertically
+  ctx.save();
+  ctx.translate(size / 2, size / 2);
+  ctx.rotate(-Math.PI / 2); // vertical orientation
+  ctx.font = "42px system-ui, -apple-system, BlinkMacSystemFont";
+  ctx.fillStyle = "#e5e7eb";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
 
-  // Setup navigation buttons
-  const prevBtn = document.getElementById("prevSlide");
-  const nextBtn = document.getElementById("nextSlide");
-  
-  if (prevBtn) {
-    prevBtn.addEventListener("click", () => {
-      console.log("Previous button clicked");
-      goToSlide((currentSlide - 1 + slides.length) % slides.length);
-    });
-  }
-  
-  if (nextBtn) {
-    nextBtn.addEventListener("click", () => {
-      console.log("Next button clicked");
-      goToSlide((currentSlide + 1) % slides.length);
-    });
-  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
 
-  // Keyboard navigation
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight" || e.key === "Enter") {
-      goToSlide((currentSlide + 1) % slides.length);
-    } else if (e.key === "ArrowLeft") {
-      goToSlide((currentSlide - 1 + slides.length) % slides.length);
-    }
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
   });
 
-  startTypewriterOnSlide(currentSlide);
+  const sprite = new THREE.Sprite(material);
+  // Narrow/tall so it sits nicely above each bar
+  sprite.scale.set(2.2, 2.2, 1);
+
+  return sprite;
 }
 
-function goToSlide(idx) {
-  console.log(`Going to slide ${idx} from ${currentSlide}`);
-  
-  // Stop any playback if active
-  if (isPlaying) {
-    isPlaying = false;
-    if (playInterval) {
-      clearInterval(playInterval);
-      playInterval = null;
-    }
-    const playButton = document.getElementById('playButton');
-    if (playButton) {
-      playButton.textContent = '▶ Play';
-      playButton.classList.remove('playing');
-    }
-  }
-  
-  // Hide tooltips
-  if (tooltip) {
-    tooltip.style("opacity", 0);
-  }
-  
-  // Hide projection line if it exists
-  if (typeof projYearLine !== "undefined" && projYearLine) {
-    projYearLine.attr("opacity", 0);
-  }
+let scene, camera, renderer, controls;
+let bars = [];
+let barGroup;
+let floorGrid;
+let animationId;
+let barLabels = []; // DOM labels anchored to each bar
 
-  // Update slides
-  if (slides && slides[currentSlide]) {
-    slides[currentSlide].classList.remove("active");
-  }
-  if (slides && slides[idx]) {
-    slides[idx].classList.add("active");
-  }
-  
-  // Update pager dots
-  if (pagerDots && pagerDots[currentSlide]) {
-    pagerDots[currentSlide].classList.remove("active");
-  }
-  if (pagerDots && pagerDots[idx]) {
-    pagerDots[idx].classList.add("active");
-  }
-  
-  currentSlide = idx;
-  startTypewriterOnSlide(currentSlide);
-}
+const playButton = document.getElementById("play-button");
 
-function startTypewriterOnSlide(idx) {
-  const slide = slides[idx];
-  if (!slide.classList.contains("type-slide")) return;
-  if (typingStarted.has(idx)) return;
+let emissionsByYear = {};
+let totalsByYear = {};
+let years = [];
 
-  const els = slide.querySelectorAll(".typewriter");
-  if (!els.length) return;
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let hoveredBar = null;
+let selectedBar = null; // NEW: persists after click
 
-  typingStarted.add(idx);
+// ----------------- init scene -----------------
 
-  const first = els[0];
-  const firstFull = first.getAttribute("data-fulltext") || "";
-  first.textContent = "";
-  let i = 0;
+function initScene() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050b1f);
+  scene.fog = new THREE.FogExp2(0x050b1f, 0.015); // lighter, weaker fog
 
-  function typeFirst() {
-    if (i <= firstFull.length) {
-      first.textContent = firstFull.slice(0, i);
-      i += 1;
-      setTimeout(typeFirst, 22);
-    } else {
-      // FIRST done → animate bullets and record duration
-      const bulletDuration = animateBulletsOnSlide(slide);
+  const aspect = container.clientWidth / container.clientHeight;
+  camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 200);
+  camera.position.set(0, 9, CAMERA_DISTANCE); 
+  camera.lookAt(0, 6, 0);
 
-      // SECOND starts AFTER bullets finish
-      if (els.length > 1) {
-        setTimeout(typeSecond, bulletDuration);
-      }
-    }
-  }
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMappingExposure = 1.4;      // bump exposure a bit
+  container.appendChild(renderer.domElement);
 
-  function typeSecond() {
-    const second = els[1];
-    const secondFull = second.getAttribute("data-fulltext") || "";
-    second.textContent = "";
-    let j = 0;
+  // OrbitControls is imported in your ES-module version
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.target.set(0, 7, 0);
+  controls.update();   
 
-    function tickSecond() {
-      if (j <= secondFull.length) {
-        second.textContent = secondFull.slice(0, j);
-        j += 1;
-        setTimeout(tickSecond, 22);
-      }
-    }
+  // === MUCH BRIGHTER LIGHTING ===
+  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambient);
 
-    tickSecond();
-  }
+  const hemi = new THREE.HemisphereLight(0xbfd4ff, 0x050816, 0.9);
+  scene.add(hemi);
 
-  typeFirst();
-}
+  const dir1 = new THREE.DirectionalLight(0xffffff, 1.4);
+  dir1.position.set(18, 30, 12);
+  scene.add(dir1);
 
+  const dir2 = new THREE.DirectionalLight(0x88b0ff, 0.8);
+  dir2.position.set(-16, 18, -10);
+  scene.add(dir2);
 
-
-function animateBulletsOnSlide(slide) {
-  const bullets = slide.querySelectorAll(".background-bullets li");
-  if (!bullets.length) return;
-
-  // ---- STOP ANY PREVIOUS ANIMATION ----
-  if (slide._typingTimeout) {
-    clearTimeout(slide._typingTimeout);
-    slide._typingTimeout = null;
-  }
-
-  // ---- STORE FULL TEXT FIRST (IMPORTANT) ----
-  bullets.forEach((li) => {
-    if (!li.dataset.fulltext) {
-      li.dataset.fulltext = li.textContent; 
-    }
-    li.textContent = "";              // clear after storing
-    li.style.visibility = "visible";
+  // Floor
+  const planeGeo = new THREE.PlaneGeometry(60, 40);
+  const planeMat = new THREE.MeshStandardMaterial({
+    color: 0x0b1120,      // slightly lighter than before
+    metalness: 0.15,
+    roughness: 0.9,
   });
+  const plane = new THREE.Mesh(planeGeo, planeMat);
+  plane.rotation.x = -Math.PI / 2;
+  plane.position.y = 0;
+  scene.add(plane);
 
-  let bulletIndex = 0;
-  let charIndex = 0;
+  // Grid
+  const grid = new THREE.GridHelper(60, 30, 0x1f2937, 0x111827);
+  grid.position.y = 0.01;
+  scene.add(grid);
+  floorGrid = grid;
 
-  function typeNext() {
-    if (bulletIndex >= bullets.length) return;
+  // Arc
+  const arcGeom = new THREE.TorusGeometry(18, 0.08, 12, 100, Math.PI);
+  const arcMat = new THREE.MeshBasicMaterial({
+    color: 0x2563eb,
+    transparent: true,
+    opacity: 0.55,        // brighter arc
+  });
+  const arc = new THREE.Mesh(arcGeom, arcMat);
+  arc.rotation.x = Math.PI / 2;
+  arc.position.set(0, 0.02, -6);
+  scene.add(arc);
 
-    const li = bullets[bulletIndex];
-    const text = li.dataset.fulltext;
+  barGroup = new THREE.Group();
+  scene.add(barGroup);
 
-    if (charIndex <= text.length) {
-      li.textContent = text.slice(0, charIndex);
-      charIndex++;
-      slide._typingTimeout = setTimeout(typeNext, 18);
-    } else {
-      bulletIndex++;
-      charIndex = 0;
-      slide._typingTimeout = setTimeout(typeNext, 150);
-    }
-  }
+  window.addEventListener("resize", onWindowResize);
+  renderer.domElement.addEventListener("pointermove", onPointerMove);
+  renderer.domElement.addEventListener("pointerleave", onPointerLeave);
+  renderer.domElement.addEventListener("click", onPointerClick); // NEW
 
-  typeNext();
+  // Listen on the whole scene container so overlays / padding don’t break hover
+  container.addEventListener("pointermove", onPointerMove);
+  container.addEventListener("pointerleave", onPointerLeave);
 }
 
+function onWindowResize() {
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
 
-/* -------------------- Data loading & preprocessing -------------------- */
+// ----------------- data loading -----------------
 
 function loadData() {
-  return Promise.all([
-    d3.csv("data/modis_all_years.csv", (d) => ({
-      state: d.NAME,
-      year: +d.year,
-      month: +d.month,
-      NDVI: d.NDVI === "" ? null : +d.NDVI,
-      LST_Day: d.LST_Day === "" ? null : +d.LST_Day,
-      LST_Night: d.LST_Night === "" ? null : +d.LST_Night,
-      date: new Date(d.date)
-    })),
-    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json")
-  ]).then(([rows, topo]) => {
-    modisData = rows;
-    usTopo = topo;
-    statesGeo = feature(usTopo, usTopo.objects.states).features;
-
-    computeVarStats();
-    computeChangeStats();
-  });
-}
-
-function computeVarStats() {
-  Object.entries(VAR_CONFIG).forEach(([key, cfg]) => {
-    const vals = modisData
-      .map((d) => d[cfg.field])
-      .filter((v) => v != null && !Number.isNaN(v));
-    const min = d3.min(vals);
-    const max = d3.max(vals);
-
-    // 6-bin threshold: 5 internal cut points
-    const t = d3.ticks(min, max, 5);
-    let colors;
-    if (cfg.colorType === "greens") {
-      colors = d3.schemeGreens[7].slice(1); // 6 greens
-    } else if (cfg.colorType === "temp") {
-      // blue -> light blue -> yellow -> orange -> red
-      colors = [
-        "#1d4ed8",
-        "#2563eb",
-        "#38bdf8",
-        "#facc15",
-        "#fb923c",
-        "#ef4444"
-      ];
-    } else {
-      colors = d3.schemeGreys[7].slice(1);
-    }
-
-    const scale = d3.scaleThreshold().domain(t).range(colors);
-    varStats[key] = { min, max, thresholds: t, colors, scale };
-  });
-}
-
-/** Precompute percent change 2014 → 2024 for each variable and state. */
-function computeChangeStats() {
-  percentChangeByVar = {};
-  changeScales = {};
-  usChangeAverages = {};
-
-  Object.entries(VAR_CONFIG).forEach(([key, cfg]) => {
-    const field = cfg.field;
-
-    const baseline = d3.rollup(
-      modisData.filter((d) => d.year === 2014),
-      (v) => d3.mean(v, (d) => d[field]),
-      (d) => d.state
-    );
-    const latest = d3.rollup(
-      modisData.filter((d) => d.year === 2024),
-      (v) => d3.mean(v, (d) => d[field]),
-      (d) => d.state
-    );
-
-    const stateToChange = new Map();
-    const allChanges = [];
-
-    statesGeo.forEach((f) => {
-      const name = f.properties.name;
-      const b = baseline.get(name);
-      const l = latest.get(name);
-      if (
-        b != null &&
-        l != null &&
-        !Number.isNaN(b) &&
-        !Number.isNaN(l) &&
-        Math.abs(b) > 1e-6
-      ) {
-        const pct = ((l - b) / Math.abs(b)) * 100;
-        stateToChange.set(name, pct);
-        allChanges.push(pct);
-      }
-    });
-
-    percentChangeByVar[key] = stateToChange;
-
-    const min = d3.min(allChanges);
-    const max = d3.max(allChanges);
-    const maxAbs = Math.max(Math.abs(min), Math.abs(max)) || 1;
-
-    // Diverging scale: blue (negative) -> white -> red (positive)
-    const interpolator = (t) => d3.interpolateRdBu(1 - t); // flip so blue = negative
-    const scale = d3
-      .scaleDiverging()
-      .domain([-maxAbs, 0, maxAbs])
-      .interpolator(interpolator);
-
-    changeScales[key] = { scale, maxAbs };
-
-    // U.S. average % change (mean of state averages)
-    const bUS = d3.mean(Array.from(baseline.values()).filter((x) => x != null));
-    const lUS = d3.mean(Array.from(latest.values()).filter((x) => x != null));
-    if (bUS != null && lUS != null && Math.abs(bUS) > 1e-6) {
-      usChangeAverages[key] = ((lUS - bUS) / Math.abs(bUS)) * 100;
-    } else {
-      usChangeAverages[key] = 0;
-    }
-  });
-}
-
-/* -------------------- Seasonal snapshot controls (Slide 3) -------------------- */
-
-function initSeasonControls() {
-  const varSelect = document.getElementById("seasonVarSelect");
-  const monthSelect = document.getElementById("seasonMonthSelect");
-
-  // Restrict to only NDVI and LST Day for the seasonal (slide 3) chart
-  const allowed = ["ndvi", "lstDay"];
-  Array.from(varSelect.options).forEach((opt) => {
-    if (!allowed.includes(opt.value)) {
-      opt.remove();
-    }
-  });
-  if (!allowed.includes(currentSeasonVar)) {
-    currentSeasonVar = "ndvi";
-  }
-
-  varSelect.value = currentSeasonVar;
-  monthSelect.value = String(currentSeasonMonth);
-
-  varSelect.addEventListener("change", () => {
-    currentSeasonVar = varSelect.value;
-    updateSeasonMap();
-    updateSeasonalChart();
-    updateYearTracker();
-  });
-
-  monthSelect.addEventListener("change", () => {
-    currentSeasonMonth = +monthSelect.value;
-    updateSeasonMap();
-    updateSeasonalChart();
-    updateYearTracker();
-  });
-}
-
-/* -------------------- Seasonal snapshot map (Slide 3) -------------------- */
-
-let seasonMapSvg, seasonMapG, seasonProjection, seasonPath;
-
-function initSeasonMap() {
-  const mapContainer = document.getElementById("seasonMapContainer");
-  const { width, height } = mapContainer.getBoundingClientRect();
-
-  seasonMapSvg = d3
-    .select("#seasonMapSvg")
-    .attr("viewBox", `0 0 ${width} ${height}`);
-
-  seasonMapG = seasonMapSvg.append("g");
-
-  seasonProjection = d3.geoAlbersUsa().fitSize(
-    [width, height],
-    {
-      type: "FeatureCollection",
-      features: statesGeo
-    }
-  );
-
-  seasonPath = d3.geoPath().projection(seasonProjection);
-
-  seasonMapG
-    .selectAll("path.state")
-    .data(statesGeo)
-    .join("path")
-    .attr("class", "state")
-    .attr("d", seasonPath)
-    .attr("stroke", "#111827")
-    .attr("stroke-width", 0.6)
-    .attr("fill", "#020617")
-    .on("click", (event, d) => {
-      selectedState = d.properties.name;
-      updateSeasonalChart();
-      updateSeasonTitle();
-
-      seasonMapG
-        .selectAll("path.state")
-        .attr("stroke", (s) =>
-          s.properties.name === selectedState ? "#000000ff" : "#111827"
-        )
-        .attr("stroke-width", (s) =>
-          s.properties.name === selectedState ? 1.6 : 0.6
-        );
-      document.getElementById("legendStateLabel").textContent = d.properties.name;
-      document.getElementById("legendStateItem").style.display = "flex";
-    });
-
-  updateSeasonMap();
-}
-
-function updateSeasonMap() {
-  const cfg = VAR_CONFIG[currentSeasonVar];
-  const stats = varStats[currentSeasonVar];
-  if (!cfg || !stats) return;
-
-  // Filter data based on year and month
-  let filteredData;
-  
-  if (currentSeasonMonth === 0) {
-    // Yearly Average: average across all months for the selected year
-    filteredData = modisData.filter((d) => d.year === currentYear);
-  } else {
-    // Specific month: filter by both year and month
-    filteredData = modisData.filter((d) => 
-      d.year === currentYear && d.month === currentSeasonMonth
-    );
-  }
-
-  // Calculate average for each state
-  const valuesByState = d3.rollup(
-    filteredData,
-    (v) => d3.mean(v, (d) => d[cfg.field]),
-    (d) => d.state
-  );
-
-  // Update map colors
-  seasonMapG
-    .selectAll("path.state")
-    .transition()
-    .duration(400)
-    .attr("fill", (d) => {
-      const v = valuesByState.get(d.properties.name);
-      if (v == null || Number.isNaN(v)) return "#020617";
-      return stats.scale(v);
-    });
-
-  drawSeasonLegend();
-  
-  // Update map title based on selection
-  updateMapTitle();
-}
-
-// Helper function to update map title
-function updateMapTitle() {
-  const monthSelect = document.getElementById("seasonMonthSelect");
-  const monthLabel = monthSelect.options[monthSelect.selectedIndex].text;
-  
-  const mapCard = document.querySelector("#seasonSlide .viz-card:first-child h3");
-  if (mapCard) {
-    if (currentSeasonMonth === 0) {
-      mapCard.textContent = `${currentYear} Yearly Average Map`;
-    } else {
-      mapCard.textContent = `${monthLabel} ${currentYear} Snapshot Map`;
-    }
-  }
-}
-
-function drawSeasonLegend() {
-  const cfg = VAR_CONFIG[currentSeasonVar];
-  const stats = varStats[currentSeasonVar];
-  const legend = d3.select("#seasonMapLegend");
-  legend.html("");   // clear previous contents
-
-  // ----- Title text -----
-  let legendTitle;
-  if (currentSeasonMonth === 0) {
-    legendTitle = `${currentYear} ${cfg.legendLabel}`;
-  } else {
-    const monthName = getMonthName(currentSeasonMonth);
-    legendTitle = `${monthName} ${currentYear} - ${cfg.legendLabel}`;
-  }
-
-  legend
-    .append("div")
-    .attr("class", "map-legend-title")
-    .attr("id", "seasonMapLegendTitle")
-    .text(legendTitle);
-
-  // ----- Horizontal row of pills -----
-  const pillsRow = legend
-    .append("div")
-    .attr("class", "map-legend-pills");
-
-  const thresholds = stats.thresholds;
-  const colors = stats.colors;
-
-  const allStops = [stats.min, ...thresholds, stats.max];
-
-  const bins = [];
-  for (let i = 0; i < colors.length; i++) {
-    bins.push({
-      color: colors[i],
-      from: allStops[i],
-      to: allStops[i + 1],
-    });
-  }
-
-  bins.forEach((bin) => {
-    const item = pillsRow
-      .append("div")
-      .attr("class", "map-legend-item");
-
-    // colored pill
-    item
-      .append("span")
-      .attr("class", "map-pill")
-      .style("background", bin.color);
-
-    // label
-    item
-      .append("span")
-      .attr("class", "map-legend-label")
-      .text(`${bin.from.toFixed(1)}–${bin.to.toFixed(1)}`);
-  });
-}
-
-
-/* -------------------- Seasonal chart (Slide 3) – Yearly 2-line chart -------------------- */
-
-let seasonSvg,
-  seasonG,
-  xSeasonScale,
-  ySeasonScale,
-  xSeasonAxisG,
-  ySeasonAxisG,
-  seasonStateLinePath,
-  seasonUsLinePath,
-  seasonStatePointsGroup,
-  seasonUsPointsGroup,
-  seasonUsLineShadowPath, // if you have this
-  seasonMilestonesG,      // <-- ADD THIS
-  seasonMargin;
-
-// Policy milestones for the dashed vertical lines
-const policyMilestones = [
-  { year: 2016, label: "Joins Paris" },
-  { year: 2017, label: "Exit announced" },
-  { year: 2020, label: "Exit in effect" },
-  { year: 2021, label: "Rejoins Paris" }
-];
-
-function initSeasonalChart() {
-  const container = document.getElementById("seasonBarContainer");
-  const { width, height } = container.getBoundingClientRect();
-
-  const margin = { top: 30, right: 40, bottom: 40, left: 60 };
-  seasonMargin = margin; 
-  
-  const w = width - margin.left - margin.right;
-  const h = height - margin.top - margin.bottom;
-
-    seasonSvg = d3
-    .select("#seasonBarSvg")
-    .attr("viewBox", `0 0 ${width} ${height}`);
-
-  seasonG = seasonSvg
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // NEW: group just for milestone lines + labels
-  seasonMilestonesG = seasonG.append("g").attr("class", "season-milestones");
-
-  xSeasonScale = d3.scaleLinear().range([0, w]);
-  ySeasonScale = d3.scaleLinear().range([h, 0]);
-
-  xSeasonAxisG = seasonG
-    .append("g")
-    .attr("transform", `translate(0,${h})`);
-
-  ySeasonAxisG = seasonG.append("g");
-
-  // Axis labels
-    seasonG
-    .append("text")
-    .attr("class", "axis-label")
-    .attr("x", w / 2)
-    .attr("y", h + 32)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#111827")   // was #e5e7eb
-    .attr("font-size", 11)
-    .text("Year");
-
-  seasonG
-    .append("text")
-    .attr("class", "axis-label")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -h / 2)
-    .attr("y", -44)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#111827")   // was #e5e7eb
-    .attr("font-size", 11)
-    .text("Value");
-
-  // Lines + points
-  seasonStateLinePath = seasonG
-    .append("path")
-    .attr("fill", "none")
-    .attr("stroke", "#38bdf8") // blue: selected state
-    .attr("stroke-width", 2);
-
-  seasonUsLinePath = seasonG
-    .append("path")
-    .attr("fill", "none")
-    .attr("stroke", "#f97316") // orange: U.S. avg
-    .attr("stroke-width", 2);
-
-  seasonStatePointsGroup = seasonG.append("g");
-  seasonUsPointsGroup = seasonG.append("g");
-
-  updateSeasonalChart();
-  updateSeasonTitle();
-}
-
-/**
- * Build yearly averages for selected state + U.S. for a given variable.
- */
-function buildSeasonSeries(stateName, varKey) {
-  const cfg = VAR_CONFIG[varKey];
-  const field = cfg.field;
-
-  const years = Array.from(
-    new Set(modisData.map((d) => d.year))
-  ).sort((a, b) => a - b);
-
-  return years.map((year) => {
-    const yearData = modisData.filter((d) => d.year === year);
-
-    const usVal = d3.mean(
-      yearData
-        .map((d) => d[field])
-        .filter((v) => v != null && !Number.isNaN(v))
-    );
-
-    let stateVal = null;
-    if (stateName) {
-      const stateYearData = yearData.filter((d) => d.state === stateName);
-      stateVal = d3.mean(
-        stateYearData
-          .map((d) => d[field])
-          .filter((v) => v != null && !Number.isNaN(v))
-      );
-    }
-
-    // If no state is selected, let "state" line follow U.S. average
-    if (!stateName) {
-      stateVal = usVal;
-    }
-
-    return {
-      year,
-      usValue: usVal,
-      stateValue: stateVal
-    };
-  });
-}
-
-function updateSeasonalChart() {
-  const series = buildSeasonSeries(selectedState, currentSeasonVar);
-
-  const values = series
-    .flatMap((d) => [d.stateValue, d.usValue])
-    .filter((v) => v != null && !Number.isNaN(v));
-
-  if (!values.length) return;
-
-  const min = d3.min(values);
-  const max = d3.max(values);
-  const yearExtent = d3.extent(series, (d) => d.year);
-
-  xSeasonScale.domain(yearExtent);
-  ySeasonScale.domain([min, max]).nice();
-
-  const h = ySeasonScale.range()[0];
-
-  // Axes
-  xSeasonAxisG
-    .transition()
-    .duration(350)
-    .call(
-      d3.axisBottom(xSeasonScale)
-        .ticks(series.length)
-        .tickFormat(d3.format("d"))
-    );
-
-  ySeasonAxisG
-    .transition()
-    .duration(350)
-    .call(d3.axisLeft(ySeasonScale).ticks(6));
-
-  const lineState = d3.line()
-    .defined((d) => d.stateValue != null && !Number.isNaN(d.stateValue))
-    .x((d) => xSeasonScale(d.year))
-    .y((d) => ySeasonScale(d.stateValue))
-    .curve(d3.curveMonotoneX);
-
-  const lineUs = d3.line()
-    .defined((d) => d.usValue != null && !Number.isNaN(d.usValue))
-    .x((d) => xSeasonScale(d.year))
-    .y((d) => ySeasonScale(d.usValue))
-    .curve(d3.curveMonotoneX);
-
-  // Lines
-  seasonStateLinePath
-    .datum(series)
-    .transition()
-    .duration(400)
-    .attr("d", lineState);
-
-  seasonUsLinePath
-    .datum(series)
-    .transition()
-    .duration(400)
-    .attr("d", lineUs);
-
-  // ----- STATE POINTS -----
-  const statePts = seasonStatePointsGroup
-    .selectAll("circle")
-    .data(
-      series.filter(
-        (d) => d.stateValue != null && !Number.isNaN(d.stateValue)
-      ),
-      (d) => d.year
-    );
-
-  const statePtsMerged = statePts
-    .join(
-      (enter) =>
-        enter
-          .append("circle")
-          .attr("r", 4)
-          .attr("fill", "#ffffff")
-          .attr("stroke", "#38bdf8")
-          .attr("stroke-width", 2)
-          .attr("cx", (d) => xSeasonScale(d.year))
-          .attr("cy", h)
-          .call((enterSel) =>
-            enterSel
-              .transition()
-              .duration(300)
-              .attr("cy", (d) => ySeasonScale(d.stateValue))
-          ),
-      (update) =>
-        update.call((updateSel) =>
-          updateSel
-            .transition()
-            .duration(300)
-            .attr("cx", (d) => xSeasonScale(d.year))
-            .attr("cy", (d) => ySeasonScale(d.stateValue))
-        ),
-      (exit) =>
-        exit
-          .transition()
-          .duration(200)
-          .attr("cy", h)
-          .remove()
-    );
-
-  statePtsMerged
-    .on("mouseenter", (event, d) => {
-      tooltip
-        .style("opacity", 1)
-        .html(
-          `Year: ${d.year}<br>` +
-          `State: ${d.stateValue.toFixed(3)}<br>` +
-          `U.S. avg: ${d.usValue != null ? d.usValue.toFixed(3) : "N/A"}`
-        )
-        .style("left", event.pageX + 12 + "px")
-        .style("top", event.pageY + 12 + "px");
-    })
-    .on("mouseleave", () => {
-      tooltip.style("opacity", 0);
-    });
-
-  // ----- U.S. POINTS -----
-  const usPts = seasonUsPointsGroup
-    .selectAll("circle")
-    .data(
-      series.filter((d) => d.usValue != null && !Number.isNaN(d.usValue)),
-      (d) => d.year
-    );
-
-  const usPtsMerged = usPts
-    .join(
-      (enter) =>
-        enter
-          .append("circle")
-          .attr("r", 4)
-          .attr("fill", "#ffffff")
-          .attr("stroke", "#f97316")
-          .attr("stroke-width", 2)
-          .attr("cx", (d) => xSeasonScale(d.year))
-          .attr("cy", h)
-          .call((enterSel) =>
-            enterSel
-              .transition()
-              .duration(300)
-              .attr("cy", (d) => ySeasonScale(d.usValue))
-          ),
-      (update) =>
-        update.call((updateSel) =>
-          updateSel
-            .transition()
-            .duration(300)
-            .attr("cx", (d) => xSeasonScale(d.year))
-            .attr("cy", (d) => ySeasonScale(d.usValue))
-        ),
-      (exit) =>
-        exit
-          .transition()
-          .duration(200)
-          .attr("cy", h)
-          .remove()
-    );
-
-  usPtsMerged
-    .on("mouseenter", (event, d) => {
-      tooltip
-        .style("opacity", 1)
-        .html(`Year: ${d.year}<br>U.S. avg: ${d.usValue.toFixed(3)}`)
-        .style("left", event.pageX + 12 + "px")
-        .style("top", event.pageY + 12 + "px");
-    })
-    .on("mouseleave", () => {
-      tooltip.style("opacity", 0);
-    });
-
-  // ----- POLICY VERTICAL LINES -----
-  if (seasonMilestonesG) {
-    const ms = seasonMilestonesG
-      .selectAll("g.policy-milestone")
-      .data(policyMilestones, d => d.year);
-
-    const msEnter = ms.enter()
-      .append("g")
-      .attr("class", "policy-milestone");
-
-    msEnter.append("line")
-      .attr("class", "yearly-milestone-line")
-      .attr("y1", 0)
-      .attr("y2", h);
-
-    msEnter.append("text")
-      .attr("class", "yearly-milestone-label")
-      .attr("y", -8);
-
-    ms.merge(msEnter)
-      .select("line")
-      .attr("x1", d => xSeasonScale(d.year))
-      .attr("x2", d => xSeasonScale(d.year))
-      .attr("y1", 0)
-      .attr("y2", h);
-
-    ms.merge(msEnter)
-      .select("text")
-      .attr("x", d => xSeasonScale(d.year))
-      .attr("y", -8)
-      .text(d => d.label);
-
-    ms.exit().remove();
-  }
-
-  // Keep your existing tracker + title logic
-  updateYearTracker();
-  updateSeasonTitle();
-}
-
-
-function updateSeasonTitle() {
-  const cfg = VAR_CONFIG[currentSeasonVar];
-  const title = document.getElementById("seasonTitle");
-  const subtitle = document.getElementById("seasonSubtitle");
-
-  const prefix = selectedState
-    ? `${selectedState}: Yearly Pattern`
-    : "U.S. Average Yearly Pattern";
-
-  title.textContent = prefix;
-  subtitle.textContent = `${cfg.label} averaged by year. Showing ${currentYear} data.`;
-}
-
-/* -------------------- Yearly trend visualization (Slide 4 – stacked view) -------------------- */
-
-/** Build yearly averages for U.S. and an optional state (independent of Slide 3). */
-function buildYearlySeries(varKey, stateName) {
-  const field = VAR_CONFIG[varKey].field;
-
-  return YEARLY_YEARS.map((year) => {
-    const yearRows = modisData.filter((d) => d.year === year);
-
-    const usVal = d3.mean(
-      yearRows
-        .map((d) => d[field])
-        .filter((v) => v != null && !Number.isNaN(v))
-    );
-
-    let stateVal = null;
-    if (stateName) {
-      const stateRows = yearRows.filter((d) => d.state === stateName);
-      stateVal = d3.mean(
-        stateRows
-          .map((d) => d[field])
-          .filter((v) => v != null && !Number.isNaN(v))
-      );
-    }
-
-    return { year, usVal, stateVal };
-  }).filter((d) => d.usVal != null && !Number.isNaN(d.usVal));
-}
-
-function updateYearlyExplanation() {
-  const expl = yearlyExplainers[yearlyVar] || yearlyExplainers.ndvi;
-  const titleEl = document.getElementById("yearlyExplTitle");
-  const bodyEl = document.getElementById("yearlyExplBody");
-  if (!titleEl || !bodyEl) return;
-
-  titleEl.textContent = expl.title;
-
-  let suffix = "";
-  if (yearlyState) {
-    suffix =
-      " You're currently comparing " +
-      yearlyState +
-      " (teal line) against the U.S. average (orange line).";
-  } else {
-    suffix =
-      " You're currently seeing only the U.S. average. Pick a state to add a comparison line.";
-  }
-
-  bodyEl.textContent = expl.body + suffix;
-}
-function updateYearlyLegend() {
-  const legend = document.getElementById("yearlyStateLegend");
-  const label = document.getElementById("yearlyStateLegendLabel");
-
-  if (!yearlyState || yearlyState === "") {
-    legend.style.display = "none";
-  } else {
-    legend.style.display = "flex";
-    label.textContent = yearlyState;
-  }
-}
-
-function initYearlyTrend() {
-  const varSelect = document.getElementById("yearlyVarSelect");
-  const stateSelect = document.getElementById("yearlyStateSelect");
-  const container = document.getElementById("yearlyTrendContainer");
-  const svgEl = document.getElementById("yearlyTrendSvg");
-
-  if (!varSelect || !stateSelect || !container || !svgEl) {
-    return; // slide not present
-  }
-
-  // Populate state dropdown from data
-  const stateNames = Array.from(new Set(modisData.map((d) => d.state))).sort();
-  stateSelect.innerHTML = "";
-
-  const usOnlyOpt = document.createElement("option");
-  usOnlyOpt.value = "";
-  usOnlyOpt.textContent = "U.S. average only";
-  stateSelect.appendChild(usOnlyOpt);
-
-  stateNames.forEach((name) => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    stateSelect.appendChild(opt);
-  });
-
-  varSelect.value = yearlyVar;
-  stateSelect.value = yearlyState;
-
-  varSelect.addEventListener("change", () => {
-    yearlyVar = varSelect.value;
-    updateYearlyTrend();
-    updateYearlyExplanation();
-    updateYearlyLegend(); 
-  });
-
-  stateSelect.addEventListener("change", () => {
-    yearlyState = stateSelect.value;
-    updateYearlyTrend();
-    updateYearlyExplanation();
-    updateYearlyLegend(); 
-  });
-
-  // --- Build chart ---
-  const { width, height } = container.getBoundingClientRect();
-  const margin = { top: 32, right: 32, bottom: 40, left: 60 };
-  const w = width - margin.left - margin.right;
-  const h = height - margin.top - margin.bottom;
-
-  yearlySvg = d3
-    .select("#yearlyTrendSvg")
-    .attr("viewBox", `0 0 ${width} ${height}`);
-
-  yearlyG = yearlySvg
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  xYearScale = d3
-    .scaleLinear()
-    .domain(d3.extent(YEARLY_YEARS))
-    .range([0, w]);
-
-  yYearScale = d3.scaleLinear().range([h, 0]);
-
-  // axes groups
-  yearlyG
-    .append("g")
-    .attr("class", "x-axis-yearly")
-    .attr("transform", `translate(0,${h})`);
-
-  yearlyG.append("g").attr("class", "y-axis-yearly");
-
-  // axis labels
-  yearlyG
-    .append("text")
-    .attr("class", "axis-label")
-    .attr("x", w / 2)
-    .attr("y", h + 32)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#e5e7eb")
-    .attr("font-size", 11)
-    .text("Year");
-
-  yearlyG
-    .append("text")
-    .attr("class", "axis-label")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -h / 2)
-    .attr("y", -44)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#e5e7eb")
-    .attr("font-size", 11)
-    .text("Value");
-
-  // milestone dashed lines
-  yearlyG
-    .selectAll(".yearly-milestone-line")
-    .data(yearlyMilestones)
-    .join("line")
-    .attr("class", "yearly-milestone-line")
-    .attr("x1", (d) => xYearScale(d.year))
-    .attr("x2", (d) => xYearScale(d.year))
-    .attr("y1", 0)
-    .attr("y2", h)
-    .on("mouseenter", (event, d) => {
-      tooltip
-        .style("opacity", 1)
-        .html(`${d.year}: ${d.label}`)
-        .style("left", event.pageX + 12 + "px")
-        .style("top", event.pageY + 12 + "px");
-    })
-    .on("mouseleave", () => {
-      tooltip.style("opacity", 0);
-    });
-
-  yearlyG
-    .selectAll(".yearly-milestone-label")
-    .data(yearlyMilestones)
-    .join("text")
-    .attr("class", "yearly-milestone-label")
-    .attr("x", (d) => xYearScale(d.year))
-    .attr("y", -8)
-    .text((d) => d.label);
-
-  yearlyLineUS = yearlyG.append("path").attr("class", "yearly-line-us");
-  yearlyLineState = yearlyG.append("path").attr("class", "yearly-line-state");
-
-  yearlyPointsUS = yearlyG.append("g").attr("class", "yearly-points-us");
-  yearlyPointsState = yearlyG.append("g").attr("class", "yearly-points-state");
-
-  // overlay for easier hover
-  yearlyG
-    .append("rect")
-    .attr("class", "yearly-hover-rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", w)
-    .attr("height", h)
-    .attr("fill", "transparent")
-    .on("mousemove", (event) => {
-      const [mx] = d3.pointer(event);
-      const year = Math.round(xYearScale.invert(mx));
-      showYearTooltip(year, event.pageX, event.pageY);
-    })
-    .on("mouseleave", () => {
-      tooltip.style("opacity", 0);
-    });
-
-  updateYearlyTrend(true); // first render with animation
-  updateYearlyExplanation();
-}
-
-function updateYearlyTrend(initial = false) {
-  const series = buildYearlySeries(yearlyVar, yearlyState);
-  if (!series.length) return;
-
-  const allVals = series
-    .flatMap((d) => [
-      d.usVal,
-      d.stateVal != null ? d.stateVal : null
-    ])
-    .filter((v) => v != null && !Number.isNaN(v));
-
-  const min = d3.min(allVals);
-  const max = d3.max(allVals);
-  yYearScale.domain([min, max]).nice();
-
-  const h = yYearScale.range()[0];
-
-  const xAxis = d3
-    .axisBottom(xYearScale)
-    .ticks(YEARLY_YEARS.length)
-    .tickFormat(d3.format("d"));
-
-  const yAxis = d3.axisLeft(yYearScale).ticks(6);
-
-  yearlyG.select(".x-axis-yearly").call(xAxis);
-  yearlyG.select(".y-axis-yearly").call(yAxis);
-
-  const lineUS = d3
-    .line()
-    .x((d) => xYearScale(d.year))
-    .y((d) => yYearScale(d.usVal))
-    .curve(d3.curveMonotoneX);
-
-  const lineState = d3
-    .line()
-    .x((d) => xYearScale(d.year))
-    .y((d) => yYearScale(d.stateVal))
-    .curve(d3.curveMonotoneX);
-
-  // U.S. line
-  yearlyLineUS
-    .datum(series)
-    .classed("yearly-line-us", true)
-    .transition()
-    .duration(initial ? 800 : 500)
-    .attr("d", lineUS);
-
-  // State line (hide if no state selected)
-  if (yearlyState) {
-    yearlyLineState
-      .datum(series.filter((d) => d.stateVal != null))
-      .classed("yearly-line-state", true)
-      .transition()
-      .duration(initial ? 800 : 500)
-      .attr("opacity", 1)
-      .attr("d", lineState);
-  } else {
-    yearlyLineState.transition().duration(300).attr("opacity", 0);
-  }
-
-  // Points for tooltips
-  const usPts = yearlyPointsUS
-    .selectAll("circle")
-    .data(series, (d) => d.year);
-
-  usPts
-    .join(
-      (enter) =>
-        enter
-          .append("circle")
-          .attr("class", "yearly-point-us")
-          .attr("r", 3)
-          .attr("cx", (d) => xYearScale(d.year))
-          .attr("cy", h),
-      (update) => update,
-      (exit) => exit.remove()
-    )
-    .transition()
-    .duration(500)
-    .attr("cx", (d) => xYearScale(d.year))
-    .attr("cy", (d) => yYearScale(d.usVal));
-
-  const stPts = yearlyPointsState
-    .selectAll("circle")
-    .data(
-      series.filter((d) => d.stateVal != null && yearlyState),
-      (d) => d.year
-    );
-
-  stPts
-    .join(
-      (enter) =>
-        enter
-          .append("circle")
-          .attr("class", "yearly-point-state")
-          .attr("r", 3)
-          .attr("cx", (d) => xYearScale(d.year))
-          .attr("cy", h),
-      (update) => update,
-      (exit) => exit.remove()
-    )
-    .transition()
-    .duration(500)
-    .attr("cx", (d) => xYearScale(d.year))
-    .attr("cy", (d) => yYearScale(d.stateVal));
-}
-
-/* Tooltip helper for slide 4 */
-function showYearTooltip(year, pageX, pageY) {
-  const series = buildYearlySeries(yearlyVar, yearlyState);
-  const row = series.find((d) => d.year === year);
-  if (!row) return;
-
-  let html = `<strong>${year}</strong><br>U.S. avg: ${row.usVal.toFixed(3)}`;
-  if (yearlyState && row.stateVal != null) {
-    html += `<br>${yearlyState}: ${row.stateVal.toFixed(3)}`;
-  }
-
-  tooltip
-    .style("opacity", 1)
-    .html(html)
-    .style("left", pageX + 12 + "px")
-    .style("top", pageY + 12 + "px");
-}
-
-/* -------------------- Timeline visualization -------------------- */
-
-/** Choose the story to show for a given year. */
-function getStoryForYear(year) {
-  const keys = Object.keys(timelineStories)
-    .filter((k) => k !== "default")
-    .map((k) => +k)
-    .sort((a, b) => a - b);
-
-  if (!keys.length) {
-    return timelineStories.default;
-  }
-
-  let chosen = keys[0];
-  for (const k of keys) {
-    if (year >= k) {
-      chosen = k;
-    } else {
-      break;
-    }
-  }
-  return timelineStories[chosen] || timelineStories.default;
-}
-
-function updateTimelineSummary(year) {
-  const story = getStoryForYear(year);
-  const titleEl = document.getElementById("timelineSummaryTitle");
-  const textEl = document.getElementById("timelineSummaryText");
-  const linksEl = document.getElementById("timelineSummaryLinks");
-
-  if (!titleEl || !textEl || !linksEl) return;
-
-  titleEl.textContent = story.title;
-
-  let html = "";
-  if (story.summary) {
-    html += `<p>${story.summary}</p>`;
-  }
-  if (story.bullets && story.bullets.length) {
-    html += "<ul>";
-    for (const b of story.bullets) {
-      html += `<li>${b}</li>`;
-    }
-    html += "</ul>";
-  }
-  textEl.innerHTML = html;
-
-  linksEl.innerHTML = "";
-  if (story.links && story.links.length) {
-    story.links.forEach((lnk) => {
-      const a = document.createElement("a");
-      a.href = lnk.href;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = lnk.label;
-      a.className = "timeline-link-btn";
-      linksEl.appendChild(a);
-    });
-  }
-}
-
-function initTimeline() {
-  const container = document.getElementById("timelineContainer");
-  const { width } = container.getBoundingClientRect();
-
-  const timelineHeight = 90;
-  let activeClickedYear = null;
-
-  const margin = { top: 18, right: 40, bottom: 22, left: 40 };
-  const w = width - margin.left - margin.right;
-  const h = timelineHeight - margin.top - margin.bottom;
-
-  const svg = d3
-    .select("#timelineSvg")
-    .attr("viewBox", `0 0 ${width} ${timelineHeight}`)
-    .attr("height", timelineHeight);
-
-  const g = svg
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  const x = d3.scaleLinear().domain([2015, 2025]).range([0, w]);
-  const centerY = h / 2;
-
-  /* --------- COLORED MEMBERSHIP PHASES (GREEN/YELLOW/RED) --------- */
-  const membershipPhases = [
-    { start: 2015, end: 2017, status: "joined" },               // green
-    { start: 2017, end: 2020, status: "withdrawal-announced" }, // yellow
-    { start: 2020, end: 2021, status: "left" },              // red
-    { start: 2021, end: 2025, status: "rejoined" }              // green
-  ];
-
-  const phasesG = g.append("g").attr("class", "membership-phases");
-
-  phasesG.selectAll("line.timeline-phase")
-    .data(membershipPhases)
-    .join("line")
-    .attr("class", d => `timeline-phase ${d.status}`)
-    .attr("x1", d => x(d.start))
-    .attr("x2", d => x(d.end))
-    .attr("y1", centerY)
-    .attr("y2", centerY);
-
-  /* --------- BASE LINE (thin grey under the colored band) --------- */
-  g.append("line")
-    .attr("class", "timeline-base")
-    .attr("x1", x(2015))
-    .attr("x2", x(2025))
-    .attr("y1", centerY)
-    .attr("y2", centerY);
-
-  // colored membership phases
-  g.selectAll("rect.phase")
-    .data(usParisPhases)
-    .join("rect")
-    .attr("class", "phase")
-    .attr("x", (d) => x(d.start))
-    .attr("y", centerY - 12)
-    .attr("width", (d) => x(d.end) - x(d.start))
-    .attr("height", 24)
-    .attr("fill", (d) => d.color)
-    .attr("opacity", 0.85)
-    .on("mouseenter", (event, d) => {
-      d3.select("#timelineNote").text(d.label);
-
-      if (activeClickedYear === null) {
-        updateTimelineSummary(d.year);
-      }
-    });
-
-  // milestones as dots
-  const dots = g
-    .selectAll("circle.milestone")
-    .data(milestones)
-    .join("circle")
-    .attr("class", "milestone timeline-dot")
-    .attr("data-year", (d) => d.year)
-    .attr("cx", (d) => x(d.year))
-    .attr("cy", centerY)
-    .attr("r", 6)
-    .attr("fill", "#111827")
-    .attr("stroke", "#000000ff")
-    .attr("stroke-width", 2);
-
-  dots
-    .on("mouseenter", (event, d) => {
-      d3.select(event.currentTarget)
-        .transition()
-        .duration(100)
-        .attr("r", 8);
-
-      d3.select("#timelineNote").text(d.label);
-
-      if (activeClickedYear === null) {
-        updateTimelineSummary(d.year);
-      }
-    })
-    .on("mouseleave", (event, d) => {
-      if (activeClickedYear !== d.year) {
-        d3.select(event.currentTarget)
-          .transition()
-          .duration(100)
-          .attr("r", 6);
-      }
-
-      d3.select("#timelineNote").text(
-        "2015–2025: Move along the bar to explore how U.S. membership has changed."
-      );
-
-      if (activeClickedYear === null) {
-        setTimelineSummaryDefault();
-      }
-    })
-    .on("click", (event, d) => {
-      const clickedYear = d.year;
-
-      // clicking the same dot cancels selection
-      if (activeClickedYear === clickedYear) {
-        activeClickedYear = null;
-
-        setTimelineSummaryDefault();
-
-        d3.selectAll(".timeline-dot")
-          .attr("r", 6)
-          .attr("stroke", "#000000ff")
-          .attr("stroke-width", 2);
-
+  // Load BOTH the totals file and the sector-breakdown file
+  Promise.all([d3.csv(DATA_FILE), d3.csv(SECTOR_FILE)])
+    .then(([rows, sectorRows]) => {
+      if (!rows || !rows.length) {
+        console.error("No data loaded from", DATA_FILE);
         return;
       }
 
-      activeClickedYear = clickedYear;
+      // Use the year columns from the totals file (they match the sector file)
+      const yearCols = rows.columns.filter((c) => /^\d{4}$/.test(c));
+      years = yearCols.map((d) => +d).sort((a, b) => a - b);
 
-      updateTimelineSummary(clickedYear);
+      // ----------- 3D bar data (top emitters, NO GLOBAL TOTAL bar) -----------
+      yearCols.forEach((col) => {
+        const year = +col;
+        let list = [];
+        let globalTotalForYear = null;
 
-      d3.selectAll(".timeline-dot")
-        .attr("r", 6)
-        .attr("stroke", "#f3f4f6")
-        .attr("stroke-width", 2);
+        rows.forEach((row) => {
+          const raw = row[col];
+          if (raw === undefined || raw === null || raw === "") return;
 
-      d3.select(event.currentTarget)
-        .attr("r", 10)
-        .attr("stroke", "#000000ff")
-        .attr("stroke-width", 4);
-    });
+          const val = +raw;
+          if (isNaN(val) || val <= 0) return;
 
-  // labels
-  g
-    .selectAll("text.milestone-label")
-    .data(milestones)
-    .join("text")
-    .attr("class", "milestone-label")
-    .attr("x", (d) => x(d.year))
-    .attr("y", centerY - 22)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#111827")           // CHANGED: make year labels black
-    .attr("font-size", 13)
-    .attr("font-weight", "600")
-    .text((d) => d.year);
+          const isGlobal =
+            row["Country"] === "GLOBAL TOTAL" ||
+            row["EDGAR Country Code"] === "GLOBAL TOTAL";
 
-  
+          if (isGlobal) {
+            // Only used for the sidebar total + percentages
+            globalTotalForYear = val;
+          } else {
+            // Normal country row → candidate for 3D bars
+            list.push({
+              country: row["Country"],
+              iso: row["EDGAR Country Code"],
+              value: val,
+            });
+          }
+        });
 
-  // initial
-  setTimelineSummaryDefault();
+        // Sort countries by emissions (descending)
+        list.sort((a, b) => b.value - a.value);
 
-  
-}
+        // Fallback: if the dataset had no GLOBAL TOTAL row, sum the countries
+        if (globalTotalForYear == null) {
+          globalTotalForYear = list.reduce((acc, d) => acc + d.value, 0);
+        }
 
-/* -------------------- Slide 5: Emissions projection play area -------------------- */
+        emissionsByYear[year] = list;
+        totalsByYear[year] = globalTotalForYear;
+      });
 
-/**
- * Approximate GHG emissions (GtCO₂e) for illustration.
- * (Rough, stylized values; the point is the ML concept, not exact numbers.)
- */
-const EMISSIONS_DATA = [
-  { year: 2010, value: 49.2 },
-  { year: 2011, value: 50.1 },
-  { year: 2012, value: 51.0 },
-  { year: 2013, value: 51.7 },
-  { year: 2014, value: 52.1 },
-  { year: 2015, value: 52.7 },
-  { year: 2016, value: 53.4 },
-  { year: 2017, value: 54.3 },
-  { year: 2018, value: 55.1 },
-  { year: 2019, value: 55.9 },   // reference year for -43% target
-  { year: 2020, value: 54.7 },
-  { year: 2021, value: 56.0 },
-  { year: 2022, value: 57.0 },
-  { year: 2023, value: 57.5 },
-  { year: 2024, value: 57.8 }
-];
+      // ----------- Sector breakdown data (for the radar chart) -----------
+      sectorDataByKey = {}; // reset in case of reload
 
-// years for model / x-axis
-const PROJECTION_YEARS = d3.range(2014, 2031); // 2014–2030 inclusive
+      if (sectorRows && sectorRows.length) {
+        sectorRows.forEach((row) => {
+          const iso = row["EDGAR Country Code"];
+          const country = row["Country"];
+          const sectorName = row["Sector"];
 
-// SVG + groups
-let projectionSvg;
-let projectionRootG;   // axes + labels
-let projectionPlotG;   // data (lines, dots, hover rect), clipped
+          yearCols.forEach((col) => {
+            const raw = row[col];
+            if (raw === undefined || raw === null || raw === "") return;
+            const val = +raw;
+            if (isNaN(val) || val <= 0) return;
 
-// scales
-let xProjScale, yProjScale;
+            const year = +col;
+            const key = `${iso}_${year}`;
 
-// paths + groups
-let projActualPath, projModelPath, projTargetPath;
-let projActualPoints, projModelPoints;
-let projYearLine;
+            if (!sectorDataByKey[key]) {
+              sectorDataByKey[key] = {
+                iso,
+                country,
+                year,
+                sectors: {},
+              };
+            }
 
-// layout info for tooltip positioning
-let projMargin = null;
-
-// fitted regression model { intercept, slope }
-let fittedModel = null;
-
-// Y-window state (for vertical panning)
-const GLOBAL_Y_MIN = 30;
-const GLOBAL_Y_MAX = 65;
-let yWindowMin = 50;            // default visible window [50, 60]
-const yWindowSize = 10;         // window height
-
-/** Ordinary least squares linear regression: y = a + b * year */
-function fitLinearRegression(data) {
-  const xs = data.map(d => d.year);
-  const ys = data.map(d => d.value);
-  const n = xs.length;
-
-  const meanX = d3.mean(xs);
-  const meanY = d3.mean(ys);
-
-  let num = 0;
-  let den = 0;
-  for (let i = 0; i < n; i++) {
-    const dx = xs[i] - meanX;
-    num += dx * (ys[i] - meanY);
-    den += dx * dx;
-  }
-  const slope = den === 0 ? 0 : num / den;
-  const intercept = meanY - slope * meanX;
-  return { intercept, slope };
-}
-
-/** Evaluate the current model at a given year. */
-function predictEmission(year) {
-  if (!fittedModel) return null;
-  return fittedModel.intercept + fittedModel.slope * year;
-}
-
-/** Build model projection series 2014–2030 (actual up to 2024, then predicted). */
-function buildModelSeries() {
-  return PROJECTION_YEARS.map(year => {
-    const actual = EMISSIONS_DATA.find(d => d.year === year);
-    const value =
-      year <= 2024 && actual ? actual.value : predictEmission(year);
-    return { year, value, isActual: year <= 2024 && !!actual };
-  }).filter(d => d.value != null && !Number.isNaN(d.value));
-}
-
-/**
- * Paris-aligned "on-track" path: peak by 2025, then ~43% below 2019 by 2030.
- * We keep emissions flat at 2019 level through 2025, then drop linearly to
- * 0.57 * 2019 value by 2030.
- */
-function buildTargetSeries() {
-  const ref2019 = EMISSIONS_DATA.find(d => d.year === 2019).value;
-  const peak = ref2019;              // flat peak 2019–2025
-  const target2030 = ref2019 * 0.57; // 43% reduction
-
-  const years = d3.range(2019, 2031);
-  return years.map(year => {
-    let value;
-    if (year <= 2025) {
-      value = peak;
-    } else {
-      const t = (year - 2025) / (2030 - 2025); // 0 at 2025, 1 at 2030
-      value = peak + t * (target2030 - peak);
-    }
-    return { year, value };
-  });
-}
-
-/** Initialize the emissions play-area slide. */
-function initProjectionSlide() {
-  const container   = document.getElementById("projectionContainer");
-  const svgEl       = document.getElementById("projectionSvg");
-  const modelSelect = document.getElementById("projectionModelSelect");
-  const yearSlider  = document.getElementById("projectionYearSlider");
-
-  if (!container || !svgEl || !modelSelect || !yearSlider) return;
-
-  // --- fit initial "business-as-usual" model (linear regression) ---
-  fittedModel = fitLinearRegression(EMISSIONS_DATA);
-
-  const { width, height } = container.getBoundingClientRect();
-  const margin = { top: 30, right: 60, bottom: 60, left: 40 };
-  projMargin = margin;
-
-  const w = width  - margin.left - margin.right;
-  const h = height - margin.top  - margin.bottom;
-
-  projectionSvg = d3
-    .select("#projectionSvg")
-    .attr("viewBox", `0 0 ${width} ${height}`);
-
-  // Root group for axes + labels (not clipped)
-  projectionRootG = projectionSvg
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // Clip just the plotting region (so dots/lines outside range are hidden)
-  const defs = projectionSvg.append("defs");
-  defs.append("clipPath")
-    .attr("id", "projection-clip")
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", w)
-    .attr("height", h);
-
-
-  // Group for data, with same transform but clipped
-  projectionPlotG = projectionSvg
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`)
-    .attr("clip-path", "url(#projection-clip)");
-
-  // Scales
-  xProjScale = d3
-    .scaleLinear()
-    .domain(d3.extent(PROJECTION_YEARS)) // [2014, 2030]
-    .range([0, w]);
-
-  yProjScale = d3
-    .scaleLinear()
-    .domain([yWindowMin, yWindowMin + yWindowSize])  // default [50, 60]
-    .range([h, 0]);
-
-  // Axes
-  projectionRootG
-    .append("g")
-    .attr("class", "projection-x-axis")
-    .attr("transform", `translate(0,${h})`)
-    .call(
-      d3.axisBottom(xProjScale)
-        .ticks(PROJECTION_YEARS.length)
-        .tickFormat(d3.format("d"))
-    );
-
-  projectionRootG
-    .append("g")
-    .attr("class", "projection-y-axis")
-    .call(d3.axisLeft(yProjScale).ticks(8));  // ~6–8 bins in current window
-
-  // Axis labels
-  projectionRootG.append("text")
-    .attr("class", "axis-label")
-    .attr("x", w / 2)
-    .attr("y", h + 32)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#4b5563")
-    .attr("font-size", 13)
-    .attr("font-weight", "600")
-    .text("Year");
-
-  projectionRootG.append("text")
-    .attr("class", "axis-label")
-    .attr("transform", "rotate(-90)")
-    .attr("x", -h / 2)
-    .attr("y", -30)
-    .attr("text-anchor", "middle")
-    .attr("fill", "#4b5563")
-    .attr("font-size", 20)
-    .attr("font-weight", "600")
-    .text("Global greenhouse gas emissions (GtCO₂e)");
-
-  // Paris milestone dashed lines + labels (drawn in plot group so they pan with y)
-  const policyYears  = [2015, 2016, 2017, 2020, 2021];
-  const policyLabels = {
-    2015: "Paris adopted",
-    2016: "U.S. joins",
-    2017: "Exit announced",
-    2020: "Exit in effect",
-    2021: "Rejoins"
-  };
-
-  projectionPlotG.selectAll(".proj-policy-line")
-    .data(policyYears)
-    .join("line")
-    .attr("class", "proj-policy-line")
-    .attr("x1", d => xProjScale(d))
-    .attr("x2", d => xProjScale(d))
-    .attr("y1", 0)
-    .attr("y2", h)
-    .attr("stroke", "#6b7280")
-    .attr("stroke-width", 1)
-    .attr("stroke-dasharray", "4,4")
-    .attr("opacity", 0.7);
-
-  projectionRootG.selectAll(".proj-policy-label")
-    .data(policyYears)
-    .join("text")
-    .attr("class", "proj-policy-label")
-    .attr("x", d => xProjScale(d))
-    .attr("y", -8)              // slightly above the plotting area
-    .attr("text-anchor", "middle")
-    .attr("fill", "#9ca3af")
-    .attr("font-size", 15)
-    .text(d => policyLabels[d]);
-  
-
-  // Lines
-  projActualPath = projectionPlotG.append("path")
-    .attr("class", "proj-line-actual")
-    .attr("fill", "none")
-    .attr("stroke", "#f97316")
-    .attr("stroke-width", 2.5);
-
-  projModelPath = projectionPlotG.append("path")
-    .attr("class", "proj-line-model")
-    .attr("fill", "none")
-    .attr("stroke", "#ec4899")
-    .attr("stroke-width", 2.2)
-    .attr("stroke-dasharray", "6,4");
-
-  projTargetPath = projectionPlotG.append("path")
-    .attr("class", "proj-line-target")
-    .attr("fill", "none")
-    .attr("stroke", "#22c55e")
-    .attr("stroke-width", 2)
-    .attr("stroke-dasharray", "3,3")
-    .attr("opacity", 0.9);
-
-  // Point groups
-  projActualPoints = projectionPlotG.append("g").attr("class", "proj-points-actual");
-  projModelPoints  = projectionPlotG.append("g").attr("class", "proj-points-model");
-
-  // Vertical year marker (clipped as well)
-  projYearLine = projectionPlotG.append("line")
-    .attr("class", "proj-year-line")
-    .attr("y1", 0)
-    .attr("y2", h)
-    .attr("stroke", "#e5e7eb")
-    .attr("stroke-width", 1.2)
-    .attr("stroke-dasharray", "4,4")
-    .attr("opacity", 0);
-
-  // Hover rect – drives tooltip and year slider
-  projectionPlotG.append("rect")
-    .attr("class", "proj-hover-rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", w)
-    .attr("height", h)
-    .attr("fill", "transparent")
-    .style("cursor", "ns-resize")
-    .on("mousemove", (event) => {
-      const [mx] = d3.pointer(event);
-      const year = Math.round(xProjScale.invert(mx));
-      updateProjectionYear(year, event.pageX, event.pageY);
-    })
-    .on("mouseleave", () => {
-      if (projectionTooltipTimeout) {
-        clearTimeout(projectionTooltipTimeout);
-        projectionTooltipTimeout = null;
+            const entry = sectorDataByKey[key];
+            entry.sectors[sectorName] =
+              (entry.sectors[sectorName] || 0) + val;
+          });
+        });
       }
-      tooltip.style("opacity", 0);
-      projYearLine.attr("opacity", 0);
+
+      // ----------- Boot the UI once all data is ready -----------
+      initYearSlider();
+      const initialYear = years[years.length - 1];
+      buildBarsForYear(initialYear);
+      updateGlobalTotalDisplay(initialYear);
+      startAnimationLoop();
     })
-    .on("wheel", (event) => {
-      event.preventDefault();
-      panYWindow(event.deltaY);
+    .catch((err) => {
+      console.error("Error loading CSV files", err);
     });
+}
 
-  // Model selector: BAU vs “on-track” pink line
-  modelSelect.addEventListener("change", () => {
-    const mode = modelSelect.value;
-
-    if (mode === "linear") {
-      fittedModel = fitLinearRegression(EMISSIONS_DATA);
-    } else if (mode === "faster-cut") {
-      const ref2019     = EMISSIONS_DATA.find(d => d.year === 2019).value;
-      const actual2024  = EMISSIONS_DATA.find(d => d.year === 2024).value;
-      const target2030  = ref2019 * 0.57;
-      const slope       = (target2030 - actual2024) / (2030 - 2024);
-      const intercept   = actual2024 - slope * 2024;
-      fittedModel = { intercept, slope };
-    }
-
-    updateProjectionChart();
-    updateProjectionSummary();
+function formatNumber(value) {
+  return value.toLocaleString("en-US", {
+    maximumFractionDigits: 0,
   });
-
-  // Year slider: covers 2014–2030
-  yearSlider.min   = 2014;
-  yearSlider.max   = 2030;
-  yearSlider.value = 2014;
-  yearSlider.addEventListener("input", (e) => {
-    const y = +e.target.value;
-    updateProjectionYear(y);
-  });
-
-  // Initial render
-  updateProjectionChart(true);
-  updateProjectionSummary();
-
-  const yearLabel = document.getElementById("projectionYearLabel");
-  if (yearLabel) {
-    yearLabel.textContent = "Focus year: 2014";
-  }
 }
 
-/** Pan the Y-axis window up/down with the mouse wheel. */
-function panYWindow(deltaY) {
-  const step = 0.5;
-  const direction = deltaY > 0 ? 1 : -1; // invert if it feels backwards
-
-  yWindowMin += direction * step;
-
-  const minStart = GLOBAL_Y_MIN;
-  const maxStart = GLOBAL_Y_MAX - yWindowSize;
-  yWindowMin = Math.max(minStart, Math.min(maxStart, yWindowMin));
-
-  yProjScale.domain([yWindowMin, yWindowMin + yWindowSize]);
-
-  projectionRootG
-    .select(".projection-y-axis")
-    .call(d3.axisLeft(yProjScale).ticks(8));
-
-  updateProjectionChart(false);
-}
-
-/** Draw / update lines + points for the current y-scale. */
-function updateProjectionChart(animate = false) {
-  const modelSeries  = buildModelSeries();
-  const targetSeries = buildTargetSeries();
-
-  const lineActual = d3.line()
-    .x(d => xProjScale(d.year))
-    .y(d => yProjScale(d.value))
-    .curve(d3.curveMonotoneX);
-
-  const lineModel = d3.line()
-    .x(d => xProjScale(d.year))
-    .y(d => yProjScale(d.value))
-    .curve(d3.curveMonotoneX);
-
-  const lineTarget = d3.line()
-    .x(d => xProjScale(d.year))
-    .y(d => yProjScale(d.value))
-    .curve(d3.curveMonotoneX);
-
-  const actualSeries = modelSeries.filter(d => d.year <= 2024);
-  const modelFuture  = modelSeries.filter(d => d.year >= 2024);
-
-  const dur = animate ? 900 : 450;
-
-  projActualPath
-    .datum(actualSeries)
-    .transition()
-    .duration(dur)
-    .attr("d", lineActual);
-
-  projModelPath
-    .datum(modelFuture)
-    .transition()
-    .duration(dur)
-    .attr("d", lineModel);
-
-  projTargetPath
-    .datum(targetSeries)
-    .transition()
-    .duration(dur)
-    .attr("d", lineTarget);
-
-  // Actual points
-  const actualPts = projActualPoints
-    .selectAll("circle")
-    .data(actualSeries, d => d.year);
-
-  actualPts.join(
-    enter => enter.append("circle")
-      .attr("r", 3)
-      .attr("fill", "#f97316")
-      .attr("class", "projection-dot")
-      .attr("data-year", d => d.year)
-      .attr("cx", d => xProjScale(d.year))
-      .attr("cy", d => yProjScale(d.value)),
-    update => update
-      .transition()
-      .duration(dur)
-      .attr("cx", d => xProjScale(d.year))
-      .attr("cy", d => yProjScale(d.value)),
-    exit => exit.remove()
-  );
-
-  // Model points
-  const modelPts = projModelPoints
-    .selectAll("circle")
-    .data(modelFuture, d => d.year);
-
-  modelPts.join(
-    enter => enter.append("circle")
-      .attr("r", 3)
-      .attr("fill", "#ec4899")
-      .attr("cx", d => xProjScale(d.year))
-      .attr("cy", d => yProjScale(d.value)),
-    update => update
-      .transition()
-      .duration(dur)
-      .attr("cx", d => xProjScale(d.year))
-      .attr("cy", d => yProjScale(d.value)),
-    exit => exit.remove()
-  );
-}
-
-/** Update the text explanation (high-level DS / ML narrative). */
-function updateProjectionSummary() {
-  const titleEl = document.getElementById("projectionExplTitle");
-  const bodyEl  = document.getElementById("projectionExplBody");
-  if (!titleEl || !bodyEl) return;
-
-  const mode = document.getElementById("projectionModelSelect")?.value || "linear";
-
-  titleEl.textContent = "Are We On Track for 2030?";
-
-  const ref2019    = EMISSIONS_DATA.find(d => d.year === 2019).value;
-  const actual2024 = EMISSIONS_DATA.find(d => d.year === 2024).value;
-  const model2030  = predictEmission(2030);
-  const target2030 = ref2019 * 0.57;
-
-  const changeSince2019   = ((actual2024 - ref2019) / ref2019) * 100;
-  const neededDropFrom2024 =
-    ((target2030 - actual2024) / actual2024) * 100;
-  const overshootVsTarget =
-    ((model2030 - target2030) / target2030) * 100;
-
-  const modelText =
-    mode === "linear"
-      ? "a simple linear regression model trained on 2010–2024 emissions to project a “business-as-usual” path (pink dashed line)"
-      : "a hypothetical linear path that starts at the 2024 value and slopes down just enough to hit the 43%-below-2019 target in 2030 (pink dashed line)";
-
-  bodyEl.textContent =
-    "This play area uses " + modelText + ". The green dashed line shows a Paris-aligned pathway that keeps " +
-    "emissions roughly flat through 2025 and then cuts them about 43% below 2019 levels by 2030. " +
-    `In this stylized data, emissions in 2024 are about ${changeSince2019.toFixed(
-      1
-    )}% above 2019. To hit the 2030 target from that level, emissions would need to fall about ${Math.abs(
-      neededDropFrom2024
-    ).toFixed(
-      1
-    )}% between 2024 and 2030. With the current model choice, the 2030 projection is about ${overshootVsTarget.toFixed(
-      1
-    )}% above the Paris-aligned target, highlighting how much steeper cuts would need to be.`;
-}
-
-/** Highlight a specific year and show values + % differences. */
-function updateProjectionYear(year, pageX, pageY) {
-  const yearClamped = Math.max(2014, Math.min(2030, year));
-  const actual      = EMISSIONS_DATA.find(d => d.year === yearClamped);
-  const modelVal    = predictEmission(yearClamped);
-
-  const ref2019   = EMISSIONS_DATA.find(d => d.year === 2019).value;
-  const targetRow = buildTargetSeries().find(d => d.year === yearClamped);
-  const targetVal = targetRow ? targetRow.value : null;
-
-  projYearLine
-    .attr("x1", xProjScale(yearClamped))
-    .attr("x2", xProjScale(yearClamped))
-    .attr("opacity", 1);
-
-  const parts = [`<strong>${yearClamped}</strong>`];
-
-  if (actual) {
-    parts.push(`Actual: ${actual.value.toFixed(1)} GtCO\u2082e`);
+function updateGlobalTotalDisplay(year) {
+  if (!globalTotalEl) return;
+  const total = totalsByYear[year];
+  if (total == null || !isFinite(total)) {
+    globalTotalEl.textContent = "—";
   } else {
-    parts.push("Actual: —");
-  }
-
-  if (modelVal != null) {
-    parts.push(`Model: ${modelVal.toFixed(1)} GtCO\u2082e`);
-  }
-
-  if (targetVal != null) {
-    parts.push(`Paris-aligned: ${targetVal.toFixed(1)} GtCO\u2082e`);
-    const gap = modelVal != null ? ((modelVal - targetVal) / targetVal) * 100 : null;
-    if (gap != null && yearClamped >= 2025) {
-      parts.push(
-        `Model is about ${gap.toFixed(1)}% ${gap > 0 ? "above" : "below"} the Paris-aligned path.`
-      );
-    }
-  }
-
-  // Tooltip position
-  let xScreen = pageX;
-  let yScreen = pageY;
-
-  if (!xScreen || !yScreen) {
-    const svgRect = projectionSvg.node().getBoundingClientRect();
-    xScreen = svgRect.left + projMargin.left + xProjScale(yearClamped);
-    yScreen = svgRect.top  + projMargin.top  + 10;
-  }
-
-  tooltip
-    .style("opacity", 1)
-    .html(parts.join("<br>"))
-    .style("left", (xScreen + 12) + "px")
-    .style("top",  (yScreen + 12) + "px");
-
-  // If this came from the slider (no mouse coords), fade tooltip out soon
-  if (!pageX || !pageY) {
-    if (projectionTooltipTimeout) {
-      clearTimeout(projectionTooltipTimeout);
-    }
-    projectionTooltipTimeout = setTimeout(() => {
-      tooltip.style("opacity", 0);
-      projYearLine.attr("opacity", 0);
-    }, 900);
-  }
-
-  const yearLabel = document.getElementById("projectionYearLabel");
-  if (yearLabel) {
-    yearLabel.textContent = `Focus year: ${yearClamped}`;
-  }
-
-  // Move the year slider when hovering
-  const yearSlider = document.getElementById("projectionYearSlider");
-  if (yearSlider) {
-    const min = +yearSlider.min || 2014;
-    const max = +yearSlider.max || 2030;
-    if (yearClamped >= min && yearClamped <= max) {
-      yearSlider.value = yearClamped;
-    }
+    globalTotalEl.textContent = `${formatNumber(total)} MtCO₂e`;
   }
 }
 
-/* -------------------- Slide 3: Year slider + play button -------------------- */
+// ----------------- slider -----------------
 
 function initYearSlider() {
-  const yearSlider = document.getElementById('yearSlider');
-  const yearLabel = document.getElementById('yearLabel');
-  const playButton = document.getElementById('playButton');
-  
-  if (!yearSlider || !playButton) return;
-  
-  // Initialize year tracker
-  const trackerEl = document.getElementById('yearTracker');
-  if (trackerEl) {
-    yearTracker = trackerEl;
-    trackerEl.style.display = 'block';
-    yearTrackerLabel = trackerEl.querySelector('.tracker-label');
-  }
-  
-  // Update year display and chart AND MAP
-  yearSlider.addEventListener('input', function() {
-    currentYear = +this.value;
-    yearLabel.textContent = currentYear;
-    updateYearTracker();
-    updateSeasonalChartForYear(currentYear);
-    updateSeasonMap(); // Update map when year changes
+  slider.min = 0;
+  slider.max = years.length - 1;
+  slider.value = years.length - 1;
+  yearLabel.textContent = years[years.length - 1];
+
+  slider.addEventListener("input", () => {
+    stopAutoPlay(); // stop race when the user scrubs
+    const idx = +slider.value;
+    const year = years[idx];
+    yearLabel.textContent = year;
+    updateBarsForYear(year);
   });
-  
-  // Play button functionality - also updates map
-  playButton.addEventListener('click', function() {
-    if (isPlaying) {
-      stopPlayback();
-      this.textContent = '▶ Play';
-      this.classList.remove('playing');
-    } else {
-      startPlayback();
-      this.textContent = '⏸ Pause';
-      this.classList.add('playing');
-    }
-  });
-  
-  // Initialize
-  updateYearTracker();
-  updateSeasonMap(); // Initial map update
-}
 
-function startPlayback() {
-  isPlaying = true;
-  playInterval = setInterval(() => {
-    currentYear++;
-    if (currentYear > 2024) {
-      currentYear = 2014;
-    }
-    
-    // Update slider
-    const yearSlider = document.getElementById('yearSlider');
-    if (yearSlider) {
-      yearSlider.value = currentYear;
-    }
-    
-    // Update label
-    const yearLabel = document.getElementById('yearLabel');
-    if (yearLabel) {
-      yearLabel.textContent = currentYear;
-    }
-    
-    // Update chart highlights AND tracker
-    updateSeasonalChartForYear(currentYear);
-    updateYearTracker();
-    updateSeasonMap();
-  }, 600);
-}
-
-function stopPlayback() {
-  isPlaying = false;
-  if (playInterval) {
-    clearInterval(playInterval);
-    playInterval = null;
-  }
-}
-
-function updateSeasonalChartForYear(year) {
-  if (!seasonSvg) return;
-  
-  // Highlight the point for current year
-  seasonStatePointsGroup.selectAll('circle')
-    .attr('fill', d => d.year === year ? '#ffd500' : '#38bdf8')
-    .attr('r', d => d.year === year ? 5 : 3);
-  
-  seasonUsPointsGroup.selectAll('circle')
-    .attr('fill', d => d.year === year ? '#ffd500' : '#f97316')
-    .attr('r', d => d.year === year ? 5 : 3);
-  
-  updateYearTracker(); // update the glowing dot
-}
-
-// Update the state click handler to toggle selection
-function updateStateClickHandler() {
-  if (!seasonMapG) return;
-  
-  seasonMapG.selectAll("path.state")
-    .on("click", (event, d) => {
-      const stateName = d.properties.name;
-      
-      // Toggle selection
-      if (selectedState === stateName) {
-        selectedState = null;
-        document.getElementById("legendStateItem").style.display = "none";
+  if (playButton) {
+    playButton.addEventListener("click", () => {
+      if (isPlaying) {
+        stopAutoPlay();
       } else {
-        selectedState = stateName;
-        document.getElementById("legendStateLabel").textContent = stateName;
-        document.getElementById("legendStateItem").style.display = "flex";
+        startAutoPlay();
       }
-      
-      updateSeasonalChart();
-      updateSeasonTitle();
-      updateYearTracker();
-      
-      // Update map styling
-      seasonMapG
-        .selectAll("path.state")
-        .attr("stroke", (s) =>
-          s.properties.name === selectedState ? "#ffd500" : "#111827"
-        )
-        .attr("stroke-width", (s) =>
-          s.properties.name === selectedState ? 2 : 0.6
-        );
     });
-}
-
-/* -------------------- State hover stats -------------------- */
-
-let stateHoverStats = null;
-let lastHoveredState = null;
-
-function initStateHoverStats() {
-  stateHoverStats = document.getElementById('stateHoverStats');
-  if (!stateHoverStats) return;
-  
-  // Add event listeners to map states
-  if (seasonMapG) {
-    seasonMapG.selectAll("path.state")
-      .on("mouseenter", handleStateHover)
-      .on("mouseleave", handleStateLeave)
-      .on("mousemove", handleStateMouseMove);
   }
 }
 
-function handleStateHover(event, d) {
-  if (!stateHoverStats) return;
-  
-  const stateName = d.properties.name;
-  lastHoveredState = stateName;
-  
-  // Get current variable and year data
-  const cfg = VAR_CONFIG[currentSeasonVar];
-  const field = cfg.field;
-  
-  let stateData, value, dataDescription;
-  
-  if (currentSeasonMonth === 0) {
-    // Yearly Average: average across all months
-    stateData = modisData.filter(d => 
-      d.state === stateName && 
-      d.year === currentYear
-    );
-    dataDescription = "Yearly Average";
-  } else {
-    // Specific month
-    stateData = modisData.filter(d => 
-      d.state === stateName && 
-      d.year === currentYear &&
-      d.month === currentSeasonMonth
-    );
-    dataDescription = getMonthName(currentSeasonMonth);
-  }
-  
-  value = d3.mean(stateData.map(d => d[field]));
-  
-  if (value == null || Number.isNaN(value)) return;
-  
-  // Format value based on variable type
-  let formattedValue = value.toFixed(3);
-  let unit = "";
-  
-  if (currentSeasonVar === "lstDay" || currentSeasonVar === "lstNight") {
-    formattedValue = value.toFixed(1);
-    unit = "°F";
-  }
-  
-  // Update stats display
-  stateHoverStats.innerHTML = `
-    <h4>${stateName}</h4>
-    <p>${cfg.label}</p>
-    <p>Year: <span class="value">${currentYear}</span></p>
-    <p>Data: <span class="value">${dataDescription}</span></p>
-    <p>Value: <span class="value">${formattedValue} ${unit}</span></p>
-  `;
-  
-  stateHoverStats.classList.add('active');
-}
+function startAutoPlay() {
+  if (isPlaying) return;
+  isPlaying = true;
+  if (playButton) playButton.classList.add("playing");
+  if (playButton) playButton.textContent = "PAUSE";
 
-function handleStateLeave() {
-  if (stateHoverStats) {
-    stateHoverStats.classList.remove('active');
-  }
-  lastHoveredState = null;
-}
+  const step = () => {
+    if (!isPlaying) return;
 
-function handleStateMouseMove(event) {
-  if (!stateHoverStats || !stateHoverStats.classList.contains('active')) return;
-  
-  // Position the stats box near the cursor
-  const x = event.pageX + 15;
-  const y = event.pageY - 15;
-  
-  stateHoverStats.style.left = x + 'px';
-  stateHoverStats.style.top = y + 'px';
-}
-
-function getMonthName(monthNum) {
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-  return months[monthNum - 1] || "";
-}
-
-/* -------------------- Smooth tracker movement -------------------- */
-
-let lastTrackerPosition = { x: 0, y: 0 };
-let trackerAnimationFrame = null;
-
-function updateYearTracker() {
-  if (!yearTracker || !xSeasonScale || !ySeasonScale) return;
-  
-  const series = buildSeasonSeries(selectedState, currentSeasonVar);
-  const yearData = series.find(d => d.year === currentYear);
-  
-  if (!yearData) return;
-  
-  // Calculate position relative to chart
-  const chartContainer = document.getElementById('seasonBarContainer');
-  const svgRect = seasonSvg.node().getBoundingClientRect();
-  const containerRect = chartContainer.getBoundingClientRect();
-  
-  const x = xSeasonScale(currentYear);
-  
-  // Get the correct Y value - state if selected, otherwise US average
-  let yValue;
-  if (selectedState && yearData.stateValue != null) {
-    yValue = yearData.stateValue;
-  } else {
-    yValue = yearData.usValue;
-  }
-  
-  const y = ySeasonScale(yValue);
-  
-  // Convert to absolute positioning (matching your chart margins)
-  const marginLeft = 109;  // Left margin of chart
-  const marginTop = 51;   // Top margin of chart
-  
-  const dotSize = 6; // Half the tracker dot size
-  const newX = (marginLeft + x - dotSize);
-  const newY = (marginTop + y - dotSize);
-  
-  // Smooth animation
-  yearTracker.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-  yearTracker.style.left = newX + 'px';
-  yearTracker.style.top = newY + 'px';
-  
-  // Update label
-  if (yearTrackerLabel) {
-    const cfg = VAR_CONFIG[currentSeasonVar];
-    let formattedValue = yValue.toFixed(3);
-    
-    if (currentSeasonVar === "lstDay" || currentSeasonVar === "lstNight") {
-      formattedValue = yValue.toFixed(1) + "°F";
-    }
-    
-    yearTrackerLabel.textContent = `${currentYear}: ${formattedValue}`;
-  }
-}
-
-/* -------------------- Slide 6: Emissions -------------------- */
-/* ==========================
-   SLIDE 6 DATA VARIABLES
-========================== */
-let slide6_totals = [];
-let slide6_sectors = [];
-let slide6_currentYear = 1970;
-let slide6_playInterval = null;
-
-let barRaceChart = null;
-let sectorPieChart = null;
-
-/* Consistent country color map */
-const countryColors = {};
-const colorPalette = [
-  "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD",
-  "#8C564B", "#E377C2", "#17BECF", "#BCBD22", "#7F7F7F", 
-  "#F0027F", "#99f083ff","#ffa1f7bc", "#bb8989ff", "#A6CEE3"  
-];
-
-/* ============= NEW NEW NEW — DISTINCT HSL HUE ROTATED SHADES ============= */
-function generateShades(baseColor, count) {
-  // Convert hex → HSL
-  function hexToHSL(hex) {
-    let r = parseInt(hex.slice(1, 3), 16) / 255;
-    let g = parseInt(hex.slice(3, 5), 16) / 255;
-    let b = parseInt(hex.slice(5, 7), 16) / 255;
-
-    let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
-
-    if (max === min) {
-      h = s = 0;
+    let idx = +slider.value;
+    if (idx >= years.length - 1) {
+      idx = 0; // loop back to start
     } else {
-      let d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-      h *= 60;
+      idx += 1;
     }
-    return { h, s: s * 100, l: l * 100 };
+
+    slider.value = idx;
+    const year = years[idx];
+    yearLabel.textContent = year;
+    updateBarsForYear(year);
+
+    playTimer = setTimeout(step, 350); 
+  };
+
+  step();
+}
+
+function stopAutoPlay() {
+  if (!isPlaying) return;
+  isPlaying = false;
+  if (playTimer) {
+    clearTimeout(playTimer);
+    playTimer = null;
   }
-
-  const hsl = hexToHSL(baseColor);
-  const H = hsl.h;
-
-  // **Extreme variation definitions**
-  const presets = [
-    { l: 10,  s: hsl.s },      // almost black
-    { l: 25,  s: hsl.s * 0.8 },// dark muted
-    { l: 40,  s: hsl.s * 1.2 },// darker + saturated
-    { l: 55,  s: hsl.s },      // mid-tone
-    { l: 70,  s: hsl.s * 1.4 },// bright saturated
-    { l: 85,  s: hsl.s * 0.8 },// pastel
-    { l: 95,  s: hsl.s * 0.4 },// very light pastel
-    { l: 50,  s: hsl.s * 0.2 },// greyish tone
-    { l: 50,  s: hsl.s * 1.8 },// hyper-saturated
-    { l: 98,  s: 20 }          // almost white but warm
-  ];
-
-  // Trim or extend to count
-  const selected = presets.slice(0, count);
-
-  // HSL → CSS rgb()
-  return selected.map(p => `hsl(${H}, ${Math.min(100, p.s)}%, ${Math.min(100, p.l)}%)`);
+  if (playButton) {
+    playButton.classList.remove("playing");
+    playButton.textContent = "PLAY";
+  }
 }
 
 
-/* ==========================
-   DATA LOADING
-========================== */
-async function loadSlide6Data() {
-  if (slide6_totals.length > 0 && slide6_sectors.length > 0) return;
+// ----------------- bars -----------------
 
-  const totalsCsv = await d3.csv("data/GHG_totals_by_country.csv");
-  const sectorsCsv = await d3.csv("data/GHG_by_sector_and_country.csv");
+function buildBarsForYear(year) {
+  currentYear = year;        
+  // remove meshes
+  while (barGroup.children.length) barGroup.remove(barGroup.children[0]);
 
-  slide6_totals = totalsCsv.map(d => ({
-    code: d["EDGAR Country Code"],
-    country: d["Country"],
-    years: Object.fromEntries(
-      Object.keys(d).filter(k => k >= 1970 && k <= 2024)
-        .map(k => [k, +d[k]])
-    )
+  // remove old DOM labels
+  barLabels.forEach((el) => el.remove());
+  barLabels = [];
+  bars = [];
+
+  const data = emissionsByYear[year].slice(0, MAX_BARS);
+  const maxVal = data[0].value;
+  const globalTotal = totalsByYear[year];
+
+  const spacing = 2.2;
+  const totalWidth = (data.length - 1) * spacing;
+  const offsetX = -totalWidth / 2;
+
+  data.forEach((d, i) => {
+    const normH = d.value / maxVal;
+    const h = normH * 14 + 0.2;
+
+    const isUS =
+      d.country === "United States of America" ||
+      d.country === "United States" ||
+      d.iso === "USA";
+
+    // base color per country (US is golden)
+    let baseHex;
+    if (isUS) {
+      baseHex = "#f5c04f";
+    } else {
+      baseHex = d3.color(countryColorScale(d.country)).formatHex();
+    }
+    const baseColor = new THREE.Color(baseHex);
+    const emissiveColor = isUS
+      ? new THREE.Color(0x4b2600)
+      : baseColor.clone().multiplyScalar(0.35);
+
+    const geom = new THREE.BoxGeometry(1, 1, 1);
+    const mat = new THREE.MeshStandardMaterial({
+      color: baseColor,
+      emissive: emissiveColor,
+      emissiveIntensity: isUS ? 0.9 : 0.7,
+      roughness: 0.35,
+      metalness: 0.3,
+    });
+
+    const mesh = new THREE.Mesh(geom, mat);
+    const x = offsetX + i * spacing;
+
+    mesh.position.set(x, h / 2 + 0.02, 0);
+    mesh.scale.set(0.8, h, 0.8);
+
+    mesh.userData = {
+      country: d.country,
+      iso: d.iso,
+      value: d.value,
+      year,
+      rank: i + 1,
+      globalTotal,
+      targetHeight: h,
+      targetX: x,
+      isUS,
+      baseColor,
+      emissiveColor,
+      baseEmissiveIntensity: isUS ? 0.9 : 0.7,
+    };
+
+    barGroup.add(mesh);
+
+    // DOM label
+    const labelEl = document.createElement("div");
+    labelEl.className = "bar-label";
+    labelEl.textContent = d.iso || d.country;
+    container.appendChild(labelEl);
+
+    bars.push({ mesh, labelEl });
+    barLabels.push(labelEl);
+  });
+
+  syncSelectionForYear(year);
+}
+
+function updateBarsForYear(year) {
+  currentYear = year;               // NEW
+  const data = emissionsByYear[year].slice(0, MAX_BARS);
+  const maxVal = data[0].value;
+  const globalTotal = totalsByYear[year];
+  
+  updateGlobalTotalDisplay(year); // NEW
+
+  // if count changes, just rebuild
+  if (data.length !== bars.length) {
+    buildBarsForYear(year);
+    return;
+  }
+
+  const spacing = 2.2;
+  const totalWidth = (data.length - 1) * spacing;
+  const offsetX = -totalWidth / 2;
+
+  data.forEach((d, i) => {
+    const barObj = bars[i];
+    const mesh = barObj.mesh;
+
+    const normH = d.value / maxVal;
+    const h = normH * 14 + 0.2;
+
+    const isUS =
+      d.country === "United States of America" ||
+      d.country === "United States" ||
+      d.iso === "USA";
+
+    let baseHex;
+    if (isUS) {
+      baseHex = "#f5c04f";
+    } else {
+      baseHex = d3.color(countryColorScale(d.country)).formatHex();
+    }
+    const baseColor = new THREE.Color(baseHex);
+    const emissiveColor = isUS
+      ? new THREE.Color(0x4b2600)
+      : baseColor.clone().multiplyScalar(0.35);
+
+    const ud = mesh.userData;
+    Object.assign(ud, {
+      country: d.country,
+      iso: d.iso,
+      value: d.value,
+      year,
+      rank: i + 1,
+      globalTotal,
+      targetHeight: h,
+      targetX: offsetX + i * spacing,
+      isUS,
+      baseColor,
+      emissiveColor,
+      baseEmissiveIntensity: isUS ? 0.9 : 0.7,
+    });
+
+    const mat = mesh.material;
+    mat.color.copy(baseColor);
+    mat.emissive.copy(emissiveColor);
+    mat.emissiveIntensity = ud.baseEmissiveIntensity;
+
+    // update label text if the rank's country changed
+    if (barObj.labelEl) {
+  barObj.labelEl.textContent = d.iso || d.country;
+}
+  });
+
+  syncSelectionForYear(year);
+}
+
+// ----------------- animation -----------------
+
+function startAnimationLoop() {
+  if (animationId) cancelAnimationFrame(animationId);
+  const baseTime = performance.now();
+
+  function animate(now) {
+    animationId = requestAnimationFrame(animate);
+    const t = (now - baseTime) * 0.0002;
+
+    if (floorGrid) {
+      const scale = 1 + Math.sin(t * 2) * 0.015;
+      floorGrid.scale.set(scale, 1, scale);
+    }
+
+        bars.forEach(({ mesh, labelEl }) => {
+      const ud = mesh.userData;
+
+      // height easing
+      const currentH = mesh.scale.y;
+      const targetH = ud.targetHeight;
+      mesh.scale.y = currentH + (targetH - currentH) * TRANSITION_SPEED;
+      mesh.position.y = mesh.scale.y / 2 + 0.02;
+
+      // x-position easing for bar race feel
+      if (typeof ud.targetX === "number") {
+        mesh.position.x =
+          mesh.position.x +
+          (ud.targetX - mesh.position.x) * TRANSITION_SPEED;
+      }
+
+      // tiny z wiggle for depth feel
+      const phase = (ud.rank || 0) * 0.6;
+      mesh.position.z = Math.sin(t * 1.8 + phase) * 0.03;
+
+      // update screen-space label position
+      if (labelEl) {
+        const topWorld = new THREE.Vector3(
+          mesh.position.x,
+          mesh.position.y + mesh.scale.y / 2 + 0.4,
+          mesh.position.z
+        );
+
+        topWorld.project(camera);
+        const cw = container.clientWidth;
+        const ch = container.clientHeight;
+        const x = (topWorld.x * 0.5 + 0.5) * cw;
+        const y = (-topWorld.y * 0.5 + 0.5) * ch;
+
+        labelEl.style.left = `${x}px`;
+        labelEl.style.top = `${y}px`;
+        labelEl.style.opacity = topWorld.z < 1 ? 1 : 0;
+      }
+    });
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate(baseTime);
+}
+
+// ----------------- interaction -----------------
+
+function onPointerMove(event) {
+  if (!barGroup) return;
+
+  // Get pointer position relative to the scene container
+  const bounds = container.getBoundingClientRect();
+  pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+  pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+
+  raycaster.setFromCamera(pointer, camera);
+
+  // Intersect with ALL descendants in the bar group (bars + labels, etc.)
+  const hits = raycaster.intersectObjects(barGroup.children, true);
+
+  // Find the first hit that actually corresponds to a bar (has userData.country)
+  const barHit = hits.find(
+    (h) => h.object && h.object.userData && h.object.userData.country
+  );
+
+  if (barHit) {
+    const mesh = barHit.object;
+    if (hoveredBar !== mesh) {
+      clearHoveredBar();
+      setHoveredBar(mesh);
+    }
+    positionTooltip(event.clientX, event.clientY, mesh.userData);
+  } else {
+    clearHoveredBar();
+    hideTooltip();
+  }
+}
+
+function onPointerLeave() {
+  clearHoveredBar();
+  hideTooltip();
+}
+
+function onPointerClick(event) {
+  const bounds = container.getBoundingClientRect();
+  pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+  pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(barGroup.children, true);
+
+  const barHit = hits.find(
+    (h) => h.object && h.object.userData && h.object.userData.country
+  );
+  if (!barHit) return;
+
+  const mesh = barHit.object;
+  selectBar(mesh);
+
+  const ud = mesh.userData;
+  if (ud && ud.iso) {
+    // remember this selection
+    selectedCountry = {
+      iso: ud.iso,
+      country: ud.country,
+    };
+
+    // use the global currentYear (should match ud.year)
+    const year = currentYear != null ? currentYear : ud.year;
+    updateSectorFromKey(selectedCountry.iso, year, selectedCountry.country);
+  }
+}
+
+function setHoveredBar(mesh) {
+  hoveredBar = mesh;
+  const ud = hoveredBar.userData;
+  const mat = hoveredBar.material;
+
+  const highlightColor = ud.baseColor.clone().lerp(new THREE.Color(0xffffff), 0.15);
+  mat.color.copy(highlightColor);
+  mat.emissiveIntensity = ud.baseEmissiveIntensity + 0.2;
+}
+
+function resetBarMaterial(mesh) {
+  if (!mesh) return;
+  const ud = mesh.userData;
+  const mat = mesh.material;
+  if (!ud || !mat) return;
+
+  mat.color.copy(ud.baseColor);
+  mat.emissive.copy(ud.emissiveColor);
+  mat.emissiveIntensity = ud.baseEmissiveIntensity;
+}
+
+function syncSelectionForYear(year) {
+  if (!selectedCountry) return;
+
+  // Find the mesh for the selected country in the current bar set (if visible)
+  let foundMesh = null;
+  bars.forEach(({ mesh }) => {
+    const ud = mesh.userData;
+    if (ud && ud.iso === selectedCountry.iso) {
+      foundMesh = mesh;
+    }
+  });
+
+  if (foundMesh) {
+    // Highlight that bar
+    selectBar(foundMesh);
+  } else if (selectedBar) {
+    // Country is no longer in the top MAX_BARS this year – clear bar highlight
+    resetBarMaterial(selectedBar);
+    selectedBar = null;
+  }
+
+  // Always update the radar, even if the country’s bar is no longer in top N
+  updateSectorFromKey(selectedCountry.iso, year, selectedCountry.country);
+}
+
+function clearHoveredBar() {
+  if (!hoveredBar) return;
+  if (hoveredBar !== selectedBar) {
+    resetBarMaterial(hoveredBar);
+  }
+  hoveredBar = null;
+}
+
+function selectBar(mesh) {
+  if (selectedBar && selectedBar !== mesh) {
+    resetBarMaterial(selectedBar);
+  }
+  selectedBar = mesh;
+  const mat = selectedBar.material;
+  mat.emissiveIntensity += 0.2;
+}
+
+function positionTooltip(x, y, data) {
+  if (!data) return;
+  tooltip.style.display = "block";
+
+  const share =
+    data.globalTotal > 0 ? ((data.value / data.globalTotal) * 100).toFixed(1) : 0;
+
+  tooltipCountry.textContent = data.country;
+  tooltipYear.textContent = `Year: ${data.year}`;
+  tooltipEmissions.textContent = data.value.toFixed(1);
+  tooltipShare.textContent = share;
+  tooltipRank.textContent = `#${data.rank} emitter`;
+
+  const padding = 12;
+  const rect = tooltip.getBoundingClientRect();
+  let left = x + padding;
+  let top = y + padding;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  if (left + rect.width + padding > vw) left = x - rect.width - padding;
+  if (top + rect.height + padding > vh) top = y - rect.height - padding;
+
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
+}
+
+function hideTooltip() {
+  tooltip.style.display = "none";
+}
+
+// ----------------- sector radar visualization -----------------
+
+function initSectorViz() {
+  const container = d3.select("#sector-viz-container");
+  const node = container.node();
+  if (!node) return;
+
+  const width = node.clientWidth || 360;
+  const height = 260;
+  radarRadius = Math.min(width, height) / 2 - 26;
+
+  sectorSvg = container
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  sectorG = sectorSvg
+    .append("g")
+    .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+  radarAngleScale = d3
+    .scaleLinear()
+    .domain([0, SECTOR_ORDER.length])
+    .range([0, 2 * Math.PI]);
+
+  // Concentric grid circles
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const gridGroup = sectorG.append("g").attr("class", "radar-grid");
+  gridLevels.forEach((level) => {
+    gridGroup
+      .append("circle")
+      .attr("class", "radar-grid-circle")
+      .attr("r", radarRadius * level);
+  });
+
+  // Axes + labels
+  const axesGroup = sectorG.append("g").attr("class", "radar-axes");
+  const labelRadius = radarRadius + 14;
+
+  SECTOR_ORDER.forEach((name, i) => {
+    const angle = radarAngleScale(i) - Math.PI / 2;
+    const x = Math.cos(angle) * radarRadius;
+    const y = Math.sin(angle) * radarRadius;
+
+    axesGroup
+      .append("line")
+      .attr("class", "radar-axis-line")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", x)
+      .attr("y2", y);
+
+    const lx = Math.cos(angle) * labelRadius;
+    const ly = Math.sin(angle) * labelRadius;
+
+    axesGroup
+      .append("text")
+      .attr("class", "radar-axis-label")
+      .attr("x", lx)
+      .attr("y", ly)
+      .text(name);
+  });
+
+  radarPath = sectorG.append("path").attr("class", "radar-polygon");
+
+  radarPointsGroup = sectorG.append("g").attr("class", "radar-points");
+
+  // Legend
+  const legend = d3.select("#sector-legend");
+  const items = legend
+    .selectAll(".sector-legend-item")
+    .data(SECTOR_ORDER)
+    .enter()
+    .append("div")
+    .attr("class", "sector-legend-item");
+
+  items
+    .append("span")
+    .attr("class", "sector-legend-swatch")
+    .style("background-color", (d) => sectorColorScale(d));
+
+  items.append("span").text((d) => d);
+}
+
+function updateSectorFromKey(iso, year, countryName) {
+  const key = `${iso}_${year}`;
+  const entry = sectorDataByKey[key];
+
+  if (!sectorSvg) {
+    initSectorViz();
+  }
+
+  if (!entry || !entry.sectors) {
+    if (sectorTitleEl) sectorTitleEl.textContent = countryName || "No data";
+    if (sectorYearPillEl) sectorYearPillEl.textContent = year;
+    if (sectorSubtitleEl) {
+      sectorSubtitleEl.textContent =
+        "No detailed sector breakdown available for this country/year.";
+    }
+    return;
+  }
+
+  const sectorsObj = entry.sectors;
+  const data = SECTOR_ORDER.map((name) => ({
+    name,
+    value: sectorsObj[name] || 0,
+    color: sectorColorScale(name),
   }));
 
-  slide6_sectors = sectorsCsv;
-}
+  updateSectorMetrics(data);
 
-/* ==========================
-   BAR RACE CHART
-========================== */
-function updateBarRace(year) {
-  document.getElementById("slide6YearLabel").textContent = year;
+  const maxVal = d3.max(data, (d) => d.value) || 1;
+  const rScale = d3
+    .scaleLinear()
+    .domain([0, maxVal])
+    .range([0, radarRadius]);
 
-  let rows = slide6_totals
-    .map(d => ({
-      country: d.country,
-      value: d.years[year] || 0
-    }))
-    .filter(r => r.country !== "GLOBAL TOTAL")
-    .filter(r => r.country !== "EU27")
-    .filter(r => r.country !== "International Shipping")
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10);
+  const lineRadial = d3
+    .lineRadial()
+    .radius((d) => rScale(d.value))
+    .angle((d, i) => radarAngleScale(i))
+    .curve(d3.curveCardinalClosed);
 
-  rows.forEach(r => {
-    if (!countryColors[r.country]) {
-      const assignedCount = Object.keys(countryColors).length;
-      countryColors[r.country] = colorPalette[assignedCount % colorPalette.length];
-    }
-  });
+  radarPath
+    .datum(data)
+    .transition()
+    .duration(700)
+    .attr("d", lineRadial);
 
-  if (!barRaceChart) {
-    const ctx = document.getElementById("slide6BarRaceChart").getContext("2d");
-    barRaceChart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: rows.map(r => r.country),
-        datasets: [{
-          label: "Emissions",
-          data: rows.map(r => r.value),
-          backgroundColor: rows.map(r => countryColors[r.country])
-        }]
-      },
-      options: {
-        
-        indexAxis: "y",
-        plugins: {
-          tooltip: {
-            bodyFont: { size: 18 },
-            titleFont: { size: 20 },
-            callbacks: {
-              label: function(context) {
-                const value = context.raw;
-                const globalRow = slide6_totals.find(d => d.country === "GLOBAL TOTAL");
-                const globalTotal = globalRow ? globalRow.years[slide6_currentYear] : 0;
+  const pts = radarPointsGroup.selectAll("circle").data(data);
 
-                const pct = globalTotal > 0
-                  ? ((value / globalTotal) * 100).toFixed(2)
-                  : "0";
+  pts
+    .enter()
+    .append("circle")
+    .attr("class", "radar-point")
+    .attr("r", 3.5)
+    .merge(pts)
+    .transition()
+    .duration(700)
+    .attr("cx", (d, i) => {
+      const angle = radarAngleScale(i) - Math.PI / 2;
+      return Math.cos(angle) * rScale(d.value);
+    })
+    .attr("cy", (d, i) => {
+      const angle = radarAngleScale(i) - Math.PI / 2;
+      return Math.sin(angle) * rScale(d.value);
+    })
+    .attr("fill", (d) => d.color);
 
-                return `${value.toLocaleString()} (${pct}%)`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: "Emissions (MtCO₂e)",
-              font: { size: 18 }
-            }
-          },
-          y: {
-            title: {
-              display: true,
-              text: "Country",
-              font: { size: 18 }
-            }
-          }
-        },
-        onClick: (evt, elements) => {
-          if (elements.length === 0) return;
-          const idx = elements[0].index;
-          const country = barRaceChart.data.labels[idx];
-          updateSectorPie(country, slide6_currentYear);
-        }
-      }
-    });
-  } else {
-    barRaceChart.data.labels = rows.map(r => r.country);
-    barRaceChart.data.datasets[0].data = rows.map(r => r.value);
-    barRaceChart.data.datasets[0].backgroundColor =
-      rows.map(r => countryColors[r.country]);
-    barRaceChart.update();
+  pts.exit().remove();
+
+  if (sectorTitleEl) sectorTitleEl.textContent = countryName || entry.country;
+  if (sectorYearPillEl) sectorYearPillEl.textContent = year;
+  if (sectorSubtitleEl) {
+    sectorSubtitleEl.textContent =
+      "Sector shares of total CO₂ emissions (MtCO₂e). Radius = emissions level; angle = sector.";
   }
 }
 
-/* ==========================
-   PIE CHART
-========================== */
-function updateSectorPie(country, year) {
-  let rows = slide6_sectors.filter(d => d.Country === country);
-
-  document.getElementById("slide6PieTitle").textContent =
-    `Sector Breakdown (${country}, ${year})`;
-
-  const labels = rows.map(r => r.Sector);
-  const values = rows.map(r => +r[year]);
-
-  const baseColor = countryColors[country];
-  const sectorColors = generateShades(baseColor, labels.length);
-
-  if (!sectorPieChart) {
-    const ctx = document.getElementById("slide6PieChart").getContext("2d");
-    sectorPieChart = new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: sectorColors
-        }]
-      },
-      options: {
-        plugins: {
-          tooltip: {
-            bodyFont: { size: 18 },
-            titleFont: { size: 20 },
-            callbacks: {
-              label: function(context) {
-                const value = context.raw;
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = total > 0 ? ((value / total) * 100).toFixed(2) : "0";
-                return `${value.toLocaleString()} (${pct}%)`;
-              }
-            }
-          },
-          legend: {
-            labels: { font: { size: 18 } }
-          }
-        }
-        
-      }
-    });
-  } else {
-    sectorPieChart.data.labels = labels;
-    sectorPieChart.data.datasets[0].data = values;
-    sectorPieChart.data.datasets[0].backgroundColor = sectorColors;
-    sectorPieChart.update();
-  }
-}
-
-
-/* ==========================
-   INITIALIZER
-========================== */
-async function initSlide6() {
-  await loadSlide6Data();
-
-  const slider = document.getElementById("slide6YearSlider");
-  const playBtn = document.getElementById("slide6PlayBtn");
-
-  slider.addEventListener("input", e => {
-    slide6_currentYear = +e.target.value;
-    updateBarRace(slide6_currentYear);
-  });
-
-  playBtn.addEventListener("click", () => {
-    if (slide6_playInterval) {
-      clearInterval(slide6_playInterval);
-      slide6_playInterval = null;
-      playBtn.textContent = "Play";
-      return;
-    }
-
-    playBtn.textContent = "Pause";
-
-    slide6_playInterval = setInterval(() => {
-      slide6_currentYear++;
-      if (slide6_currentYear > 2024) slide6_currentYear = 1970;
-
-      slider.value = slide6_currentYear;
-      updateBarRace(slide6_currentYear);
-    }, 400);
-  });
-
-  updateBarRace(slide6_currentYear);
-}
-
-window.initSlide6 = initSlide6;
-
-
-/* -------------------- Init -------------------- */
-
-async function init() {
-  initSlides();
-  await loadData();
-  initSeasonControls();
-  initSeasonMap();
-  initSeasonalChart();   // Slide 3
-  initTimeline();        // Timeline slide
-  initYearlyTrend();     // Slide 4 stacked yearly view
-  initProjectionSlide(); // Slide 5 play area
-  initYearSlider();      // Slide 3: Initialize year slider and play button
-  updateStateClickHandler(); // Slide 3: Update click handler for toggle
-  initStateHoverStats(); // Initialize state hover stats
-  await loadSlide6Data(); // Load data for Slide 6
-  initSlide6()
-}
-
-// init not being called fix solution 
-
-// Call init() when the DOM is ready
-if (document.readyState === 'loading') {
-  // Loading hasn't finished yet
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  // `DOMContentLoaded` has already fired
-  init();
-}
+// ----------------- bootstrap -----------------
+initScene();
+loadData();
