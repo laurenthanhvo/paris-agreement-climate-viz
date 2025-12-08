@@ -3792,3 +3792,78 @@ svg text.axis-label {
   background: #ef4444;   /* red */
 }
 }
+
+/* Layout */
+section {
+  font-family: "Inter", sans-serif;
+  padding: 30px 50px;
+  color: #222;
+}
+
+h2 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Grid */
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 22px;
+  width: 80%;
+  max-width: 900px;
+  margin: 0 auto 35px;
+}
+
+/* Slider blocks */
+.slider-block {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.slider-block label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Sliders */
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: #d1d5db;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #3b82f6;
+  border-radius: 50%;
+}
+
+/* Gauge */
+.gauge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+#percentDisplay {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .policy-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}
