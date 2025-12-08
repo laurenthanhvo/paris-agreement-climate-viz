@@ -3939,10 +3939,7 @@ li,
   margin-top: -2rem;
 }
 
-
-
-
-
+/* ========= Slide 4: Policy Impact Simulator ========= */
 
 /* Layout */
 section {
@@ -3973,6 +3970,7 @@ h2 {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 16px;
+  z-index: 1;
 }
 
 .slider-block label {
@@ -3989,6 +3987,7 @@ input[type="range"] {
   border-radius: 4px;
   background: #d1d5db;
   cursor: pointer;
+
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -4019,6 +4018,182 @@ input[type="range"]::-webkit-slider-thumb {
   }
 }
 
+/* Random Buttons */
+/* --- Policy Preset Buttons (clean + modern) --- */
+#sliderButtons {
+  text-align: center;
+  margin-bottom: 20px;
+  z-index: 1;
+}
+#sliderButtons button {
+  padding: 10px 18px;
+  margin: 4px 6px;
+  border: none;
+  z-index: 1;
+  
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: white;
+  font-weight: 600;
+  
+  border-radius: 14px;        /* smoother + rounder */
+  font-size: 0.95rem;
+
+  box-shadow: 0px 3px 8px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: 
+    transform 0.12s ease,
+    box-shadow 0.15s ease,
+    background 0.2s ease;
+}
+
+#sliderButtons button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0px 6px 12px rgba(0,0,0,0.18);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+}
+
+#sliderButtons button:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.15);
+}
+
+
+/* Clouds */
+#cloudsContainer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;   /* prevent “bitten” clouds */
+  z-index: 0;          /* behind slides + globe */
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  opacity: 0.9;
+  filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
+}
+
+.cloud svg {
+  width: 200px;
+  height: auto;
+  fill: white;
+}
+
+
+.policy-message {
+  margin: 15px auto;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+.flower-container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+
+/* Gentle idle swaying */
+.flower {
+  width: 160px;
+  animation: sway 5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes sway {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(1.6deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-1.6deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Pop-open bloom animation */
+.petals {
+  transform-origin: center;
+  animation: bloom 1.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes bloom {
+  0% {
+    transform: scale(0.2) rotate(-8deg);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Back petals bloom slightly slower */
+.petals.back {
+  animation-delay: 0.15s;
+}
+
+/* Front petals bloom slightly faster */
+.petals.front {
+  animation-delay: 0.05s;
+}
+.flowers-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  padding: 0 20px;
+}
+
+.flowers-left,
+.flowers-right {
+  display: flex;
+  gap: 20px;
+}
+
+.flowers-gap {
+  width: 250px;   /* Adjust this to make the center opening larger or smaller */
+}
+
+/* ===================== CONFETTI ===================== */
+
+.confetti-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 999999; /* above everything */
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
 
 
 /* ========= Slide 7: Climate Policy Impact Simulator ========= */
@@ -4031,6 +4206,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
+  z-index:1;
 }
 
 /* Title – match other tech headers */
@@ -4039,6 +4215,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin: 0 0 0.9rem 0;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  z-index: 1;
 }
 
 /* Sliders stacked on top, like a vertical control panel */
