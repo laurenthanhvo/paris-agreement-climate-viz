@@ -3053,17 +3053,19 @@ function updateFlowerGrowth(pct) {
 /* -------------------------------------------------------------------------
    Ghibli Clouds (unchanged)
 ---------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------
+   Clouds — Option 2 (soft, rounded, cute)
+---------------------------------------------------------------------------*/
 const CLOUD_PATH = `
-  M60 80 
-  Q40 20 100 20 
-  Q120 0 150 25 
-  Q200 0 240 40
-  Q300 20 320 60
-  Q350 50 360 80
-  Q340 120 300 120
-  Q260 160 200 140
-  Q160 180 100 150
-  Q40 160 60 120
+  M45 80
+  Q40 60 60 55
+  Q70 35 95 40
+  Q110 20 135 30
+  Q150 25 160 45
+  Q185 50 180 75
+  Q170 100 140 95
+  Q110 115 75 100
+  Q50 105 45 80
   Z
 `;
 
@@ -3071,11 +3073,11 @@ function createCloud() {
   const cloud = document.createElement("div");
   cloud.className = "cloud";
 
-  cloud.style.top = (50 + Math.random() * 200) + "px";
+  cloud.style.top = (50 + Math.random() * 400) + "px";
   cloud.style.left = "-500px";
 
   cloud.innerHTML = `
-    <svg viewBox="0 0 400 200">
+    <svg viewBox="0 0 200 120">
       <path d="${CLOUD_PATH}" />
     </svg>
   `;
@@ -3083,7 +3085,7 @@ function createCloud() {
   cloudsContainer.appendChild(cloud);
 
   let left = -600;
-  const speed = 0.3 + Math.random() * 0.4;
+  const speed = 0.3 + Math.random() * 0.5;
 
   function animate() {
     left += speed;
@@ -3098,7 +3100,8 @@ function createCloud() {
   animate();
 }
 
-setInterval(() => createCloud(), 2000 + Math.random() * 1000);
+setInterval(() => createCloud(), 2000 + Math.random() * 2000);
+
 
 
 /* -------------------------------------------------------------------------
