@@ -34,16 +34,16 @@
         <div class="intro-content">
           <h1>Carbon in America: Where Do We Stand?</h1>
           <h2>HOW DOES GLOBAL CLIMATE POLICY AFFECT VEGETATION AND LAND SURFACE TEMPERATURE?</h2>
-          <p>
-            As satellites record states from above, the United States joins, leaves, and rejoins the
-            Paris Agreement. Are these environmental changes visible when looking at a map?
-          </p>
           <p class="intro-hint">
             Press
             <span class="keycap">Enter</span>
             or
             <span class="keycap">→</span>
             to continue
+          </p>
+          <p>
+            As satellites record states from above, the United States joins, leaves, and rejoins the
+            Paris Agreement. Are these environmental changes visible when looking at a map?
           </p>
         </div>
       </section>
@@ -81,17 +81,14 @@
         <div class="slide-inner">
           <div class="slide-header">
             <h2 class="timeline-title">
-        U.S. INVOLVEMENT<br />IN THE PARIS AGREEMENT
+        U.S. INVOLVEMENT IN THE PARIS AGREEMENT
       </h2>
             <p>
               The Paris Agreement sets a global temperature goal, but each country chooses how seriously
               to participate. Use the timeline to see how U.S. membership has shifted over time, then
               read primary sources in the summary box below.
             </p>
-            <!-- Rotating earth gif -->
-            <div class="timeline-globe">
-              <img src="assets/earth-rotating.gif" alt="Rotating Earth from space" />
-            </div>
+            
           </div>
 
           <!-- Stacked layout: timeline on top, summary underneath -->
@@ -165,48 +162,40 @@
       </p>
     </div>
 
-    <div class="control-row season-controls">
-      <div class="control">
-        <label for="seasonVarSelect">Variable</label>
-        <select id="seasonVarSelect">
-          <option value="ndvi">NDVI (Vegetation Greenness)</option>
-          <option value="lstDay">Land Surface Temp – Day (°F)</option>
-          <option value="lstNight">Land Surface Temp – Night (°F)</option>
-        </select>
-      </div>
-
-      <div class="control">
-        <label for="seasonMonthSelect">Month (for map snapshot)</label>
-        <select id="seasonMonthSelect">
-          <option value="0">Yearly Average</option>
-          <option value="1">January</option>
-          <option value="2">February</option>
-          <option value="3">March</option>
-          <option value="4">April</option>
-          <option value="5">May</option>
-          <option value="6">June</option>
-          <option value="7">July</option>
-          <option value="8">August</option>
-          <option value="9">September</option>
-          <option value="10">October</option>
-          <option value="11">November</option>
-          <option value="12">December</option>
-        </select>
-      </div>
-
-      <!-- Year control for the chart AND map -->
-      <div class="control">
-        <label for="yearSlider">Chart Year: <span id="yearLabel">2014</span></label>
-        <div class="slider-with-play">
-          <input type="range" id="yearSlider" min="2014" max="2024" value="2014" step="1" />
-          <button id="playButton" class="play-btn">▶ Play</button>
-        </div>
-      </div>
-    </div>
-
     <div class="viz-row season-viz-row">
       <!-- Seasonal snapshot map -->
-      <div class="viz-card">
+      <div class="viz-card season-map-card">
+        <!-- controls: Variable + Month live with the map -->
+        <div class="control-row season-controls">
+          <div class="control">
+            <label for="seasonVarSelect">Variable</label>
+            <select id="seasonVarSelect">
+              <option value="ndvi">NDVI (Vegetation Greenness)</option>
+              <option value="lstDay">Land Surface Temp – Day (°F)</option>
+              <option value="lstNight">Land Surface Temp – Night (°F)</option>
+            </select>
+          </div>
+
+          <div class="control">
+            <label for="seasonMonthSelect">Month (for map snapshot)</label>
+            <select id="seasonMonthSelect">
+              <option value="0">Yearly Average</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+        </div>
+
         <h3 id="mapTitle">Yearly Average Map</h3>
         <p class="subtitle">
           Each state is colored by the chosen variable, averaged for the selected year and month.
@@ -219,12 +208,27 @@
       </div>
 
       <!-- Yearly chart -->
-      <div class="viz-card">
-        <h3 id="seasonTitle">U.S. Average Yearly Pattern</h3>
-        <p class="subtitle" id="seasonSubtitle">
-          Lines show the yearly averages for the selected variable. Use the year slider to animate
-          through time.
-        </p>
+      <div class="viz-card season-chart-card">
+        <!-- header block for chart text + year slider -->
+        <div class="season-chart-header">
+          <div class="season-chart-copy">
+            <h3 id="seasonTitle">U.S. Average Yearly Pattern</h3>
+            <p class="subtitle" id="seasonSubtitle">
+              Lines show the yearly averages for the selected variable. Use the year slider to animate
+              through time.
+            </p>
+          </div>
+
+          <!-- Year control for the chart AND map -->
+          <div class="control season-year-control">
+            <label for="yearSlider">Chart Year: <span id="yearLabel">2014</span></label>
+            <div class="slider-with-play">
+              <input type="range" id="yearSlider" min="2014" max="2024" value="2014" step="1" />
+              <button id="playButton" class="play-btn">▶ Play</button>
+            </div>
+          </div>
+        </div>
+
         <div id="seasonBarContainer">
           <svg id="seasonBarSvg"></svg>
           <!-- Glowing dot for current year -->
@@ -291,6 +295,8 @@
         <div class="slide-inner">
           <div class="slide-header">
             <h2>Projecting the Warming Future</h2>
+            <h3 id="projectionExplTitle">Are We On Track for 2030?</h3>
+  <p id="projectionExplBody"></p>
             <p class="slide-subtitle">
               Use a simple prediction model to see whether global emissions are on pace
               for the 43% drop by 2030.
@@ -361,66 +367,21 @@
 
             <!-- Right card: explanation -->
             <div class="viz-card slide5-right-card">
-              <h3 id="projectionExplTitle">Are We On Track for 2030?</h3>
-              <p id="projectionExplBody"></p>
+              <div class="projection-text-panel">
+</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Slide 7: Top Emitters & Sector Breakdown -->
-      <section class="slide slide-viz" id="slide6" data-slide-index="6">
-        <div class="slide-inner">
-
-          <!-- Header -->
-          <div class="slide-header">
-            <h2>U.S. Emissions vs. the Rest of the World</h2>
-            <p>
-              Watch countries rise and fall in total greenhouse gas emissions.  
-              Select any bar to see its sector breakdown and hover to see approximate
-              values and percentages. Sectors refer to the various factors that contribute
-              carbon emissions entering the atmosphere.
-            </p>
-          </div>
-
-          <!-- Controls Row -->
-          <div class="control-row slide6-controls">
-            <button id="slide6PlayBtn" class="play-btn">Play</button>
-
-            <div class="slider-with-play">
-              <span id="slide6YearLabel">1970</span>
-
-              <input
-                type="range"
-                id="slide6YearSlider"
-                min="1970"
-                max="2024"
-                step="1"
-                value="1970"
-              />
-            </div>
-          </div>
-
-          <!-- Visualization Layout -->
-          <div class="slide6-layout">
-
-            <!-- Bar Race Container -->
-            <div id="slide6BarRaceContainer">
-              <h3>Top Emitters Over Time</h3>
-
-              <!-- IMPORTANT: Chart.js requires <canvas> -->
-              <canvas id="slide6BarRaceChart"></canvas>
-            </div>
-
-            <!-- Pie Chart Container -->
-            <div id="slide6PieContainer">
-              <h3 id="slide6PieTitle">Sector Breakdown (Select a Country)</h3>
-
-              <!-- IMPORTANT: Chart.js requires <canvas> -->
-              <canvas id="slide6PieChart" width="550" height="550"></canvas>
-            </div>
-
-          </div>
+      <section class="slide slide-3d-emitters" data-slide-index="6">
+        <div class="slide-inner-3d">
+          <iframe
+            src="3d-emissions/index.html"
+            title="3D Global Emitters"
+            loading="lazy"
+            class="slide-3d-iframe"
+          ></iframe>
         </div>
       </section>
 
